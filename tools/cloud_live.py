@@ -14,11 +14,8 @@ INC = ['--include', 'live_full.json', '--include', 'studio_latest.json']
 subprocess.run(['rclone', 'copy', REMOTE, str(ST), *INC])
 known = json.loads(L.FULL.read_text(encoding='utf-8'))['items'] if L.FULL.exists() else {}
 
-# nouvelles vidéos : page embed (10 dernières) ; le PC (navigateur) en voit 25 quand il est allumé
-try: new = latest_ids = W.latest_ids()
-except Exception as e: new = []; print('embed :', e)
-ids = list(dict.fromkeys(new + sorted(known, key=lambda k: -known[k]['t'])[:30]))
-items, f, nb = W.grab_http(ids)
+# tout le compte : page embed (nouvelles vidéos) + relecture de chaque vidéo connue
+items, f, nb = W.releve(sorted(known, key=lambda k: -known[k]['t']))
 print(len(items), 'vidéos relues,', f, 'abonnés,', nb, 'vidéos sur le compte,', len(known), 'connues')
 if not items: sys.exit('aucune vidéo lue')
 L.ingest({'items': items, 'followers': f, 'source': 'public'})

@@ -39,9 +39,14 @@ def midnight_ms(t):
     return int(time.mktime((lt.tm_year, lt.tm_mon, lt.tm_mday, 0, 0, 0, 0, 0, -1)) * 1000)
 
 
-def gained(now_v, ref_v):
-    """vues gagnées depuis un relevé de référence (une vidéo absente du relevé = nouvelle, compte en entier)"""
-    return sum(v - ref_v.get(k, 0) for k, v in now_v.items() if v >= ref_v.get(k, 0))
+def gained(now_v, ref, items=None):
+    """vues gagnées depuis un relevé de référence. Une vidéo absente de la référence ne compte en entier
+    que si elle a été postée après (sinon c'est juste une vieille vidéo qu'on ne suivait pas encore)."""
+    ref_v, g = ref['v'], 0
+    for k, v in now_v.items():
+        if k in ref_v: g += max(0, v - ref_v[k])
+        elif items is None or (items.get(k, {}).get('t', 0) * 1000 >= ref['t'] - 15 * 60 * 1000): g += v
+    return g
 
 
 def day_str(start, i):
@@ -78,36 +83,52 @@ def followers_day(last, ref_day):
 
 
 def build(full):
-    # un relevé avec presque aucune vidéo (test, onglet pas prêt) fausserait toutes les vues gagnées : on l'ignore
-    sn = [s for s in full['snaps'] if len(s['v']) >= 20] or full['snaps'][-1:]
+    it = full['items']
+    sn = [s for s in full['snaps'] if 'v' in s]          # relevés complets (les vieux sont allégés)
     last = sn[-1]; t = last['t']; now_v = last['v']
     md = midnight_ms(t)
-    day = [s for s in sn if s['t'] >= md]
-    ref_day = day[0] if day else None
+    ref_day = next((s for s in sn if s['t'] >= md), None)
     # après une coupure (PC éteint) on ne compare pas à un relevé trop vieux : ça ferait un faux « +180 000 en 1 h »
     ref_h = next((s for s in reversed(sn) if t - 120 * 60 * 1000 <= s['t'] <= t - 55 * 60 * 1000), None)
     ref_30 = next((s for s in reversed(sn) if t - 60 * 60 * 1000 <= s['t'] <= t - 25 * 60 * 1000), None)
-    # courbe : vues gagnées depuis minuit à chaque relevé du jour
-    curve = [[s['t'], gained(s['v'], ref_day['v'])] for s in day] if ref_day else []
-    hist = [[s['t'], s.get('f'), sum(s['v'].values())] for s in sn]
+    # courbe : vues gagnées depuis minuit à chaque relevé du jour (valeur calculée et gardée à chaque relevé)
+    curve = [[s['t'], s['gd']] for s in full['snaps'] if s['t'] >= md and s.get('gd') is not None]
+    hist = [[s['t'], s.get('f'), s.get('tot', 0)] for s in full['snaps']]
     ref = ref_h or ref_30 or (sn[-2] if len(sn) > 1 and t - sn[-2]['t'] <= 30 * 60 * 1000 else None)
     rising = []
     if ref:
         for k, v in now_v.items():
-            g = v - ref['v'].get(k, 0)
-            if g > 0: rising.append([k, g])
+            if k in ref['v'] and v > ref['v'][k]: rising.append([k, v - ref['v'][k]])
         rising.sort(key=lambda x: -x[1])
     return {
-        'source': 'Pages TikTok publiques (relevé toutes les 5 min)' if full.get('src') == 'public' else 'TikTok Studio (onglet Chrome du PC)', 'updated': t, 'followers': last.get('f'),
+        'source': 'Pages TikTok publiques (relevé toutes les 5 min)' if full.get('src') == 'public' else 'TikTok Studio (onglet Chrome du PC)',
+        'updated': t, 'followers': last.get('f'),
         'tracked': len(now_v), 'total': sum(now_v.values()),
-        'today': {'since': ref_day['t'], 'gained': gained(now_v, ref_day['v'])} if ref_day else None,
-        'hour': {'since': ref_h['t'], 'gained': gained(now_v, ref_h['v'])} if ref_h else None,
+        'today': {'since': ref_day['t'], 'gained': gained(now_v, ref_day, it)} if ref_day else None,
+        'hour': {'since': ref_h['t'], 'gained': gained(now_v, ref_h, it)} if ref_h else None,
         'rising': {'since': ref['t'], 'list': rising[:15]} if ref else None,
         'followers_day': followers_day(last, ref_day),
-        'curve': curve[-200:], 'hist': hist[-300:],
-        'items': full['items'],
+        'curve': curve[-300:], 'hist': hist[-300:],
+        'items': it,
         'studio': ({k: v for k, v in json.loads(STUDIO.read_text(encoding='utf-8')).items() if k != 'days'} if STUDIO.exists() else None),
     }
+
+
+def slim(full, now):
+    """garde le détail par vidéo seulement pour les 2 dernières heures + le 1er relevé du jour (référence de minuit) ;
+    les autres relevés ne gardent que l'heure, les abonnés et les totaux (fichier léger même avec tout le compte)."""
+    md = midnight_ms(now)
+    first_today = next((s['t'] for s in full['snaps'] if s['t'] >= md and 'v' in s), None)
+    for s in full['snaps']:
+        if 'v' in s and s['t'] < now - 125 * 60 * 1000 and s['t'] != first_today:
+            s.setdefault('tot', sum(s['v'].values())); del s['v']
+
+
+def known_ids():
+    """toutes les vidéos déjà connues, les plus récentes d'abord"""
+    try: it = json.loads(FULL.read_text(encoding='utf-8'))['items']
+    except Exception: return []
+    return sorted(it, key=lambda k: -it[k]['t'])
 
 
 def ingest(body):
@@ -125,11 +146,15 @@ def ingest(body):
             full['items'][k] = {'v': v, 'l': int(i.get('like_count') or 0), 'c': int(i.get('comment_count') or 0),
                                 's': int(i.get('share_count') or 0), 't': int(i.get('create_time') or 0), 'd': (i.get('desc') or '')[:120],
                                 'du': int(i.get('duration') or 0) // 1000}
-        # direct : on suit les 100 vidéos les plus récentes
-        recent = sorted(full['items'], key=lambda k: -full['items'][k]['t'])[:100]
+        # direct : on suit TOUTES les vidéos du compte
         full['snaps'] = [s for s in full['snaps'] if s['t'] > now - 30 * 3600 * 1000]
         full['src'] = 'public' if pub else 'studio'
-        full['snaps'].append({'t': now, 'f': body.get('followers'), 'v': {k: full['items'][k]['v'] for k in recent}})
+        snap = {'t': now, 'f': body.get('followers'), 'v': {k: x['v'] for k, x in full['items'].items()}}
+        snap['tot'] = sum(snap['v'].values())
+        ref_day = next((s for s in full['snaps'] if s['t'] >= midnight_ms(now) and 'v' in s), None)
+        snap['gd'] = gained(snap['v'], ref_day, full['items']) if ref_day else 0
+        full['snaps'].append(snap)
+        slim(full, now)
         if body.get('studio') and body['studio'].get('hist', {}).get('vv'):
             merge_studio(body['studio']); log('stats TikTok Studio complètes reçues')
         FULL.write_text(json.dumps(full, separators=(',', ':')), encoding='utf-8')
@@ -204,7 +229,7 @@ if __name__ == '__main__':
         def _w():
             time.sleep(3)
             while True:
-                try: tiktok_watch.loop(log=log)
+                try: tiktok_watch.loop(log=log, known=known_ids)
                 except Exception as e: log('watch planté, relance dans 60 s :', e); time.sleep(60)
         threading.Thread(target=_w, daemon=True).start()
         log('relevé auto de la page TikTok publique : toutes les 5 min')

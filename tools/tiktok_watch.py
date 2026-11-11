@@ -12,6 +12,7 @@ import json, os, re, sys, time, urllib.request
 
 ACCOUNT = 'clipfrfilm'
 EVERY = 5 * 60
+WORKERS = 8   # pages vidéo lues en parallèle (tout le compte en ~1-2 min)
 RELAY = 'http://127.0.0.1:8766/snap'
 UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
 
@@ -75,13 +76,15 @@ def grab_http(ids):
     ui = _ssr(f'https://www.tiktok.com/@{ACCOUNT}').get('webapp.user-detail', {}).get('userInfo', {})
     st = ui.get('statsV2') or ui.get('stats') or {}
     followers = int(st['followerCount']) if st.get('followerCount') else None
-    out = []
-    for vid in ids:
-        try:
-            it = _ssr(f'https://www.tiktok.com/@{ACCOUNT}/video/{vid}').get('webapp.video-detail', {}).get('itemInfo', {}).get('itemStruct')
-            if it and it.get('id'): out.append(_item(it))
-        except Exception: pass
-        time.sleep(0.3)
+    def one(vid):
+        for essai in range(2):
+            try:
+                it = _ssr(f'https://www.tiktok.com/@{ACCOUNT}/video/{vid}').get('webapp.video-detail', {}).get('itemInfo', {}).get('itemStruct')
+                return _item(it) if it and it.get('id') else None
+            except Exception: time.sleep(1 + essai)
+    from concurrent.futures import ThreadPoolExecutor
+    with ThreadPoolExecutor(WORKERS) as ex:
+        out = [r for r in ex.map(one, ids) if r]
     return out, followers, int(st.get('videoCount') or 0)
 
 
@@ -91,13 +94,25 @@ def send(items, followers):
     return urllib.request.urlopen(req, timeout=60).read().decode()
 
 
-def loop(log=print, once=False):
+def releve(known_ids, pw=None):
+    """Tout le compte : nouvelles vidéos (navigateur si dispo + page embed) puis relecture de chaque vidéo connue."""
+    found = []
+    if pw is not None:
+        try: found = [i['item_id'] for i in grab(pw, want=25)[0]]
+        except Exception: pass
+    try: found += latest_ids()
+    except Exception: pass
+    ids = list(dict.fromkeys(found + list(known_ids)))
+    return grab_http(ids)
+
+
+def loop(log=print, once=False, known=lambda: []):
     from playwright.sync_api import sync_playwright
     with sync_playwright() as pw:
         while True:
             t0 = time.time()
             try:
-                items, f = grab(pw)
+                items, f, nb = releve(known(), pw)
                 if items: send(items, f)
                 else: log('page TikTok : aucune vidéo lue (réessai au prochain tour)')
                 if once: print(len(items), 'vidéos,', f, 'abonnés'); return
