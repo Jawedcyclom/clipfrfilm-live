@@ -63,6 +63,13 @@ def _item(i):
             'duration': int((i.get('video') or {}).get('duration') or 0) * 1000}
 
 
+def latest_ids():
+    """Les ~10 dernières vidéos (+ épinglée) via la page embed du profil : marche depuis un serveur."""
+    req = urllib.request.Request(f'https://www.tiktok.com/embed/@{ACCOUNT}', headers={'User-Agent': UA})
+    html = urllib.request.urlopen(req, timeout=30).read().decode('utf-8', 'replace')
+    return list(dict.fromkeys(re.findall(r'"id":"(\d{19})"', html)))
+
+
 def grab_http(ids):
     """Sans navigateur : abonnés via la page profil, vues via la page de chaque vidéo connue (marche aussi depuis un serveur)."""
     ui = _ssr(f'https://www.tiktok.com/@{ACCOUNT}').get('webapp.user-detail', {}).get('userInfo', {})
