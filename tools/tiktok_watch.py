@@ -8,7 +8,7 @@ jamais baisser une vidéo, donc les « vues gagnées » restent justes, juste pa
   python tools/tiktok_watch.py           # boucle toutes les 5 min (lancé automatiquement par live_relay.py)
   python tools/tiktok_watch.py --once    # un seul relevé (test)
 """
-import json, sys, time, urllib.request
+import json, os, sys, time, urllib.request
 
 ACCOUNT = 'clipfrfilm'
 EVERY = 5 * 60
@@ -18,7 +18,7 @@ UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like 
 
 def grab(pw, want=60):
     items, followers = {}, None
-    b = pw.chromium.launch(headless=True, args=['--disable-blink-features=AutomationControlled'])
+    b = pw.chromium.launch(headless=True, channel=os.environ.get('TT_CHANNEL') or None, args=['--disable-blink-features=AutomationControlled'])
     try:
         c = b.new_context(locale='fr-FR', user_agent=UA, viewport={'width': 1280, 'height': 900})
         pg = c.new_page()
