@@ -8,7 +8,7 @@ jamais baisser une vidéo, donc les « vues gagnées » restent justes, juste pa
   python tools/tiktok_watch.py           # boucle toutes les 5 min (lancé automatiquement par live_relay.py)
   python tools/tiktok_watch.py --once    # un seul relevé (test)
 """
-import json, os, sys, time, urllib.request
+import json, os, re, sys, time, urllib.request
 
 ACCOUNT = 'clipfrfilm'
 EVERY = 5 * 60
@@ -44,14 +44,38 @@ def grab(pw, want=60):
             if len(items) == n: pg.wait_for_timeout(2000)
     finally:
         b.close()
-    out = []
-    for i in items.values():
-        st = i.get('statsV2') or i.get('stats') or {}
-        out.append({'item_id': i['id'], 'play_count': int(st.get('playCount') or 0), 'like_count': int(st.get('diggCount') or 0),
-                    'comment_count': int(st.get('commentCount') or 0), 'share_count': int(st.get('shareCount') or 0),
-                    'create_time': int(i.get('createTime') or 0), 'desc': i.get('desc') or '',
-                    'duration': int((i.get('video') or {}).get('duration') or 0) * 1000})
+    out = [_item(i) for i in items.values()]
     return out, followers
+
+
+def _ssr(url):
+    req = urllib.request.Request(url, headers={'User-Agent': UA, 'Accept-Language': 'fr-FR,fr;q=0.9'})
+    html = urllib.request.urlopen(req, timeout=30).read().decode('utf-8', 'replace')
+    m = re.search(r'id="__UNIVERSAL_DATA_FOR_REHYDRATION__"[^>]*>(.*?)</script>', html)
+    return json.loads(m.group(1))['__DEFAULT_SCOPE__'] if m else {}
+
+
+def _item(i):
+    st = i.get('statsV2') or i.get('stats') or {}
+    return {'item_id': i['id'], 'play_count': int(st.get('playCount') or 0), 'like_count': int(st.get('diggCount') or 0),
+            'comment_count': int(st.get('commentCount') or 0), 'share_count': int(st.get('shareCount') or 0),
+            'create_time': int(i.get('createTime') or 0), 'desc': i.get('desc') or '',
+            'duration': int((i.get('video') or {}).get('duration') or 0) * 1000}
+
+
+def grab_http(ids):
+    """Sans navigateur : abonnés via la page profil, vues via la page de chaque vidéo connue (marche aussi depuis un serveur)."""
+    ui = _ssr(f'https://www.tiktok.com/@{ACCOUNT}').get('webapp.user-detail', {}).get('userInfo', {})
+    st = ui.get('statsV2') or ui.get('stats') or {}
+    followers = int(st['followerCount']) if st.get('followerCount') else None
+    out = []
+    for vid in ids:
+        try:
+            it = _ssr(f'https://www.tiktok.com/@{ACCOUNT}/video/{vid}').get('webapp.video-detail', {}).get('itemInfo', {}).get('itemStruct')
+            if it and it.get('id'): out.append(_item(it))
+        except Exception: pass
+        time.sleep(0.3)
+    return out, followers, int(st.get('videoCount') or 0)
 
 
 def send(items, followers):

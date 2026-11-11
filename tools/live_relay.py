@@ -18,6 +18,7 @@ OUT = ROOT / 'travail' / 'clipfrfilm_live.json'
 LOG = ROOT / 'travail' / 'live_relay.log'
 STUDIO = ROOT / 'travail' / 'studio_latest.json'   # dernier relevé TikTok Studio complet (+ jours archivés)
 DRIVE = 'gdrive:CLIP tiktok/dashboard/clipfrfilm_live.json'
+DRIVE_STATE = 'gdrive:CLIP tiktok/dashboard/state/'
 HIST_KEYS = ('vv', 'pv', 'like', 'comment', 'share', 'followers', 'reached', 'newv', 'returning')
 lock = threading.Lock()
 
@@ -143,6 +144,9 @@ def upload():
     # un seul envoi à la fois (deux envois simultanés créent des dossiers en double sur Drive)
     with up_lock:
         r = subprocess.run([rclone(), 'copyto', str(OUT), DRIVE], capture_output=True, text=True)
+        # historique partagé avec le relevé cloud (GitHub) qui prend le relais quand le PC est éteint
+        for f in (FULL, STUDIO):
+            if f.exists(): subprocess.run([rclone(), 'copyto', str(f), DRIVE_STATE + f.name], capture_output=True)
     err = r.stderr.strip()[-300:]
     if r.returncode != 0 and ('invalid_grant' in err or 'token' in err.lower()):
         err = "accès Google expiré : lance « rclone config reconnect gdrive: » et clique Autoriser (ou demande à Claude)"
