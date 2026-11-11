@@ -219,6 +219,15 @@ def ingest(body):
         track_history(full, snap, prev, now)
         dd = full.setdefault('daily', {}).setdefault(time.strftime('%Y%m%d', time.localtime(now / 1000)), {})
         if snap['f']: dd['f'] = snap['f']
+        # likes / commentaires / partages : somme sur toutes les vidéos ; le 1er relevé du jour sert de point de départ
+        it = full['items'].values()
+        tot = {'l': sum(x.get('l', 0) for x in it), 'c': sum(x.get('c', 0) for x in it), 's': sum(x.get('s', 0) for x in it)}
+        if 'l0' not in dd:
+            prevd = full['daily'].get(time.strftime('%Y%m%d', time.localtime(now / 1000 - 86400)), {})
+            # si la veille a été relevée jusqu'au bout, on part de sa fin (≈ minuit), sinon de maintenant
+            src = prevd if prevd.get('lt') and now - prevd['lt'] < 30 * 60 * 1000 + (now - midnight_ms(now)) and now - midnight_ms(now) < 30 * 60 * 1000 else tot
+            dd.update(l0=src.get('l', tot['l']), c0=src.get('c', tot['c']), s0=src.get('s', tot['s']), t0=now if src is tot else midnight_ms(now))
+        dd.update(l=tot['l'], c=tot['c'], s=tot['s'], lt=now)
         if body.get('hearts'): dd['h'] = full['hearts'] = int(body['hearts'])
         dd['g'] = snap['gd']
         slim(full, now)
