@@ -22,7 +22,7 @@ if SEED.exists() and L.FULL.exists():
         for s in full['snaps']:
             if s['t'] >= md and s.get('gd') is not None: s['gd'] += seed['offset']['g']
     for d, v in seed.get('daily', {}).items(): full.setdefault('daily', {}).setdefault(d, {}).update(v)
-    for k in [k for k, v in full['items'].items() if not v.get('t')]: del full['items'][k]
+    full['items'].update(seed.get('items', {}))   # vidéos restreintes par TikTok : vues figées au dernier relevé Studio
     L.FULL.write_text(json.dumps(full, separators=(',', ':')), encoding='utf-8')
     subprocess.run(['rclone', 'deletefile', REMOTE + '/seed.json']); SEED.unlink()
     print('correctif appliqué :', seed)
