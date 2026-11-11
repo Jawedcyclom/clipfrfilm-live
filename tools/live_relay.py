@@ -75,6 +75,11 @@ def followers_day(last, ref_day):
     f = last.get('f')
     if not f: return None
     yd = time.strftime('%Y%m%d', time.localtime(last['t'] / 1000 - 86400))
+    try:   # TikTok Studio = total exact de fin de journée, prioritaire quand il couvre hier
+        st = json.loads(STUDIO.read_text(encoding='utf-8'))
+        if day_str(st['start'], len(st['hist']['followers']) - 1) == yd: return f - st['hist']['followers'][-1]
+    except Exception:
+        pass
     if DAILY.get(yd, {}).get('f'): return f - DAILY[yd]['f']
     try:
         st = json.loads(STUDIO.read_text(encoding='utf-8'))
