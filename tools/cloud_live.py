@@ -14,15 +14,9 @@ INC = ['--include', 'live_full.json', '--include', 'studio_latest.json']
 subprocess.run(['rclone', 'copy', REMOTE, str(ST), *INC])
 known = json.loads(L.FULL.read_text(encoding='utf-8'))['items'] if L.FULL.exists() else {}
 
-# 1) le navigateur, pour découvrir les nouvelles vidéos (TikTok le bloque souvent depuis un serveur : pas grave)
-found = []
-try:
-    from playwright.sync_api import sync_playwright
-    with sync_playwright() as pw: found, _ = W.grab(pw, want=25)
-except Exception as e: print('navigateur :', e)
-print('navigateur :', len(found), 'vidéos')
-# 2) page par page : les 30 vidéos connues les plus récentes (+ celles trouvées par le navigateur)
-ids = list(dict.fromkeys([i['item_id'] for i in found] + sorted(known, key=lambda k: -known[k]['t'])))[:30]
+# les nouvelles vidéos sont découvertes par le PC (navigateur) quand il est allumé, puis partagées via Drive
+# 2) page par page : les 30 vidéos connues les plus récentes 
+ids = sorted(known, key=lambda k: -known[k]['t'])[:30]
 items, f, nb = W.grab_http(ids)
 print(len(items), 'vidéos relues,', f, 'abonnés,', nb, 'vidéos sur le compte,', len(known), 'connues')
 if not items: sys.exit('aucune vidéo lue')
