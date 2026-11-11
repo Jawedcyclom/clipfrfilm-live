@@ -98,7 +98,7 @@ def build(full):
             if g > 0: rising.append([k, g])
         rising.sort(key=lambda x: -x[1])
     return {
-        'source': 'Page TikTok publique (PC)' if full.get('src') == 'public' else 'TikTok Studio (onglet Chrome du PC)', 'updated': t, 'followers': last.get('f'),
+        'source': 'Pages TikTok publiques (relevé toutes les 5 min)' if full.get('src') == 'public' else 'TikTok Studio (onglet Chrome du PC)', 'updated': t, 'followers': last.get('f'),
         'tracked': len(now_v), 'total': sum(now_v.values()),
         'today': {'since': ref_day['t'], 'gained': gained(now_v, ref_day['v'])} if ref_day else None,
         'hour': {'since': ref_h['t'], 'gained': gained(now_v, ref_h['v'])} if ref_h else None,
