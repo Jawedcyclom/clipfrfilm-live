@@ -21,6 +21,7 @@ DRIVE = 'gdrive:CLIP tiktok/dashboard/clipfrfilm_live.json'
 DRIVE_STATE = 'gdrive:CLIP tiktok/dashboard/state/'
 HIST_KEYS = ('vv', 'pv', 'like', 'comment', 'share', 'followers', 'reached', 'newv', 'returning')
 lock = threading.Lock()
+DAILY = {}   # jours relevés par nous : {AAAAMMJJ: {'f': abonnés en fin de jour, 'g': vues gagnées ce jour-là}}
 
 
 def log(*a):
@@ -73,6 +74,8 @@ def followers_day(last, ref_day):
     """abonnés gagnés aujourd'hui : par rapport au total de fin d'hier donné par TikTok Studio (sinon 1er relevé du jour)"""
     f = last.get('f')
     if not f: return None
+    yd = time.strftime('%Y%m%d', time.localtime(last['t'] / 1000 - 86400))
+    if DAILY.get(yd, {}).get('f'): return f - DAILY[yd]['f']
     try:
         st = json.loads(STUDIO.read_text(encoding='utf-8'))
         if day_str(st['start'], len(st['hist']['followers']) - 1) == time.strftime('%Y%m%d', time.localtime(time.time() - 86400)):
@@ -82,8 +85,14 @@ def followers_day(last, ref_day):
     return f - ref_day['f'] if ref_day and ref_day.get('f') else None
 
 
+def day_offset(full, t):
+    o = full.get('offset') or {}
+    return o.get('g', 0) if o.get('day') == time.strftime('%Y%m%d', time.localtime(t / 1000)) else 0
+
+
 def build(full):
     it = full['items']
+    DAILY.clear(); DAILY.update(full.get('daily', {}))
     sn = [s for s in full['snaps'] if 'v' in s]          # relevés complets (les vieux sont allégés)
     last = sn[-1]; t = last['t']; now_v = last['v']
     md = midnight_ms(t)
@@ -92,7 +101,9 @@ def build(full):
     ref_h = next((s for s in reversed(sn) if t - 120 * 60 * 1000 <= s['t'] <= t - 55 * 60 * 1000), None)
     ref_30 = next((s for s in reversed(sn) if t - 60 * 60 * 1000 <= s['t'] <= t - 25 * 60 * 1000), None)
     # courbe : vues gagnées depuis minuit à chaque relevé du jour (valeur calculée et gardée à chaque relevé)
+    off = day_offset(full, t)
     curve = [[s['t'], s['gd']] for s in full['snaps'] if s['t'] >= md and s.get('gd') is not None]
+    if off and curve: curve.insert(0, [md, 0])
     hist = [[s['t'], s.get('f'), s.get('tot', 0)] for s in full['snaps']]
     ref = ref_h or ref_30 or (sn[-2] if len(sn) > 1 and t - sn[-2]['t'] <= 30 * 60 * 1000 else None)
     rising = []
@@ -104,7 +115,8 @@ def build(full):
         'source': 'Pages TikTok publiques (relevé toutes les 5 min)' if full.get('src') == 'public' else 'TikTok Studio (onglet Chrome du PC)',
         'updated': t, 'followers': last.get('f'),
         'tracked': len(now_v), 'total': sum(now_v.values()),
-        'today': {'since': ref_day['t'], 'gained': gained(now_v, ref_day, it)} if ref_day else None,
+        'today': {'since': md if off else ref_day['t'], 'gained': gained(now_v, ref_day, it) + off} if ref_day else None,
+        'daily': dict(sorted(full.get('daily', {}).items())[-90:]),
         'hour': {'since': ref_h['t'], 'gained': gained(now_v, ref_h, it)} if ref_h else None,
         'rising': {'since': ref['t'], 'list': rising[:15]} if ref else None,
         'followers_day': followers_day(last, ref_day),
@@ -141,6 +153,7 @@ def ingest(body):
         # on garde toutes les vidéos déjà vues (les relevés rapides ne renvoient que les 100 dernières)
         pub = body.get('source') == 'public'
         for k, i in items.items():
+            if not int(i.get('create_time') or 0): continue
             v = int(i.get('play_count') or 0)
             if pub: v = max(v, full['items'].get(k, {}).get('v', 0))   # compteur public arrondi : ne jamais redescendre
             full['items'][k] = {'v': v, 'l': int(i.get('like_count') or 0), 'c': int(i.get('comment_count') or 0),
@@ -152,8 +165,11 @@ def ingest(body):
         snap = {'t': now, 'f': body.get('followers'), 'v': {k: x['v'] for k, x in full['items'].items()}}
         snap['tot'] = sum(snap['v'].values())
         ref_day = next((s for s in full['snaps'] if s['t'] >= midnight_ms(now) and 'v' in s), None)
-        snap['gd'] = gained(snap['v'], ref_day, full['items']) if ref_day else 0
+        snap['gd'] = (gained(snap['v'], ref_day, full['items']) if ref_day else 0) + day_offset(full, now)
         full['snaps'].append(snap)
+        dd = full.setdefault('daily', {}).setdefault(time.strftime('%Y%m%d', time.localtime(now / 1000)), {})
+        if snap['f']: dd['f'] = snap['f']
+        dd['g'] = snap['gd']
         slim(full, now)
         if body.get('studio') and body['studio'].get('hist', {}).get('vv'):
             merge_studio(body['studio']); log('stats TikTok Studio complètes reçues')

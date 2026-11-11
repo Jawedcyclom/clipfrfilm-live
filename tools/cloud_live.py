@@ -9,9 +9,23 @@ import live_relay as L, tiktok_watch as W
 ST = Path('state'); ST.mkdir(exist_ok=True)
 L.FULL, L.OUT, L.STUDIO, L.LOG = ST / 'live_full.json', ST / 'clipfrfilm_live.json', ST / 'studio_latest.json', ST / 'log.txt'
 REMOTE = 'gdrive:CLIP tiktok/dashboard/state'
-INC = ['--include', 'live_full.json', '--include', 'studio_latest.json']
+INC = ['--include', 'live_full.json', '--include', 'studio_latest.json', '--include', 'seed.json']
 
 subprocess.run(['rclone', 'copy', REMOTE, str(ST), *INC])
+# correctif ponctuel déposé sur Drive (state/seed.json) : appliqué une fois puis supprimé
+SEED = ST / 'seed.json'
+if SEED.exists() and L.FULL.exists():
+    full, seed = json.loads(L.FULL.read_text(encoding='utf-8')), json.loads(SEED.read_text(encoding='utf-8'))
+    if seed.get('offset'):
+        full['offset'] = seed['offset']
+        md = L.midnight_ms(full['snaps'][-1]['t']) if full['snaps'] else 0
+        for s in full['snaps']:
+            if s['t'] >= md and s.get('gd') is not None: s['gd'] += seed['offset']['g']
+    for d, v in seed.get('daily', {}).items(): full.setdefault('daily', {}).setdefault(d, {}).update(v)
+    for k in [k for k, v in full['items'].items() if not v.get('t')]: del full['items'][k]
+    L.FULL.write_text(json.dumps(full, separators=(',', ':')), encoding='utf-8')
+    subprocess.run(['rclone', 'deletefile', REMOTE + '/seed.json']); SEED.unlink()
+    print('correctif appliqué :', seed)
 known = json.loads(L.FULL.read_text(encoding='utf-8'))['items'] if L.FULL.exists() else {}
 
 # tout le compte : page embed (nouvelles vidéos) + relecture de chaque vidéo connue
