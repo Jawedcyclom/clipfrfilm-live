@@ -1,7 +1,8 @@
 name: releve-live
 on:
-  schedule: [{cron: '*/5 * * * *'}]
-  workflow_dispatch: {}
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
 concurrency: {group: live, cancel-in-progress: false}
 jobs:
   releve:
