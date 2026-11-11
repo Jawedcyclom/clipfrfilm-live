@@ -119,6 +119,9 @@ def build(full):
         'daily': dict(sorted(full.get('daily', {}).items())[-90:]),
         'hour': {'since': ref_h['t'], 'gained': gained(now_v, ref_h, it)} if ref_h else None,
         'rising': {'since': ref['t'], 'list': rising[:15]} if ref else None,
+        # vues gagnées aujourd'hui, vidéo par vidéo (depuis le 1er relevé complet du jour)
+        'top_today': ({'since': ref_day['t'], 'list': sorted(([k, v - ref_day['v'][k]] for k, v in now_v.items()
+                       if k in ref_day['v'] and v > ref_day['v'][k]), key=lambda x: -x[1])[:60]} if ref_day else None),
         'followers_day': followers_day(last, ref_day),
         'curve': curve[-300:], 'hist': hist[-300:],
         'items': it,
