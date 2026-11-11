@@ -3,14 +3,18 @@ on:
   schedule:
     - cron: '*/5 * * * *'
   workflow_dispatch:
+permissions:
+  actions: write
+  contents: read
 concurrency:
   group: live
   cancel-in-progress: false
 jobs:
   releve:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 9
     steps:
+      - run: echo "DEBUT=$(date +%s)" >> $GITHUB_ENV
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
@@ -23,3 +27,11 @@ jobs:
       - run: python tools/cloud_live.py
         env:
           TZ: Europe/Paris
+      - name: relancer le relevé suivant (5 min après le début de celui-ci)
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          reste=$(( 300 - ($(date +%s) - DEBUT) ))
+          [ $reste -gt 0 ] && sleep $reste
+          gh workflow run live.yml -R ${{ github.repository }}
