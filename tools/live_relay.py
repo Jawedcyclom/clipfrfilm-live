@@ -117,6 +117,9 @@ def build(full):
         'tracked': len(now_v), 'total': sum(now_v.values()),
         'today': {'since': md if off else ref_day['t'], 'gained': gained(now_v, ref_day, it) + off} if ref_day else None,
         'daily': dict(sorted(full.get('daily', {}).items())[-90:]),
+        'hourly': dict(sorted(full.get('hourly', {}).items())[-72:]),
+        'vh': {k: [p for p in v if p[0] >= t - 48 * 3600 * 1000] for k, v in sorted(full.get('vh', {}).items(), key=lambda kv: -(kv[1][-1][1] - kv[1][0][1]))[:150]},
+        'ms': full.get('ms', {}),
         'hour': {'since': ref_h['t'], 'gained': gained(now_v, ref_h, it)} if ref_h else None,
         'rising': {'since': ref['t'], 'list': rising[:15]} if ref else None,
         # vues gagnées aujourd'hui, vidéo par vidéo (depuis le 1er relevé complet du jour)
@@ -137,6 +140,43 @@ def slim(full, now):
     for s in full['snaps']:
         if 'v' in s and s['t'] < now - 125 * 60 * 1000 and s['t'] != first_today:
             s.setdefault('tot', sum(s['v'].values())); del s['v']
+
+
+MILESTONES = (1, 3, 6, 12, 24)
+
+
+def track_history(full, snap, prev, now):
+    """Garde ce qui permet de comparer : vues et abonnés heure par heure (15 j), courbe horaire des vidéos qui bougent (72 h),
+    et les vues de chaque vidéo 1 h, 3 h, 6 h, 12 h, 24 h après sa publication (30 j)."""
+    items, lt = full['items'], time.localtime(now / 1000)
+    hk = time.strftime('%Y%m%d%H', lt)
+    hr = full.setdefault('hourly', {}).setdefault(hk, {'g': 0})
+    if prev and now - prev['t'] < 40 * 60 * 1000:     # pas de rattrapage après une coupure : ce serait faux pour cette heure
+        hr['g'] += gained(snap['v'], prev, items)
+    if snap.get('f'): hr['f'] = snap['f']
+    cut = time.strftime('%Y%m%d%H', time.localtime(now / 1000 - 15 * 86400))
+    for k in [k for k in full['hourly'] if k < cut]: del full['hourly'][k]
+    # vidéos suivies heure par heure : celles qui prennent le plus de vues + celles postées depuis moins de 48 h
+    mv = {}
+    if prev: mv = {k: v - prev['v'].get(k, v) for k, v in snap['v'].items()}
+    movers = sorted((k for k in mv if mv[k] > 0), key=lambda k: -mv[k])[:60]
+    fresh = [k for k, x in items.items() if x.get('t') and now - x['t'] * 1000 < 48 * 3600 * 1000]
+    vh, hb = full.setdefault('vh', {}), now // 3600000 * 3600000
+    for k in set(movers) | set(fresh) | set(vh):
+        if k not in snap['v']: continue
+        pts = vh.setdefault(k, [])
+        if pts and pts[-1][0] == hb: pts[-1][1] = snap['v'][k]
+        elif k in movers or k in fresh or (pts and snap['v'][k] > pts[-1][1]): pts.append([hb, snap['v'][k]])
+        vh[k] = [p for p in pts if p[0] >= hb - 72 * 3600 * 1000]
+        if not vh[k]: del vh[k]
+    # jalons des premières heures (relevés seulement quand on passe le jalon, pas reconstruits)
+    ms = full.setdefault('ms', {})
+    for k in fresh:
+        age = (now - items[k]['t'] * 1000) / 3600000
+        for m in MILESTONES:
+            if m <= age < m + 1.5 and str(m) not in ms.get(k, {}): ms.setdefault(k, {})[str(m)] = snap['v'][k]
+    old = time.time() - 30 * 86400
+    for k in [k for k in ms if items.get(k, {}).get('t', 0) < old]: del ms[k]
 
 
 def known_ids():
@@ -169,7 +209,9 @@ def ingest(body):
         snap['tot'] = sum(snap['v'].values())
         ref_day = next((s for s in full['snaps'] if s['t'] >= midnight_ms(now) and 'v' in s), None)
         snap['gd'] = (gained(snap['v'], ref_day, full['items']) if ref_day else 0) + day_offset(full, now)
+        prev = next((x for x in reversed(full['snaps']) if 'v' in x), None)
         full['snaps'].append(snap)
+        track_history(full, snap, prev, now)
         dd = full.setdefault('daily', {}).setdefault(time.strftime('%Y%m%d', time.localtime(now / 1000)), {})
         if snap['f']: dd['f'] = snap['f']
         if body.get('hearts'): dd['h'] = full['hearts'] = int(body['hearts'])

@@ -1,7 +1,7 @@
 """Relevé « direct » dans le cloud (GitHub Actions) : marche PC éteint.
 Récupère l'historique sur Drive, relit abonnés + vues des vidéos récentes (pages TikTok publiques),
 recalcule et renvoie tout sur Drive (le dashboard lit CLIP tiktok/dashboard/clipfrfilm_live.json)."""
-import json, subprocess, sys
+import json, subprocess, sys, time
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import live_relay as L, tiktok_watch as W
@@ -22,7 +22,15 @@ if SEED.exists() and L.FULL.exists():
         for s in full['snaps']:
             if s['t'] >= md and s.get('gd') is not None: s['gd'] += seed['offset']['g']
     for d, v in seed.get('daily', {}).items(): full.setdefault('daily', {}).setdefault(d, {}).update(v)
-    full['items'].update(seed.get('items', {}))   # vidéos restreintes par TikTok : vues figées au dernier relevé Studio
+    full['items'].update(seed.get('items', {}))
+    if seed.get('backfill_hourly'):   # heures passées reconstruites à partir des relevés déjà faits (cumul du jour 'gd')
+        sn = sorted([x for x in full['snaps'] if x.get('gd') is not None], key=lambda x: x['t'])
+        hh = full.setdefault('hourly', {})
+        for a_, b_ in zip(sn, sn[1:]):
+            if L.midnight_ms(a_['t']) != L.midnight_ms(b_['t']) or b_['t'] - a_['t'] > 40 * 60 * 1000: continue
+            k = time.strftime('%Y%m%d%H', time.localtime(b_['t'] / 1000)); h = hh.setdefault(k, {'g': 0})
+            h['g'] += max(0, b_['gd'] - a_['gd'])
+            if b_.get('f'): h['f'] = b_['f']   # vidéos restreintes par TikTok : vues figées au dernier relevé Studio
     L.FULL.write_text(json.dumps(full, separators=(',', ':')), encoding='utf-8')
     subprocess.run(['rclone', 'deletefile', REMOTE + '/seed.json']); SEED.unlink()
     print('correctif appliqué :', seed)
