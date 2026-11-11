@@ -40,5 +40,5 @@ print('yt-dlp :', len(extra), 'vidéos listées,', len([x for x in extra if x no
 items, f, nb = W.releve(list(dict.fromkeys(extra + sorted(known, key=lambda k: -known[k]['t']))))
 print(len(items), 'vidéos relues,', f, 'abonnés,', nb, 'vidéos sur le compte,', len(known), 'connues')
 if not items: sys.exit('aucune vidéo lue')
-L.ingest({'items': items, 'followers': f, 'source': 'public'})
+L.ingest({'items': items, 'followers': f, 'hearts': W.HEARTS, 'source': 'public'})
 L.upload()

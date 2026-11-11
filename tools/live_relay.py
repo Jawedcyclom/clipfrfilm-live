@@ -113,7 +113,7 @@ def build(full):
         rising.sort(key=lambda x: -x[1])
     return {
         'source': 'Pages TikTok publiques (relevé toutes les 5 min)' if full.get('src') == 'public' else 'TikTok Studio (onglet Chrome du PC)',
-        'updated': t, 'followers': last.get('f'),
+        'updated': t, 'followers': last.get('f'), 'hearts': full.get('hearts'),
         'tracked': len(now_v), 'total': sum(now_v.values()),
         'today': {'since': md if off else ref_day['t'], 'gained': gained(now_v, ref_day, it) + off} if ref_day else None,
         'daily': dict(sorted(full.get('daily', {}).items())[-90:]),
@@ -169,6 +169,7 @@ def ingest(body):
         full['snaps'].append(snap)
         dd = full.setdefault('daily', {}).setdefault(time.strftime('%Y%m%d', time.localtime(now / 1000)), {})
         if snap['f']: dd['f'] = snap['f']
+        if body.get('hearts'): dd['h'] = full['hearts'] = int(body['hearts'])
         dd['g'] = snap['gd']
         slim(full, now)
         if body.get('studio') and body['studio'].get('hist', {}).get('vv'):

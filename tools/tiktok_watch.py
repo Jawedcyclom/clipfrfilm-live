@@ -12,6 +12,7 @@ import json, os, re, sys, time, urllib.request
 
 ACCOUNT = 'clipfrfilm'
 EVERY = 5 * 60
+HEARTS = None   # likes totaux du compte (lus sur le profil au dernier relevé)
 WORKERS = 8   # pages vidéo lues en parallèle (tout le compte en ~1-2 min)
 RELAY = 'http://127.0.0.1:8766/snap'
 UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
@@ -76,6 +77,8 @@ def grab_http(ids):
     ui = _ssr(f'https://www.tiktok.com/@{ACCOUNT}').get('webapp.user-detail', {}).get('userInfo', {})
     st = ui.get('statsV2') or ui.get('stats') or {}
     followers = int(st['followerCount']) if st.get('followerCount') else None
+    global HEARTS
+    HEARTS = int(st['heartCount']) if st.get('heartCount') else None
     def one(vid):
         for essai in range(2):
             try:
@@ -89,7 +92,7 @@ def grab_http(ids):
 
 
 def send(items, followers):
-    body = json.dumps({'items': items, 'followers': followers, 'source': 'public'}).encode()
+    body = json.dumps({'items': items, 'followers': followers, 'hearts': HEARTS, 'source': 'public'}).encode()
     req = urllib.request.Request(RELAY, data=body, headers={'Content-Type': 'application/json'})
     return urllib.request.urlopen(req, timeout=60).read().decode()
 
