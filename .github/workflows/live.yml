@@ -1,0 +1,21 @@
+name: releve-live
+on:
+  schedule: [{cron: '*/5 * * * *'}]
+  workflow_dispatch: {}
+concurrency: {group: live, cancel-in-progress: false}
+jobs:
+  releve:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12', cache: pip, cache-dependency-path: requirements.txt}
+      - run: pip install -r requirements.txt
+      - uses: actions/cache@v4
+        with: {path: ~/.cache/ms-playwright, key: pw-${{ hashFiles('requirements.txt') }}}
+      - run: python -m playwright install --with-deps chromium
+      - run: curl -s https://rclone.org/install.sh | sudo bash > /dev/null
+      - run: mkdir -p ~/.config/rclone && printf '%s' "$RCLONE_CONF" > ~/.config/rclone/rclone.conf
+        env: {RCLONE_CONF: '${{ secrets.RCLONE_CONF }}'}
+      - run: python tools/cloud_live.py
