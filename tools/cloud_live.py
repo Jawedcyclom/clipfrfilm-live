@@ -1,7 +1,7 @@
 """Relevé « direct » dans le cloud (GitHub Actions) : marche PC éteint.
 Récupère l'historique sur Drive, relit abonnés + vues des vidéos récentes (pages TikTok publiques),
 recalcule et renvoie tout sur Drive (le dashboard lit CLIP tiktok/dashboard/clipfrfilm_live.json)."""
-import json, subprocess, sys, time
+import json, os, subprocess, sys, time
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import live_relay as L, tiktok_watch as W
@@ -92,5 +92,6 @@ try:
         if age > 20 * 3600:
             subprocess.run('sudo apt-get install -y -qq tesseract-ocr tesseract-ocr-fra > /dev/null 2>&1', shell=True, timeout=180)
             subprocess.run([sys.executable, '-m', 'pip', 'install', '-q', 'pillow', 'numpy'], timeout=120)
-            subprocess.run([sys.executable, str(Path(__file__).resolve().parent / 'cloud_analyse.py')], timeout=360)
+            reste = 400 - (time.time() - int(os.environ.get('DEBUT', time.time())))   # le run entier doit tenir en 9 min
+            if reste > 120: subprocess.run([sys.executable, str(Path(__file__).resolve().parent / 'cloud_analyse.py')], timeout=reste)
 except Exception as e: print('analyse :', e)
