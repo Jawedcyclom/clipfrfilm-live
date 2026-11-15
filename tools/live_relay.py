@@ -30,6 +30,9 @@ def log(*a):
     with open(LOG, 'a', encoding='utf-8') as f: f.write(line + '\n')
 
 
+NO_WINDOW = getattr(subprocess, 'CREATE_NO_WINDOW', 0)
+
+
 def rclone():
     hits = glob.glob(os.path.expandvars(r'%LOCALAPPDATA%\Microsoft\WinGet\Packages\Rclone.Rclone_*\rclone-*\rclone.exe'))
     return hits[0] if hits else 'rclone'
@@ -191,6 +194,10 @@ def known_ids():
     return sorted(it, key=lambda k: -it[k]['t'])
 
 
+# vidéos d'un AUTRE compte TikTok envoyées par l'extension le 15/11 03h53 (Chrome connecté au mauvais compte) : purgées
+FOREIGN = set(["6988886008905403654", "6989319461534764293", "6989593413767171334", "6994496940524227846", "6999335566458293510", "6999355798522531078", "6999763018900868357", "7001264134289378565", "7002971775986437382", "7003462311822331142", "7003728822285683974", "7075042149359684870", "7258430670148619546", "7289103506965908769", "7289103514826018081", "7367081769633402144", "7411538130802576673", "7452183264611028246", "7461421100921130262", "7492796567263513878", "7494512791877995808", "7494623509566459158", "7500727362514980098", "7525985411353660694", "7530013607740984598", "7546948716519755030", "7548119674559401238", "7548583133466168598", "7555611255742926102", "7558593133743869207", "7585353897720696086", "7613593320715128066", "7632880221951200534", "7633206314931408150", "7633209930387934486", "7642770905420123424"])
+
+
 def ingest(body):
     """Fusionne un relevé (vidéos + abonnés [+ studio]) dans l'historique et réécrit le fichier du dashboard."""
     items = {str(i['item_id']): i for i in body.get('items', []) if i.get('item_id')}
@@ -198,6 +205,16 @@ def ingest(body):
     now = int(time.time() * 1000)
     with lock:
         full = json.loads(FULL.read_text(encoding='utf-8')) if FULL.exists() else {'snaps': [], 'items': {}}
+        # garde-fou : un relevé avec beaucoup moins d'abonnés vient d'un autre compte (mauvais compte connecté dans Chrome)
+        last_f = next((x.get('f') for x in reversed(full['snaps']) if x.get('f')), None)
+        if body.get('followers') and last_f and int(body['followers']) < last_f * 0.5:
+            raise ValueError(f"autre compte TikTok ({body['followers']} abonnés au lieu de ~{last_f}) : relevé refusé")
+        for k in FOREIGN & set(full['items']): full['items'].pop(k)
+        for x in full['snaps']:
+            for k in FOREIGN & set(x.get('v') or {}): x['v'].pop(k)
+            if 'v' in x: x['tot'] = sum(x['v'].values())
+        for key in ('vh', 'ms'):
+            for k in FOREIGN & set(full.get(key) or {}): full[key].pop(k)
         # on garde toutes les vidéos déjà vues (les relevés rapides ne renvoient que les 100 dernières)
         pub = body.get('source') == 'public'
         for k, i in items.items():
@@ -244,11 +261,12 @@ up_lock = threading.Lock()
 def upload():
     # un seul envoi à la fois (deux envois simultanés créent des dossiers en double sur Drive)
     with up_lock:
-        r = subprocess.run([rclone(), 'copyto', str(OUT), DRIVE], capture_output=True, text=True)
+        # CREATE_NO_WINDOW : sinon une console s'ouvre et se ferme à chaque envoi (toutes les 5 min)
+        r = subprocess.run([rclone(), 'copyto', str(OUT), DRIVE], capture_output=True, text=True, creationflags=NO_WINDOW)
         # historique partagé avec le relevé cloud (GitHub) qui prend le relais quand le PC est éteint
         for f in (FULL, STUDIO):
-            if f.exists(): subprocess.run([rclone(), 'copyto', str(f), DRIVE_STATE + f.name], capture_output=True)
-    err = r.stderr.strip()[-300:]
+            if f.exists(): subprocess.run([rclone(), 'copyto', str(f), DRIVE_STATE + f.name], capture_output=True, creationflags=NO_WINDOW)
+    err = '\n'.join(l for l in r.stderr.splitlines() if 'NOTICE' not in l).strip()[-300:]
     if r.returncode != 0 and ('invalid_grant' in err or 'token' in err.lower()):
         err = "accès Google expiré : lance « rclone config reconnect gdrive: » et clique Autoriser (ou demande à Claude)"
     log('Drive', 'OK' if r.returncode == 0 else 'ERREUR ' + err)
