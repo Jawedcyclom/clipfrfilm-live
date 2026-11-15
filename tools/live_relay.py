@@ -64,7 +64,9 @@ def merge_studio(new):
     old = json.loads(STUDIO.read_text(encoding='utf-8')) if STUDIO.exists() else {}
     days = old.get('days', {})
     for i in range(len(new['hist']['vv'])):
-        days[day_str(new['start'], i)] = {k: (new['hist'].get(k) or [0] * 999)[i] for k in HIST_KEYS}
+        j = {k: (new['hist'].get(k) or [0] * 999)[i] for k in HIST_KEYS}
+        if j.get('followers') or j.get('vv'): days[day_str(new['start'], i)] = j   # jour « pas prêt » chez TikTok = tout à 0 : ignoré
+    days = {d: v for d, v in days.items() if v.get('followers') or v.get('vv')}
     keys = sorted(days)
     start = keys[0]
     span = []
@@ -81,13 +83,13 @@ def followers_day(last, ref_day):
     yd = time.strftime('%Y%m%d', time.localtime(last['t'] / 1000 - 86400))
     try:   # TikTok Studio = total exact de fin de journée, prioritaire quand il couvre hier
         st = json.loads(STUDIO.read_text(encoding='utf-8'))
-        if day_str(st['start'], len(st['hist']['followers']) - 1) == yd: return f - st['hist']['followers'][-1]
+        if day_str(st['start'], len(st['hist']['followers']) - 1) == yd and st['hist']['followers'][-1] > 0: return f - st['hist']['followers'][-1]
     except Exception:
         pass
     if DAILY.get(yd, {}).get('f'): return f - DAILY[yd]['f']
     try:
         st = json.loads(STUDIO.read_text(encoding='utf-8'))
-        if day_str(st['start'], len(st['hist']['followers']) - 1) == time.strftime('%Y%m%d', time.localtime(time.time() - 86400)):
+        if day_str(st['start'], len(st['hist']['followers']) - 1) == time.strftime('%Y%m%d', time.localtime(time.time() - 86400)) and st['hist']['followers'][-1] > 0:
             return f - st['hist']['followers'][-1]
     except Exception:
         pass
