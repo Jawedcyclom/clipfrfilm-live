@@ -8,7 +8,8 @@ Le serveur garde l'historique, calcule les vues gagnées et envoie un fichier co
   python tools/live_relay.py          # à laisser tourner (PC allumé)
 Les relevés viennent de l'extension Chrome tools/extension_live (vidéos toutes les 5 min, stats Studio complètes toutes les heures).
 """
-import glob, json, os, subprocess, threading, time
+import glob, json, os, subprocess, threading, time, urllib.parse
+from collections import Counter
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
@@ -274,6 +275,117 @@ def upload():
 
 
 STUDIO_ONLY = False
+# collectes télécommandées (extension) : une mission = {id, url, match, scrolls} dans travail/analyse/jobs/
+JOBS = ROOT / 'travail' / 'analyse' / 'jobs'; SCRAPES = ROOT / 'travail' / 'analyse' / 'scrapes'
+PROFILS_EXT = False
+SEARCH = []   # la recherche TikTok web ne renvoie presque rien en arrière-plan (15/11)
+AUTO_TAGS = ['cyclomxdjadelshow', 'cyclomxredouane', 'djadelshow', 'ilyesdjadel', 'redouanebougheraba']   # relancées toutes les 12 h
+
+
+COVERS = {}   # couvertures de vidéos concurrentes à lire (titre incrusté), traitées en fond
+TES = 'C:/Program Files/Tesseract-OCR/tesseract.exe'
+
+
+def ocr_covers():
+    """lit le titre incrusté des couvertures concurrentes (≥ 20 k vues) → champ 'ti' de concurrents.json"""
+    import urllib.request
+    try:
+        import numpy as np
+        from PIL import Image
+    except Exception: return
+    tess = ROOT / 'travail' / 'analyse' / 'tessdata'; tmp = ROOT / 'travail' / 'analyse' / 'tmp'; tmp.mkdir(exist_ok=True)
+    try:   # rattrapage : couvertures des collectes déjà faites
+        f = ROOT / 'travail' / 'analyse' / 'concurrents.json'; allv = json.loads(f.read_text(encoding='utf-8')) if f.exists() else {}
+        for sp in sorted(SCRAPES.glob('*.json'), key=lambda p: -p.stat().st_mtime):
+            for g in ((json.loads(sp.read_text(encoding='utf-8')).get('result') or {}).get('got') or []):
+                dd = g.get('data') or {}
+                for it in (dd.get('itemList') or dd.get('item_list') or [x.get('item') for x in (dd.get('data') or []) if isinstance(x, dict) and x.get('item')]):
+                    if it and it.get('id') in allv and 'ti' not in allv[it['id']] and allv[it['id']]['v'] >= 20000:
+                        cov = (it.get('video') or {}).get('originCover') or (it.get('video') or {}).get('cover')
+                        if cov: COVERS.setdefault(it['id'], cov)
+    except Exception as e: log('rattrapage couvertures :', e)
+    while True:
+        time.sleep(20)
+        if not COVERS: continue
+        done = {}
+        for vid in list(COVERS)[:60]:
+            url = COVERS.pop(vid)
+            try:
+                req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0', 'Referer': 'https://www.tiktok.com/'})
+                jp = tmp / f'c{vid}.jpg'; jp.write_bytes(urllib.request.urlopen(req, timeout=20).read())
+                a = np.asarray(Image.open(jp).convert('RGB').resize((720, 1280))).astype(int)
+                m = (a.min(axis=2) > 205) & (a.max(axis=2) - a.min(axis=2) < 40)
+                png = jp.with_suffix('.png'); Image.fromarray(np.where(m, 0, 255).astype('uint8')).save(png)
+                r = subprocess.run([TES, str(png), '-', '--tessdata-dir', str(tess), '-l', 'fra', '--psm', '11'], capture_output=True, text=True,
+                                   encoding='utf-8', creationflags=NO_WINDOW)
+                done[vid] = ' | '.join(l.strip() for l in r.stdout.splitlines() if len(l.strip()) > 2)[:200]
+                jp.unlink(missing_ok=True); png.unlink(missing_ok=True)
+            except Exception: done[vid] = ''
+        f = ROOT / 'travail' / 'analyse' / 'concurrents.json'
+        with lock:
+            allv = json.loads(f.read_text(encoding='utf-8')) if f.exists() else {}
+            for vid, t in done.items():
+                if vid in allv: allv[vid]['ti'] = t
+            f.write_text(json.dumps(allv, ensure_ascii=False, separators=(',', ':')), encoding='utf-8')
+        log(f'couvertures concurrentes lues : {len(done)} (reste {len(COVERS)})')
+
+
+def merge_concurrents(body, jid):
+    with lock: _merge_concurrents(body, jid)
+
+
+def _merge_concurrents(body, jid):
+    """version allégée et cumulée de toutes les collectes (lue par l'IA cloud et l'analyse) → Drive analyse/concurrents.json"""
+    f = ROOT / 'travail' / 'analyse' / 'concurrents.json'
+    allv = json.loads(f.read_text(encoding='utf-8')) if f.exists() else {}
+    tag = jid.rsplit('_', 1)[0]
+    for g in ((body.get('result') or {}).get('got') or []):
+        dd = g.get('data') or {}
+        for it in (dd.get('itemList') or dd.get('item_list') or [x.get('item') for x in (dd.get('data') or []) if isinstance(x, dict) and x.get('item')]):
+            if not it or not it.get('id'): continue
+            st = it.get('statsV2') or it.get('stats') or {}
+            old = allv.get(it['id'], {})
+            allv[it['id']] = {'a': (it.get('author') or {}).get('uniqueId'), 'd': (it.get('desc') or '')[:150], 't': int(it.get('createTime') or 0),
+                              'v': int(st.get('playCount') or 0), 'l': int(st.get('diggCount') or 0), 's': int(st.get('shareCount') or 0),
+                              'sv': int(st.get('collectCount') or 0), 'c': int(st.get('commentCount') or 0), 'du': (it.get('video') or {}).get('duration'),
+                              'tags': sorted(set(old.get('tags', [])) | {tag}), 'vu': int(time.time())}
+            if old.get('ti') is not None: allv[it['id']]['ti'] = old['ti']
+            cov = (it.get('video') or {}).get('originCover') or (it.get('video') or {}).get('cover')
+            if cov and allv[it['id']]['v'] >= 20000 and 'ti' not in allv[it['id']]: COVERS[it['id']] = cov
+    f.write_text(json.dumps(allv, ensure_ascii=False, separators=(',', ':')), encoding='utf-8')
+    log(f'concurrents : {len(allv)} vidéos, {len({x["a"] for x in allv.values()})} comptes au total')
+    def up():
+        with up_lock:   # un seul envoi à la fois (sinon doublons sur Drive)
+            subprocess.run([rclone(), 'copyto', str(f), 'gdrive:CLIP tiktok/dashboard/analyse/concurrents.json'], capture_output=True, creationflags=NO_WINDOW)
+    threading.Thread(target=up, daemon=True).start()
+
+
+def next_job():
+    JOBS.mkdir(parents=True, exist_ok=True); SCRAPES.mkdir(parents=True, exist_ok=True)
+    stamp = time.strftime('%Y%m%d') + ('am' if time.localtime().tm_hour < 12 else 'pm')
+    for tag in AUTO_TAGS:
+        jid = f'tag_{tag}_{stamp}'
+        if not (SCRAPES / f'{jid}.json').exists() and not (JOBS / f'{jid}.json').exists():
+            (JOBS / f'{jid}.json').write_text(json.dumps({'id': jid, 'url': f'https://www.tiktok.com/tag/{tag}',
+                                                          'match': ['/api/challenge/item_list'], 'scrolls': 40, 'max': 10000}), encoding='utf-8')
+    day = time.strftime('%Y%m%d')
+    for q in SEARCH:   # recherche TikTok par mots-clés (1 fois par jour)
+        jid = f"search_{q.replace(' ', '-')}_{day}"
+        if not (SCRAPES / f'{jid}.json').exists() and not (JOBS / f'{jid}.json').exists():
+            (JOBS / f'{jid}.json').write_text(json.dumps({'id': jid, 'url': 'https://www.tiktok.com/search/video?q=' + urllib.parse.quote(q),
+                'match': ['/api/search/'], 'scrolls': 40, 'max': 3000}), encoding='utf-8')
+    # profils des clippeurs concurrents trouvés (toutes leurs vidéos), 1 fois par jour, les 40 plus actifs sur les campagnes
+    cf = ROOT / 'travail' / 'analyse' / 'concurrents.json'
+    if cf.exists() and PROFILS_EXT:   # les profils se font dans le cloud (yt-dlp, cloud_profils.py)
+        allv = json.loads(cf.read_text(encoding='utf-8'))
+        cnt = Counter(x['a'] for x in allv.values() if x.get('a') and x['a'] != 'clipfrfilm')
+        for acc, _ in cnt.most_common(40):
+            jid = f'compte_{acc}_{day}'
+            if not (SCRAPES / f'{jid}.json').exists() and not (JOBS / f'{jid}.json').exists():
+                (JOBS / f'{jid}.json').write_text(json.dumps({'id': jid, 'url': f'https://www.tiktok.com/@{acc}', 'match': ['item_list'],
+                                                              'scrolls': 40, 'max': 2000}), encoding='utf-8')
+    pend = sorted(JOBS.glob('*.json'), key=lambda p: (not p.name.startswith(('tag_', 'search_')), p.stat().st_mtime))
+    return json.loads(pend[0].read_text(encoding='utf-8')) if pend else None
 
 
 class H(BaseHTTPRequestHandler):
@@ -287,6 +399,12 @@ class H(BaseHTTPRequestHandler):
         self.send_response(204); self._cors(); self.end_headers()
 
     def do_GET(self):
+        if self.path.startswith('/job'):
+            job = next_job()
+            log('extension : demande de mission →', job['id'] if job else 'rien')
+            self.send_response(200 if job else 204); self.send_header('Content-Type', 'application/json'); self.end_headers()
+            if job: self.wfile.write(json.dumps(job).encode())
+            return
         if self.path.startswith('/recv'):
             # petite fenêtre ouverte par l'onglet TikTok Studio : reçoit les relevés par postMessage et les poste ici
             html = """<!doctype html><meta charset=utf-8><title>Relais direct clipfrfilm</title>
@@ -309,6 +427,7 @@ addEventListener('message', async e => {
     def do_POST(self):
         try:
             body = json.loads(self.rfile.read(int(self.headers.get('Content-Length', 0))) or b'{}')
+            if self.path.startswith('/job'): return self._job_done(body)
             if STUDIO_ONLY: return self._studio(body)
             ingest(body)
             threading.Thread(target=upload, daemon=True).start()
@@ -330,6 +449,19 @@ addEventListener('message', async e => {
             log('stats TikTok Studio envoyées au relevé en ligne' if r.returncode == 0 else 'Drive ERREUR ' + r.stderr[-200:])
         self.send_response(200); self._cors(); self.end_headers(); self.wfile.write(b'ok')
 
+    def _job_done(self, body):
+        jid = str(body.get('id') or 'x').replace('/', '_')
+        (SCRAPES / f'{jid}.json').write_text(json.dumps(body, ensure_ascii=False), encoding='utf-8')
+        (JOBS / f'{jid}.json').unlink(missing_ok=True)
+        for jp in JOBS.glob('*.json'):   # mission dont le fichier porte un autre nom
+            try:
+                if json.loads(jp.read_text(encoding='utf-8')).get('id') == jid: jp.unlink()
+            except Exception: pass
+        merge_concurrents(body, jid)
+        n = sum(len(((g.get('data') or {}).get('itemList') or [])) for g in ((body.get('result') or {}).get('got') or []))
+        log(f'collecte {jid} : ' + (body['error'] if body.get('error') else f'{n} vidéos captées'))
+        self.send_response(200); self.end_headers(); self.wfile.write(b'ok')
+
     def log_message(self, *a): pass
 
 
@@ -348,4 +480,5 @@ if __name__ == '__main__':
                 except Exception as e: log('watch planté, relance dans 60 s :', e); time.sleep(60)
         threading.Thread(target=_w, daemon=True).start()
         log('relevé auto de la page TikTok publique : toutes les 5 min')
+    threading.Thread(target=ocr_covers, daemon=True).start()
     ThreadingHTTPServer(('127.0.0.1', 8766), H).serve_forever()

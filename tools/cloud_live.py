@@ -96,3 +96,9 @@ try:
             reste = 400 - (time.time() - int(os.environ.get('DEBUT', time.time())))   # le run entier doit tenir en 9 min
             if reste > 120: subprocess.run([sys.executable, str(Path(__file__).resolve().parent / 'cloud_analyse.py')], timeout=reste)
 except Exception as e: print('analyse :', e)
+
+# profils des clippeurs concurrents (yt-dlp), un peu à chaque relevé selon le temps qui reste
+try:
+    reste = 420 - (time.time() - int(os.environ.get('DEBUT', time.time())))
+    if reste > 90: subprocess.run([sys.executable, str(Path(__file__).resolve().parent / 'cloud_profils.py'), str(int(reste - 60))], timeout=reste)
+except Exception as e: print('profils :', e)
