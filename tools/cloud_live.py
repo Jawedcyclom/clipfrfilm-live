@@ -82,3 +82,15 @@ print(len(items), 'vidéos relues,', f, 'abonnés,', nb, 'vidéos sur le compte,
 if not items: sys.exit('aucune vidéo lue')
 L.ingest({'items': items, 'followers': f, 'hearts': W.HEARTS, 'source': 'public'})
 L.upload()
+
+# analyse du compte (ce qui marche) : une fois par jour après 5h, dans le même run (pas de nouveau workflow)
+try:
+    if time.localtime().tm_hour >= 5:
+        r = subprocess.run(['rclone', 'lsjson', 'gdrive:CLIP tiktok/dashboard/analyse/insights.json'], capture_output=True, text=True)
+        info = json.loads(r.stdout or '[]')
+        age = time.time() - time.mktime(time.strptime(info[0]['ModTime'][:19], '%Y-%m-%dT%H:%M:%S')) - time.timezone if info else 1e9
+        if age > 20 * 3600:
+            subprocess.run('sudo apt-get install -y -qq tesseract-ocr tesseract-ocr-fra > /dev/null 2>&1', shell=True, timeout=180)
+            subprocess.run([sys.executable, '-m', 'pip', 'install', '-q', 'pillow', 'numpy'], timeout=120)
+            subprocess.run([sys.executable, str(Path(__file__).resolve().parent / 'cloud_analyse.py')], timeout=360)
+except Exception as e: print('analyse :', e)
