@@ -273,6 +273,9 @@ def upload():
     log('Drive', 'OK' if r.returncode == 0 else 'ERREUR ' + err)
 
 
+STUDIO_ONLY = False
+
+
 class H(BaseHTTPRequestHandler):
     def _cors(self):
         self.send_header('Access-Control-Allow-Origin', 'https://www.tiktok.com')
@@ -306,19 +309,36 @@ addEventListener('message', async e => {
     def do_POST(self):
         try:
             body = json.loads(self.rfile.read(int(self.headers.get('Content-Length', 0))) or b'{}')
+            if STUDIO_ONLY: return self._studio(body)
             ingest(body)
             threading.Thread(target=upload, daemon=True).start()
             self.send_response(200); self._cors(); self.end_headers(); self.wfile.write(b'ok')
         except Exception as e:
             log('erreur', e); self.send_response(400); self._cors(); self.end_headers(); self.wfile.write(str(e).encode())
 
+    def _studio(self, body):
+        """PC : le relevé en ligne garde l'historique ; ici on ne transmet QUE les stats TikTok Studio (seed.json)."""
+        ref = json.loads(OUT.read_text(encoding='utf-8')).get('followers') if OUT.exists() else None
+        f = body.get('followers')
+        if f and ref and int(f) < ref * 0.5:
+            raise ValueError(f'autre compte TikTok ({f} abonnés au lieu de ~{ref}) : relevé refusé')
+        if body.get('studio') and body['studio'].get('hist', {}).get('vv'):
+            tmp = FULL.parent / 'seed_studio.json'
+            tmp.write_text(json.dumps({'studio': body['studio']}, ensure_ascii=False), encoding='utf-8')
+            with up_lock:
+                r = subprocess.run([rclone(), 'copyto', str(tmp), DRIVE_STATE + 'seed.json'], capture_output=True, text=True, creationflags=NO_WINDOW)
+            log('stats TikTok Studio envoyées au relevé en ligne' if r.returncode == 0 else 'Drive ERREUR ' + r.stderr[-200:])
+        self.send_response(200); self._cors(); self.end_headers(); self.wfile.write(b'ok')
+
     def log_message(self, *a): pass
 
 
 if __name__ == '__main__':
-    log('relais démarré sur http://127.0.0.1:8766')
     import sys
-    if '--sans-watch' not in sys.argv:
+    # par défaut (PC) : seulement les stats Studio de l'extension ; '--complet' = ancien relais qui écrit l'historique (secours)
+    STUDIO_ONLY = '--complet' not in sys.argv
+    log('relais démarré sur http://127.0.0.1:8766' + (' (stats Studio seulement)' if STUDIO_ONLY else ''))
+    if not STUDIO_ONLY and '--sans-watch' not in sys.argv:
         sys.path.insert(0, str(Path(__file__).resolve().parent))
         import tiktok_watch
         def _w():
