@@ -87,7 +87,8 @@ L.upload()
 try:
     if time.localtime().tm_hour >= 5:
         r = subprocess.run(['rclone', 'lsjson', 'gdrive:CLIP tiktok/dashboard/analyse/insights.json'], capture_output=True, text=True)
-        info = json.loads(r.stdout or '[]')
+        try: info = json.loads(r.stdout or '[]')
+        except ValueError: info = []          # fichier absent → analyse à faire
         age = time.time() - time.mktime(time.strptime(info[0]['ModTime'][:19], '%Y-%m-%dT%H:%M:%S')) - time.timezone if info else 1e9
         if age > 20 * 3600:
             subprocess.run('sudo apt-get install -y -qq tesseract-ocr tesseract-ocr-fra > /dev/null 2>&1', shell=True, timeout=180)
