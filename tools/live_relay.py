@@ -180,6 +180,7 @@ def track_history(full, snap, prev, now):
     # jalons des premières heures (relevés seulement quand on passe le jalon, pas reconstruits)
     ms = full.setdefault('ms', {})
     for k in fresh:
+        if k not in snap['v']: continue
         age = (now - items[k]['t'] * 1000) / 3600000
         for m in MILESTONES:
             if m <= age < m + 1.5 and str(m) not in ms.get(k, {}): ms.setdefault(k, {})[str(m)] = snap['v'][k]

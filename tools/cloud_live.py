@@ -16,6 +16,37 @@ subprocess.run(['rclone', 'copy', REMOTE, str(ST), *INC])
 SEED = ST / 'seed.json'
 if SEED.exists() and L.FULL.exists():
     full, seed = json.loads(L.FULL.read_text(encoding='utf-8')), json.loads(SEED.read_text(encoding='utf-8'))
+    if seed.get('restore'):   # historique écrasé (15/11, relais PC reparti à vide) : on repart de la bonne version
+        R, last = seed.pop('restore'), 0
+        last = max(s['t'] for s in R['snaps'])
+        for x in [full] + full['snaps']:   # vidéos de l'autre compte (extension sur le mauvais compte)
+            for k in L.FOREIGN & set(x.get('items' if x is full else 'v') or {}): x['items' if x is full else 'v'].pop(k)
+        tot = lambda: {k: sum(x.get(k, 0) for x in R['items'].values()) for k in 'lcs'}
+        t1 = tot(); R['items'].update(full['items']); t2 = tot()
+        dd = R.get('daily', {}).get(time.strftime('%Y%m%d', time.localtime(last / 1000)), {})
+        for k in 'lcs':   # vidéos figées relues d'un coup : pas des likes/partages du jour
+            if k + '0' in dd: dd[k + '0'] += t2[k] - t1[k]
+        R['hearts'] = full.get('hearts', R.get('hearts'))
+        new = sorted((s for s in full['snaps'] if s['t'] > last and 'v' in s), key=lambda s: s['t'])
+        # vidéo figée dans l'ancien état puis relue d'un coup (+127 k « en 4 min ») : ce n'est pas un gain du jour
+        lv = next((x['v'] for x in reversed(R['snaps']) if 'v' in x), {})
+        if new:
+            for k, v in new[0]['v'].items():
+                if k in lv and v - lv[k] > 5000:
+                    for x in R['snaps']:
+                        if k in x.get('v', {}): x['v'][k] += v - lv[k]
+        for s in new:
+            prev = next((x for x in reversed(R['snaps']) if 'v' in x), None)
+            ref = next((x for x in R['snaps'] if x['t'] >= L.midnight_ms(s['t']) and 'v' in x), None)
+            s['gd'] = (L.gained(s['v'], ref, R['items']) if ref else 0) + L.day_offset(R, s['t'])
+            L.track_history(R, s, prev, s['t']); R['snaps'].append(s)
+        for d, v in full.get('daily', {}).items():
+            dd = R.setdefault('daily', {}).setdefault(d, {})
+            for k in ('f', 'h'):
+                if k in v: dd[k] = v[k]
+        today = time.strftime('%Y%m%d', time.localtime(R['snaps'][-1]['t'] / 1000))
+        R['daily'].setdefault(today, {})['g'] = R['snaps'][-1]['gd']
+        full = R
     if seed.get('offset'):
         full['offset'] = seed['offset']
         md = L.midnight_ms(full['snaps'][-1]['t']) if full['snaps'] else 0
