@@ -34,7 +34,7 @@ with ThreadPoolExecutor(4) as ex:
         if es is None: continue
         fait[acc] = int(time.time())
         for e in es:
-            if not e.get('id'): continue
+            if not isinstance(e, dict) or not e.get('id'): continue
             P[e['id']] = {'a': acc, 'd': (e.get('description') or e.get('title') or '')[:150], 't': e.get('timestamp') or 0,
                           'v': e.get('view_count') or 0, 'l': e.get('like_count') or 0, 's': e.get('repost_count') or 0,
                           'sv': e.get('save_count') or 0, 'c': e.get('comment_count') or 0, 'du': e.get('duration'), 'vu': int(time.time())}
