@@ -13,6 +13,7 @@ import json, os, re, sys, time, urllib.request
 ACCOUNT = 'clipfrfilm'
 EVERY = 5 * 60
 HEARTS = None   # likes totaux du compte (lus sur le profil au dernier relevé)
+COVERS = {}   # id vidéo -> lien de la couverture (lien TikTok signé, valable quelques heures)
 WORKERS = 8   # pages vidéo lues en parallèle (tout le compte en ~1-2 min)
 RELAY = 'http://127.0.0.1:8766/snap'
 UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
@@ -83,6 +84,9 @@ def grab_http(ids):
         for essai in range(2):
             try:
                 it = _ssr(f'https://www.tiktok.com/@{ACCOUNT}/video/{vid}').get('webapp.video-detail', {}).get('itemInfo', {}).get('itemStruct')
+                if it and it.get('id'):
+                    cv = (it.get('video') or {}).get('cover') or (it.get('video') or {}).get('originCover')
+                    if cv: COVERS[it['id']] = cv
                 return _item(it) if it and it.get('id') else None
             except Exception: time.sleep(1 + essai)
     from concurrent.futures import ThreadPoolExecutor

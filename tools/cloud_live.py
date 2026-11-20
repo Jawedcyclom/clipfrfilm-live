@@ -83,6 +83,12 @@ if not items: sys.exit('aucune vidéo lue')
 L.ingest({'items': items, 'followers': f, 'hearts': W.HEARTS, 'source': 'public'})
 L.upload()
 
+# couvertures des vidéos (vignettes) pour le dashboard
+try:
+    import covers
+    covers.maj(L.OUT, W.COVERS, ST)
+except Exception as e: print('couvertures :', e)
+
 # analyse du compte (ce qui marche) : une fois par jour après 5h, dans le même run (pas de nouveau workflow)
 try:
     if time.localtime().tm_hour >= 5:
