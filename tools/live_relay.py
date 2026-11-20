@@ -128,9 +128,12 @@ def build(full):
         'tracked': len(now_v), 'total': sum(now_v.values()),
         'today': {'since': md if off else ref_day['t'], 'gained': gained(now_v, ref_day, it) + off} if ref_day else None,
         'daily': dict(sorted(full.get('daily', {}).items())[-90:]),
-        'hourly': dict(sorted(full.get('hourly', {}).items())[-72:]),
+        'hourly': dict(sorted(full.get('hourly', {}).items())[-24 * 21:]),   # 3 semaines heure par heure
         'vh': {k: [p for p in v if p[0] >= t - 48 * 3600 * 1000] for k, v in sorted(full.get('vh', {}).items(), key=lambda kv: -(kv[1][-1][1] - kv[1][0][1]))[:150]},
         'ms': full.get('ms', {}),
+        # vues par jour de chaque vidéo qui a bougé ces 14 derniers jours
+        'vd': {k: {d: x for d, x in v.items() if d >= time.strftime('%Y%m%d', time.localtime(t / 1000 - 14 * 86400))}
+               for k, v in full.get('vd', {}).items() if max(v) >= time.strftime('%Y%m%d', time.localtime(t / 1000 - 14 * 86400))},
         'hour': {'since': ref_h['t'], 'gained': gained(now_v, ref_h, it)} if ref_h else None,
         'rising': {'since': ref['t'], 'list': rising[:15]} if ref else None,
         # vues gagnées aujourd'hui, vidéo par vidéo (depuis le 1er relevé complet du jour)
@@ -153,7 +156,7 @@ def slim(full, now):
             s.setdefault('tot', sum(s['v'].values())); del s['v']
 
 
-MILESTONES = (1, 3, 6, 12, 24)
+MILESTONES = (1, 3, 6, 12, 24, 48, 72, 168)   # vues 1 h … 7 j après la publication
 
 
 def track_history(full, snap, prev, now):
@@ -165,7 +168,7 @@ def track_history(full, snap, prev, now):
     if prev and now - prev['t'] < 40 * 60 * 1000:     # pas de rattrapage après une coupure : ce serait faux pour cette heure
         hr['g'] += gained(snap['v'], prev, items)
     if snap.get('f'): hr['f'] = snap['f']
-    cut = time.strftime('%Y%m%d%H', time.localtime(now / 1000 - 15 * 86400))
+    cut = time.strftime('%Y%m%d%H', time.localtime(now / 1000 - 60 * 86400))   # 60 jours heure par heure
     for k in [k for k in full['hourly'] if k < cut]: del full['hourly'][k]
     # vidéos suivies heure par heure : celles qui prennent le plus de vues + celles postées depuis moins de 48 h
     mv = {}
@@ -178,7 +181,7 @@ def track_history(full, snap, prev, now):
         pts = vh.setdefault(k, [])
         if pts and pts[-1][0] == hb: pts[-1][1] = snap['v'][k]
         elif k in movers or k in fresh or (pts and snap['v'][k] > pts[-1][1]): pts.append([hb, snap['v'][k]])
-        vh[k] = [p for p in pts if p[0] >= hb - 72 * 3600 * 1000]
+        vh[k] = [p for p in pts if p[0] >= hb - 7 * 24 * 3600 * 1000]   # courbe horaire gardée 7 j
         if not vh[k]: del vh[k]
     # jalons des premières heures (relevés seulement quand on passe le jalon, pas reconstruits)
     ms = full.setdefault('ms', {})
@@ -187,8 +190,21 @@ def track_history(full, snap, prev, now):
         age = (now - items[k]['t'] * 1000) / 3600000
         for m in MILESTONES:
             if m <= age < m + 1.5 and str(m) not in ms.get(k, {}): ms.setdefault(k, {})[str(m)] = snap['v'][k]
-    old = time.time() - 30 * 86400
+    old = time.time() - 90 * 86400
     for k in [k for k in ms if items.get(k, {}).get('t', 0) < old]: del ms[k]
+    # vues de chaque vidéo en fin de journée (90 j) : seulement les jours où elle bouge
+    day, vd = time.strftime('%Y%m%d', lt), full.setdefault('vd', {})
+    for k, v in snap['v'].items():
+        d = vd.get(k)
+        if d is None:
+            if items.get(k, {}).get('t', 0) * 1000 > now - 90 * 86400 * 1000 or (prev and v > prev['v'].get(k, v)): vd[k] = {day: v}
+            continue
+        last = d[max(d)]
+        if day in d or v != last: d[day] = v
+    cutd = time.strftime('%Y%m%d', time.localtime(now / 1000 - 90 * 86400))
+    for k in list(vd):
+        for x in [x for x in vd[k] if x < cutd]: del vd[k][x]
+        if not vd[k]: del vd[k]
 
 
 def known_ids():
@@ -227,7 +243,9 @@ def ingest(body):
             if pub: v = max(v, full['items'].get(k, {}).get('v', 0))   # compteur public arrondi : ne jamais redescendre
             full['items'][k] = {'v': v, 'l': int(i.get('like_count') or 0), 'c': int(i.get('comment_count') or 0),
                                 's': int(i.get('share_count') or 0), 't': int(i.get('create_time') or 0), 'd': (i.get('desc') or '')[:120],
-                                'du': int(i.get('duration') or 0) // 1000}
+                                'du': int(i.get('duration') or 0) // 1000,
+                                **({'sv': int(i['collect_count'])} if i.get('collect_count') is not None else {}),
+                                **({'mu': i['music']} if i.get('music') else {})}
         # direct : on suit TOUTES les vidéos du compte
         full['snaps'] = [s for s in full['snaps'] if s['t'] > now - 30 * 3600 * 1000]
         full['src'] = 'public' if pub else 'studio'

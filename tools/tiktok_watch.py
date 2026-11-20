@@ -63,7 +63,9 @@ def _item(i):
     return {'item_id': i['id'], 'play_count': int(st.get('playCount') or 0), 'like_count': int(st.get('diggCount') or 0),
             'comment_count': int(st.get('commentCount') or 0), 'share_count': int(st.get('shareCount') or 0),
             'create_time': int(i.get('createTime') or 0), 'desc': i.get('desc') or '',
-            'duration': int((i.get('video') or {}).get('duration') or 0) * 1000}
+            'duration': int((i.get('video') or {}).get('duration') or 0) * 1000,
+            'collect_count': int(st.get('collectCount') or 0),   # enregistrements (favoris)
+            'music': ((i.get('music') or {}).get('title') or '')[:60] + ('' if (i.get('music') or {}).get('original') else ' — ' + ((i.get('music') or {}).get('authorName') or '')[:30])}
 
 
 def latest_ids():
