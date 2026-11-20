@@ -83,6 +83,18 @@ if not items: sys.exit('aucune vidéo lue')
 L.ingest({'items': items, 'followers': f, 'hearts': W.HEARTS, 'source': 'public'})
 L.upload()
 
+# serveur Cyclom Stats (si configuré) : il reçoit le relevé brut et calcule tout lui-même, couvertures en pleine qualité
+try:
+    srv, cle = os.environ.get('CYCLOM_SERVEUR'), os.environ.get('CYCLOM_CLE')
+    if srv and cle:
+        import urllib.request
+        corps = {'compte': W.ACCOUNT, 'items': [{**i, 'cover': W.COVERS.get(str(i['item_id']))} for i in items],
+                 'followers': f, 'hearts': W.HEARTS, 'source': 'public'}
+        req = urllib.request.Request(srv.rstrip('/') + '/api/releve', data=json.dumps(corps).encode(),
+                                     headers={'content-type': 'application/json', 'x-cle': cle})
+        print('serveur :', urllib.request.urlopen(req, timeout=60).read().decode()[:200])
+except Exception as e: print('serveur :', e)
+
 # couvertures des vidéos (vignettes) pour le dashboard
 try:
     import covers
