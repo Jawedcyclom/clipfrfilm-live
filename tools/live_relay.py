@@ -54,6 +54,25 @@ def gained(now_v, ref, items=None):
     return g
 
 
+ARRONDI_M = 1_000_000   # au-delà d'1 M, le compteur public est arrondi à 100 000 près (« 1,2 M » → « 1,3 M »)
+
+
+def lisser(full, k, old, raw, now):
+    """Vidéo à plus d'1 M de vues : le compteur public saute de 100 000 d'un coup (22/11 : faux +100 k à 17 h).
+    On estime les vues réelles : rythme = 100 000 / durée du dernier palier, borné entre le palier affiché et le suivant."""
+    o_raw = old.get('vr', old.get('v', 0))
+    est, rate, j = old.get('v', raw), old.get('vrate'), old.get('vj')
+    if not j and o_raw:   # début du palier précédent retrouvé dans les vues par jour (midi du 1er jour à cette valeur)
+        ds = sorted(d for d, x in (full.get('vd', {}).get(k) or {}).items() if x == o_raw)
+        if ds: j = int(time.mktime((int(ds[0][:4]), int(ds[0][4:6]), int(ds[0][6:8]), 12, 0, 0, 0, 0, -1)) * 1000)
+    if raw > o_raw:   # palier franchi
+        if j: rate = (raw - o_raw) / max(now - j, 3 * 3600 * 1000)
+        j, est = now, max(est, raw)
+    elif rate:
+        est = min(raw + 99_999, est + rate * (now - old.get('vt', now)))
+    return int(max(est, raw)), {'vr': raw, 'vt': now, **({'vj': j} if j else {}), **({'vrate': rate} if rate else {})}
+
+
 def day_str(start, i):
     t = time.mktime((int(start[:4]), int(start[4:6]), int(start[6:8]) + i, 12, 0, 0, 0, 0, -1))
     return time.strftime('%Y%m%d', time.localtime(t))
@@ -240,8 +259,11 @@ def ingest(body):
         for k, i in items.items():
             if not int(i.get('create_time') or 0): continue
             v = int(i.get('play_count') or 0)
-            if pub: v = max(v, full['items'].get(k, {}).get('v', 0))   # compteur public arrondi : ne jamais redescendre
-            full['items'][k] = {'v': v, 'l': int(i.get('like_count') or 0), 'c': int(i.get('comment_count') or 0),
+            old = full['items'].get(k, {})
+            lisse = {}
+            if pub: v = max(v, old.get('v', 0))   # compteur public arrondi : ne jamais redescendre
+            if pub and v >= ARRONDI_M: v, lisse = lisser(full, k, old, int(i.get('play_count') or 0), now)
+            full['items'][k] = {'v': v, **lisse, 'l': int(i.get('like_count') or 0), 'c': int(i.get('comment_count') or 0),
                                 's': int(i.get('share_count') or 0), 't': int(i.get('create_time') or 0), 'd': (i.get('desc') or '')[:120],
                                 'du': int(i.get('duration') or 0) // 1000,
                                 **({'sv': int(i['collect_count'])} if i.get('collect_count') is not None else {}),

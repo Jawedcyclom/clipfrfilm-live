@@ -54,6 +54,9 @@ if SEED.exists() and L.FULL.exists():
             if s['t'] >= md and s.get('gd') is not None: s['gd'] += seed['offset']['g']
     for d, v in seed.get('daily', {}).items(): full.setdefault('daily', {}).setdefault(d, {}).update(v)
     full['items'].update(seed.get('items', {}))
+    # corrections de vues gagnées (ex. palier « 1,2 M → 1,3 M » réparti sur les heures où les vues ont vraiment eu lieu)
+    for h, g in seed.get('hourly_add', {}).items(): full.setdefault('hourly', {}).setdefault(h, {'g': 0})['g'] += g
+    for d, g in seed.get('daily_add', {}).items(): full.setdefault('daily', {}).setdefault(d, {})['g'] = full['daily'][d].get('g', 0) + g
     if seed.get('studio'): L.merge_studio(seed['studio'])   # relevé TikTok Studio fait dans le Chrome de Jawed
     if seed.get('backfill_hourly'):   # heures passées reconstruites à partir des relevés déjà faits (cumul du jour 'gd')
         sn = sorted([x for x in full['snaps'] if x.get('gd') is not None], key=lambda x: x['t'])
