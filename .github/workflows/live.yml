@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
 permissions:
   actions: write
-  contents: read
+  contents: write
 concurrency:
   group: live
   cancel-in-progress: false
@@ -19,7 +19,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: pip install -q yt-dlp curl_cffi pillow
+      - run: pip install -q yt-dlp curl_cffi pillow cryptography
       - run: curl -s https://rclone.org/install.sh | sudo bash > /dev/null
       - name: config rclone
         env:
@@ -53,6 +53,12 @@ jobs:
         env:
           TZ: Europe/Paris
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+      - name: Publier les statistiques chiffrées
+        continue-on-error: true
+        run: python tools/publier_chiffre.py
+        env:
+          DASH_MDP: ${{ secrets.DASH_MDP }}
+          GH_TOKEN: ${{ github.token }}
       - name: relancer le relevé suivant (5 min après le début de celui-ci)
         if: always()
         env:

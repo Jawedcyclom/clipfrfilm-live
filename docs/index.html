@@ -1,0 +1,1837 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#050b18"><meta name="robots" content="noindex"></head><body>
+<title>clipfrfilm Live</title>
+<meta name="cyclom-source" content="web">
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=Inter:wght@400;500;600;700&display=swap">
+<style>
+/* Mise en page : appli téléphone, une colonne de 560px max, barre d'onglets en bas, feuilles qui montent du bas. Look sombre façon TikTok (choix assumé, un seul thème). */
+:root{
+  --bg:#09090c; --panel:#141419; --panel2:#1c1c23; --edge:rgba(255,255,255,.09); --edge2:rgba(255,255,255,.16);
+  --fg:#f5f5f8; --fg2:#b4b4bf; --muted:#7f7f8b;
+  --accent:#fe2c55; --accent-soft:rgba(254,44,85,.16); --cyan:#25f4ee; --cyan-soft:rgba(37,244,238,.14);
+  --good:#3ecf8e; --good-soft:rgba(62,207,142,.15); --bad:#ff6b6b; --bad-soft:rgba(255,107,107,.14); --warn:#f0b43c;
+  --display:'TikTok Sans','Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --body:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --ease:cubic-bezier(.2,.8,.2,1);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{background:radial-gradient(600px 420px at 100% -8%,rgba(254,44,85,.16),transparent 70%),radial-gradient(520px 440px at -15% 40%,rgba(37,244,238,.07),transparent 70%),var(--bg);
+  background-attachment:fixed;color:var(--fg);font:15px/1.45 var(--body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:0 calc(92px + env(safe-area-inset-bottom,0px))}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--bg)}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:0;padding:0}
+:focus-visible{outline:2px solid var(--fg);outline-offset:2px;border-radius:8px}
+.num{font-variant-numeric:tabular-nums}
+.wrap{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.up{color:var(--good)}.down{color:var(--bad)}
+.muted{color:var(--muted)}
+h2{font:700 17px/1.2 var(--display);margin:0;letter-spacing:-.01em;text-wrap:balance}
+.sec{display:flex;flex-direction:column;gap:10px}
+.sec-h{display:flex;align-items:baseline;justify-content:space-between;gap:4px 10px;flex-wrap:wrap}
+.sec-h h2{flex:none}
+.sec-h small{color:var(--muted);font-size:12.5px}
+.card{background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.025));border:1px solid var(--edge);border-radius:18px;padding:14px}
+
+/* En-tête */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:rgba(9,9,12,.86);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  margin:0 calc(-1 * max(16px,env(safe-area-inset-left,0px)));padding:12px max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px));border-bottom:1px solid var(--edge)}
+.top-in{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
+.brand{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.logo{font:800 19px/1 var(--display);letter-spacing:-.02em}
+.logo b{color:var(--accent)}
+.fresh{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--good);box-shadow:0 0 0 3px var(--good-soft)}
+.accts{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -2px;padding:2px}
+.accts::-webkit-scrollbar{display:none}
+.acct{flex:none;display:flex;align-items:center;gap:7px;padding:6px 12px 6px 6px;border-radius:999px;border:1px solid var(--edge);background:var(--panel);font-size:13.5px;font-weight:600;white-space:nowrap}
+.acct[aria-pressed="true"]{border-color:var(--fg);background:var(--panel2)}
+.av{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font:700 11px var(--display);background:linear-gradient(135deg,var(--accent),#8a2be2);color:#fff}
+.av.all{background:linear-gradient(135deg,var(--cyan),var(--accent))}
+.acct.add{color:var(--fg2);padding:6px 12px;border-style:dashed}
+.demo{font-size:12.5px;color:var(--fg2);background:var(--cyan-soft);border:1px solid rgba(37,244,238,.25);border-radius:12px;padding:8px 11px}
+
+/* Direct */
+.hero{display:flex;flex-direction:column;gap:6px;padding:18px 16px}
+.hero .lbl{font-size:13px;color:var(--fg2);font-weight:500}
+.big{font:800 46px/1 var(--display);letter-spacing:-.03em}
+.pills{display:flex;flex-wrap:wrap;gap:6px}
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:600;padding:4px 9px;border-radius:999px;background:var(--panel2);border:1px solid var(--edge)}
+.pill.g{background:var(--good-soft);color:var(--good);border-color:transparent}
+.pill.b{background:var(--bad-soft);color:var(--bad);border-color:transparent}
+.est{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-top:6px;padding-top:12px;border-top:1px solid var(--edge)}
+.est b{font:700 20px var(--display)}
+.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.tile{background:var(--panel);border:1px solid var(--edge);border-radius:14px;padding:10px 11px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.tile span{font-size:12.5px;color:var(--muted);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile b{font:700 19px var(--display);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile small{font-size:11.5px}
+.alert{display:flex;gap:10px;align-items:center;background:var(--accent-soft);border:1px solid rgba(254,44,85,.3);border-radius:14px;padding:10px 12px;font-size:14px;text-align:left;width:100%}
+.alert img,.alert .ph{width:34px;height:60px;border-radius:6px;object-fit:cover;flex:none}
+.chart svg{display:block;width:100%;height:auto}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--fg2);flex-wrap:wrap}
+.legend i{display:inline-block;width:14px;height:3px;border-radius:2px;vertical-align:middle;margin-right:5px}
+
+/* Grilles de couvertures */
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.vc{position:relative;aspect-ratio:9/16;border-radius:10px;overflow:hidden;background:var(--panel2);border:1px solid var(--edge);text-align:left;max-width:100%}
+.vc img{width:100%;height:100%;object-fit:cover;display:block}
+.ph{background:linear-gradient(160deg,#25252e,#121217);display:flex;align-items:flex-end;padding:7px;font-size:10.5px;color:var(--fg2);line-height:1.25;overflow:hidden}
+.vc .ph{position:absolute;inset:0;align-items:flex-start;padding-top:10px}
+.vc .ov{position:absolute;inset:auto 0 0 0;padding:18px 6px 6px;background:linear-gradient(transparent,rgba(0,0,0,.85));display:flex;flex-direction:column;gap:1px}
+.vc .ov b{font:700 14px var(--display);display:flex;align-items:center;gap:4px}
+.vc .ov small{font-size:10.5px;color:#ddd}
+.vc .tag{position:absolute;top:5px;left:5px;font-size:10.5px;font-weight:700;padding:2px 6px;border-radius:6px;background:var(--accent);color:#fff}
+.vc .tag.c{background:var(--good);color:#06140d}
+.vc .tag.r{background:var(--warn);color:#1a1200}
+
+/* Listes */
+.rows{display:flex;flex-direction:column;gap:6px}
+.row{display:flex;align-items:center;gap:11px;padding:8px;border-radius:12px;background:var(--panel);border:1px solid var(--edge);text-align:left;width:100%}
+.row img,.row .ph{width:38px;height:68px;border-radius:7px;object-fit:cover;flex:none}
+.row .t{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.row .t span{font-size:13px;color:var(--fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .t b{font:700 16px var(--display)}
+.row .r{text-align:right;font-size:12.5px;flex:none}
+
+/* Contrôles */
+.chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:1px}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;padding:7px 12px;border-radius:999px;border:1px solid var(--edge);background:var(--panel);font-size:13px;font-weight:600;color:var(--fg2);white-space:nowrap}
+.chip[aria-pressed="true"]{background:var(--fg);color:#0b0b0e;border-color:var(--fg)}
+.search{display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--edge2);border-radius:14px;padding:0 12px}
+.search input{flex:1;min-width:0;background:none;border:0;outline:0;padding:12px 0;font-size:15px}
+.sumbar{display:flex;justify-content:space-between;align-items:center;gap:8px 10px;font-size:13px;color:var(--fg2);flex-wrap:wrap}
+.sumbar b{color:var(--fg);font-weight:700}
+.more{width:100%;padding:12px;border-radius:12px;border:1px solid var(--edge);background:var(--panel);font-weight:600;color:var(--fg2)}
+select.sel{background:var(--panel);border:1px solid var(--edge);border-radius:10px;padding:7px 10px;font-size:13px}
+
+/* Campagnes */
+.camp{display:flex;flex-direction:column;gap:10px;text-align:left;width:100%}
+.camp-h{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.camp-h b{font:700 16px var(--display)}
+.badge{font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px;background:var(--good-soft);color:var(--good)}
+.badge.off{background:var(--panel2);color:var(--muted)}
+.camp-n{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.camp-n div{display:flex;flex-direction:column}
+.camp-n span{font-size:11.5px;color:var(--muted)}
+.camp-n b{font:700 17px var(--display)}
+.bar{height:6px;border-radius:4px;background:var(--panel2);overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),#ff7a93)}
+.strip{display:flex;gap:4px;overflow:hidden}
+.strip img,.strip .ph{width:34px;height:60px;border-radius:6px;object-fit:cover;flex:none}
+
+/* Historique */
+.tbl-wrap{overflow-x:auto;border:1px solid var(--edge);border-radius:14px}
+table{border-collapse:collapse;width:100%;font-size:13px;min-width:520px}
+th,td{padding:9px 10px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--edge)}
+th{font-size:12.5px;color:var(--muted);font-weight:600;background:var(--panel)}
+td:first-child,th:first-child{text-align:left;position:sticky;left:0;background:var(--bg)}
+th:first-child{background:var(--panel)}
+tr:last-child td{border-bottom:0}
+td small{display:block;font-size:11px}
+
+/* Créneaux */
+.heat{display:grid;grid-template-columns:44px repeat(7,minmax(0,1fr));gap:3px;font-size:11px}
+.heat .hd{text-align:center;color:var(--muted);font-weight:600;padding-bottom:2px}
+.heat .hr{color:var(--muted);text-align:right;padding-right:4px;align-self:center}
+.cell{aspect-ratio:1.5/1;border-radius:6px;background:var(--panel);border:1px solid transparent;display:grid;place-items:center;font-size:10.5px;font-weight:700;color:rgba(255,255,255,.85);max-width:100%}
+.cell[aria-pressed="true"]{border-color:var(--fg);box-shadow:0 0 0 1px var(--fg)}
+.cell.top{outline:2px solid var(--cyan);outline-offset:-2px}
+.scale{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--muted)}
+.scale i{flex:1;height:8px;border-radius:4px;background:linear-gradient(90deg,#1c1c23,rgba(254,44,85,.45),#fe2c55)}
+.best{display:flex;flex-direction:column;gap:6px}
+.best div{display:flex;justify-content:space-between;gap:10px;font-size:14px;padding:9px 12px;border-radius:12px;background:var(--panel);border:1px solid var(--edge)}
+.best b{font-family:var(--display)}
+
+/* Barre d'onglets */
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:25;background:rgba(12,12,16,.94);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid var(--edge);
+  padding:6px max(8px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px))}
+.tabs-in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr)}
+.tab{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0;font-size:11px;font-weight:600;color:var(--muted)}
+.tab svg{width:22px;height:22px}
+.tab[aria-selected="true"]{color:var(--fg)}
+.tab[aria-selected="true"] svg{color:var(--accent)}
+.fab{position:fixed;right:max(16px,calc(env(safe-area-inset-right,0px) + 16px));bottom:calc(80px + env(safe-area-inset-bottom,0px));z-index:26;display:flex;align-items:center;gap:8px;
+  padding:12px 16px;border-radius:999px;background:var(--fg);color:#0b0b0e;font-weight:700;font-size:14px;box-shadow:0 10px 30px -8px rgba(0,0,0,.8)}
+.fab svg{width:18px;height:18px}
+
+/* Feuilles */
+.sheet-bg{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.6);display:flex;align-items:flex-end;justify-content:center}
+.sheet{width:100%;max-width:560px;max-height:88vh;overflow-y:auto;background:var(--panel);border-radius:22px 22px 0 0;border:1px solid var(--edge2);border-bottom:0;
+  padding:10px max(16px,env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:14px;animation:up .28s var(--ease)}
+@keyframes up{from{transform:translateY(40px);opacity:.4}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.sheet{animation:none}}
+.grab{width:40px;height:4px;border-radius:2px;background:var(--edge2);margin:0 auto}
+.sheet-h{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.x{width:34px;height:34px;border-radius:50%;background:var(--panel2);display:grid;place-items:center;font-size:18px;color:var(--fg2)}
+.vd{display:grid;grid-template-columns:120px minmax(0,1fr);gap:14px}
+.vd img,.vd .ph{width:120px;aspect-ratio:9/16;border-radius:12px;object-fit:cover;max-width:100%}
+.vd .info{display:flex;flex-direction:column;gap:8px;min-width:0}
+.vd .desc{font-size:13.5px;color:var(--fg2);overflow-wrap:anywhere}
+.kv{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.kv div{background:var(--panel2);border-radius:10px;padding:7px 9px;display:flex;flex-direction:column}
+.kv span{font-size:11px;color:var(--muted)}
+.kv b{font:700 15px var(--display)}
+.ms{display:grid;grid-template-columns:repeat(auto-fit,minmax(56px,1fr));gap:5px;text-align:center}
+.ms div{background:var(--panel2);border-radius:10px;padding:7px 2px}
+.ms span{display:block;font-size:11px;color:var(--muted)}
+.ms b{font:700 13.5px var(--display)}
+.link{display:inline-flex;justify-content:center;padding:12px;border-radius:12px;background:var(--accent);color:#fff;font-weight:700;text-decoration:none}
+
+/* Assistant */
+.chat{display:flex;flex-direction:column;gap:10px;min-height:120px}
+.msg{max-width:88%;padding:10px 13px;border-radius:16px;font-size:14.5px;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere}
+.msg.me{align-self:flex-end;background:var(--panel2);border:1px solid rgba(71,204,192,.45);color:var(--fg);border-bottom-right-radius:5px}
+.msg.ai{align-self:flex-start;background:var(--panel2);border-bottom-left-radius:5px}
+.ask{display:flex;gap:8px}
+.ask input{flex:1;min-width:0;background:var(--panel2);border:1px solid var(--edge2);border-radius:14px;padding:12px;outline:0}
+.ask button{padding:0 18px;min-height:46px;border-radius:14px;background:var(--cyclom);color:#04121a;font-weight:800}
+.ask button:disabled{opacity:.4}
+.quota{font-size:12px;color:var(--muted);text-align:center}
+.loading{padding:60px 0;text-align:center;color:var(--muted)}
+/* À retenir */
+.ins{display:flex;flex-direction:column;gap:6px}
+.in{display:flex;align-items:center;gap:11px;width:100%;text-align:left;padding:11px 12px;border-radius:14px;background:var(--panel);border:1px solid var(--edge);font-size:14px;line-height:1.35;transition:background .15s}
+.in:active{background:var(--panel2)}
+.in .ic{width:9px;height:9px;border-radius:50%;flex:none;background:var(--muted)}
+.in .ic.g{background:var(--good);box-shadow:0 0 0 4px var(--good-soft)}.in .ic.b{background:var(--bad);box-shadow:0 0 0 4px var(--bad-soft)}
+.in .ic.a{background:var(--accent);box-shadow:0 0 0 4px var(--accent-soft)}.in .ic.c{background:var(--cyan);box-shadow:0 0 0 4px var(--cyan-soft)}.in .ic.w{background:var(--warn)}
+.in span.tx{flex:1;min-width:0}.in b{font-weight:700}
+.in img,.in .ph{width:28px;height:50px;border-radius:5px;object-fit:cover;flex:none}
+.chev{color:var(--muted);flex:none;font-size:18px;line-height:1}
+.hourtip{font-size:13.5px;padding:9px 11px;border-radius:12px;background:var(--panel2);display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.chart svg [data-hour]{cursor:pointer}
+.links{display:flex;gap:8px;flex-wrap:wrap}
+.ext{display:inline-flex;align-items:center;gap:6px;padding:9px 13px;border-radius:12px;border:1px solid var(--edge);background:var(--panel);color:var(--fg2);font-size:13px;font-weight:600;text-decoration:none}
+.navv{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.navv button,.navv a{padding:11px;border-radius:12px;background:var(--panel2);font-weight:600;font-size:13.5px;text-align:center;color:var(--fg);text-decoration:none}
+.navv button:disabled{opacity:.3}
+.seg{display:inline-flex;border:1px solid var(--edge);border-radius:10px;overflow:hidden;flex:none}
+.seg button{padding:7px 10px;font-size:12.5px;font-weight:600;color:var(--fg2)}
+.seg button[aria-pressed="true"]{background:var(--fg);color:#0b0b0e}
+.bars{display:flex;flex-direction:column;gap:2px}
+.hb{display:grid;grid-template-columns:100px minmax(0,1fr) 88px;gap:10px;align-items:center;font-size:13px;width:100%;text-align:left;padding:7px 6px;border-radius:10px}
+button.hb:hover,button.hb:active{background:var(--panel2)}
+button.hb:disabled{cursor:default;opacity:.35}
+.hb .lb{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.2}
+.hb .tr{position:relative;height:12px;border-radius:6px;background:var(--panel2)}
+.hb .tr i{display:block;height:100%;border-radius:6px;background:#8a2a40}
+.hb.best .tr i{background:linear-gradient(90deg,var(--accent),#ff8fa6)}
+.hb.best .lb{font-weight:700}
+.hb.faible .tr i{background:#3a3a44}
+.hb .med{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--fg2);border-radius:1px}
+.hb .vl{display:flex;flex-direction:column;align-items:flex-end;line-height:1.15}
+.hb .vl b{font:700 14px var(--display)}
+.hb .vl small{font-size:11px;white-space:nowrap}
+.recette{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.rc{display:flex;flex-direction:column;gap:3px;text-align:left;padding:11px 12px;border-radius:14px;background:var(--panel2);border:1px solid var(--edge);font-size:14px;min-width:0}
+.rc .muted{font-size:12.5px;font-weight:500}
+.rc .rx{font:700 13px var(--display);color:var(--good)}
+.heat2{display:grid;grid-template-columns:30px repeat(7,minmax(0,1fr));gap:3px;font-size:11px}
+.heat2 .hd{text-align:center;color:var(--muted);font-weight:600}
+.heat2 .hr{color:var(--muted);text-align:right;align-self:center;padding-right:3px}
+.c2{height:30px;border-radius:6px;background:var(--panel2);font-size:10.5px;font-weight:700;color:#fff;font-variant-numeric:tabular-nums}
+.c2.vide{color:var(--muted);background:var(--panel)}
+.c2:disabled{cursor:default}
+tr[data-day]{cursor:pointer}
+tr[data-day]:active td{background:var(--panel2)}
+.daynav{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;gap:8px;align-items:center}
+.daynav button.ar{height:44px;border-radius:12px;background:var(--panel);border:1px solid var(--edge);font-size:20px;color:var(--fg)}
+.daynav button.ar:disabled{opacity:.3}
+.cal{position:relative;display:flex;align-items:center;justify-content:center;gap:8px;height:44px;border-radius:12px;background:var(--panel2);border:1px solid var(--edge2);font-weight:700;font-size:14.5px;overflow:hidden}
+.cal svg{width:17px;height:17px;color:var(--accent);flex:none}
+.cal input{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer}
+.chip.calchip{position:relative;display:inline-flex;align-items:center;gap:6px;overflow:hidden}
+.chip.calchip input{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer}
+.chip.calchip svg{width:14px;height:14px}
+main{transition:opacity .12s,transform .18s var(--ease)}
+main.glisse-g{opacity:.2;transform:translateX(-18px)}main.glisse-d{opacity:.2;transform:translateX(18px)}
+.say{margin:2px 0 0;font-size:15px;line-height:1.4;color:var(--fg2);max-width:36ch;text-wrap:pretty}
+.say b{color:var(--fg);font-weight:600}.say b.up{color:var(--good)}.say b.down{color:var(--bad)}
+.calh{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.calh b{font:700 17px var(--display);text-transform:capitalize}
+.calh button{width:40px;height:40px;border-radius:12px;background:var(--panel2);font-size:20px}
+.calh button:disabled{opacity:.25}
+.calg{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.calg .hd{text-align:center;font-size:12px;color:var(--muted);padding-bottom:2px}
+.cd{aspect-ratio:1/1.08;border-radius:10px;background:var(--panel2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font:700 14px var(--display);border:1.5px solid transparent;color:var(--fg)}
+.cd small{font:600 10.5px var(--body);color:rgba(255,255,255,.92);font-variant-numeric:tabular-nums}
+.cd:disabled{opacity:.22;cursor:default}
+.cd[aria-current="true"]{border-color:var(--fg)}
+.cd.record{box-shadow:inset 0 0 0 2px var(--cyan)}
+.cd.auj b{border-bottom:2px solid var(--accent)}
+.calf{font-size:13px;color:var(--fg2)}
+main.fade{opacity:.35}
+.dot.w{background:var(--warn);box-shadow:0 0 0 3px rgba(240,180,60,.18)}.dot.b{background:var(--bad);box-shadow:0 0 0 3px var(--bad-soft)}
+.dot.live{animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 6px rgba(62,207,142,0)}}
+.gear{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--panel);border:1px solid var(--edge);color:var(--fg2);flex:none}
+.gear svg{width:17px;height:17px}
+.brand-r{display:flex;align-items:center;gap:10px}
+.warnbox{display:flex;flex-direction:column;gap:8px;font-size:13.5px;color:var(--fg);background:var(--bad-soft);border:1px solid rgba(255,107,107,.3);border-radius:14px;padding:11px 12px}
+.warnbox.info{background:var(--cyan-soft);border-color:rgba(37,244,238,.25)}
+.warnbox a,.warnbox button{align-self:flex-start;padding:8px 12px;border-radius:10px;background:var(--fg);color:#0b0b0e;font-weight:700;font-size:13px;text-decoration:none}
+.sk{border-radius:18px;background:linear-gradient(90deg,var(--panel) 0%,var(--panel2) 50%,var(--panel) 100%);background-size:200% 100%;animation:sk 1.3s linear infinite;border:1px solid var(--edge)}
+@keyframes sk{to{background-position:-200% 0}}
+.mc{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:14px;background:var(--panel2);border:1px solid var(--edge)}
+.mc .t{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.mc .t small{font-size:12px}
+.mc button{font-size:12.5px;font-weight:600;padding:7px 10px;border-radius:10px;border:1px solid var(--edge2);color:var(--fg2)}
+.sheet{touch-action:pan-y}
+.sheet.back{transition:transform .2s var(--ease)}
+.tab{position:relative}
+.tab[aria-selected="true"]::before{content:"";position:absolute;top:-6px;left:30%;right:30%;height:2px;border-radius:2px;background:var(--accent)}
+@media (prefers-reduced-motion:reduce){.dot.live,.sk{animation:none}}
+/* ===== Compléments (23/11) dans le look original verre rose/cyan : objectif, guide, « poste maintenant », courbe du jour, PC ===== */
+:root{--gold:#25f4ee}
+.obj{order:9;display:flex;flex-direction:column;gap:8px;width:100%;text-align:left;padding-top:12px;margin-top:4px;border-top:1px solid var(--edge)}
+.obj .l{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:13.5px;color:var(--fg2)}
+.obj .l b{font:700 20px var(--display);color:var(--fg);white-space:nowrap}
+.obj .tr{height:6px;border-radius:3px;background:var(--panel2);overflow:hidden}
+.obj .tr i{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,var(--accent),#ff7a93)}
+.obj.fait .tr i{background:linear-gradient(90deg,var(--cyan),#8ffaf6)}
+.gain{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:13.5px;color:var(--fg2)}
+.gain b{font:700 19px var(--display);color:var(--cyan)}
+.money{display:flex;flex-direction:column;gap:6px}
+.champ{display:flex;align-items:center;gap:10px;justify-content:space-between;padding:10px 12px;border-radius:12px;background:var(--panel2)}
+.champ input{width:120px;min-height:40px;background:var(--bg);border:1px solid var(--edge2);border-radius:10px;padding:0 10px;color:var(--fg);font:600 16px var(--body);text-align:right}
+.btn{width:100%;min-height:46px;border-radius:12px;background:var(--accent);color:#fff;font-weight:700}
+.poste{border:1px solid rgba(254,44,85,.35);background:linear-gradient(135deg,rgba(254,44,85,.28),rgba(254,44,85,.08));border-radius:18px;padding:16px}
+.poste .t{font:800 21px/1.15 var(--display)}
+.poste p{margin:6px 0 12px;font-size:14.5px;line-height:1.45;color:var(--fg2)}
+.poste p b{color:var(--fg)}
+.poste a{display:inline-flex;align-items:center;min-height:44px;padding:0 18px;border-radius:12px;background:var(--accent);color:#fff;font-weight:700;text-decoration:none}
+.side-logo{display:none}
+.row .ph,.strip .ph,.in .ph,.alert .ph{font-size:0;background:linear-gradient(160deg,#2a2a33,#16161b)}
+.jc{display:block;width:100%;height:92px;margin:10px 0 2px}
+.jcl{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--muted)}
+.jcl i{display:inline-block;width:16px;height:0;border-top:2px solid var(--accent);vertical-align:middle;margin-right:6px}
+.jcl i.h{border-top:2px dashed rgba(255,255,255,.35)}
+.vc .ph{align-items:center;justify-content:center;text-align:center;padding:12px 10px 44px;font-size:11px;color:var(--muted)}
+.cd.record{box-shadow:inset 0 0 0 2px var(--cyan)}
+/* zones touchables confortables (44 px boutons, 36 px filtres) sans changer le look */
+.chip,.acct{min-height:36px}.more,.link,.daynav button.ar,.cal{min-height:44px}.gear,.x{min-width:40px;min-height:40px}
+/* ===== Style choisi par Jawed (23/11) : C + D = base Cyclom (bleu nuit, turquoise, Archivo) + touche néon TikTok (gros chiffre décalé rose/cyan, rose = aujourd'hui / ce qui baisse) =====
+   Rôles des couleurs : turquoise = Cyclom, navigation et action principale ; rose = la journée en cours et les baisses ; cyan = reflet néon.
+   Typo : Archivo (titres, chiffres) + Inter (texte). Tailles : 12 / 13 / 15 / 17 / 20 / 24 / 52. Arrondis : 8 petits, 12 boutons, 16 cartes, 22 feuilles. */
+:root{
+  --bg:#050b18; --panel:#0b1426; --panel2:#121d33; --edge:rgba(130,170,210,.13); --edge2:rgba(130,170,210,.24);
+  --fg:#eaf3f2; --fg2:#b6c3cf; --muted:#7c8ea4;
+  --cyclom:#47ccc0; --cyclom2:#6fe3d6; --cyclom-soft:rgba(71,204,192,.14);
+  --accent:#fe2c55; --accent-soft:rgba(254,44,85,.15); --cyan:#25f4ee; --cyan-soft:rgba(37,244,238,.12);
+  --good:#47ccc0; --good-soft:rgba(71,204,192,.14); --bad:#ff5c7c; --bad-soft:rgba(255,92,124,.14); --warn:#ffc35c;
+  --display:'Archivo','Inter',system-ui,sans-serif; --body:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --gold:#47ccc0;
+}
+body{background:radial-gradient(700px 420px at 100% -10%,rgba(71,204,192,.10),transparent 70%),radial-gradient(520px 380px at -10% 30%,rgba(254,44,85,.06),transparent 70%),var(--bg);background-attachment:fixed}
+.top{background:rgba(5,11,24,.88)}
+.logo{font:900 20px/1 var(--display);letter-spacing:-.01em}
+.logo b{color:var(--cyclom)}
+h2{font:800 18px/1.2 var(--display);letter-spacing:-.005em}
+.card{background:linear-gradient(180deg,rgba(18,29,51,.9),rgba(11,20,38,.9));border:1px solid var(--edge);border-radius:16px}
+.hero{border-radius:16px}
+.hero .lbl{font:600 13px var(--body);color:var(--fg2)}
+.big{font:900 52px/1 var(--display);letter-spacing:-.02em;text-shadow:-2px 0 rgba(37,244,238,.85),2px 0 rgba(254,44,85,.85)}
+.est b{font:800 20px var(--display)}
+.tile{background:var(--panel);border:1px solid var(--edge);border-radius:12px}
+.tile b{font:800 20px var(--display)}
+.tile b.up,.up{color:var(--cyclom)}
+.say b.up{color:var(--cyclom)}.say b.down{color:var(--accent)}
+/* boutons : principal turquoise (Cyclom), secondaires bleu nuit */
+.btn,.link,.poste a{background:var(--cyclom);color:#04121a;font-weight:800;border-radius:12px}
+.more,.ext{background:var(--panel2);border:1px solid var(--edge);border-radius:12px;color:var(--fg)}
+.chip{background:var(--panel);border:1px solid var(--edge);border-radius:10px;color:var(--fg2)}
+.chip[aria-pressed="true"]{background:var(--cyclom);border-color:var(--cyclom);color:#04121a}
+.acct{background:var(--panel);border:1px solid var(--edge);border-radius:10px}
+.acct[aria-pressed="true"]{border-color:var(--cyclom);background:var(--cyclom-soft)}
+.av{background:linear-gradient(135deg,var(--cyclom),#2a7fa8)}
+.seg{border-color:var(--edge);border-radius:10px}
+.seg button[aria-pressed="true"]{background:var(--cyclom);color:#04121a}
+.search{background:var(--panel);border-color:var(--edge2);border-radius:12px}
+.daynav button.ar,.cal{background:var(--panel);border:1px solid var(--edge);border-radius:12px}
+.cal svg{color:var(--cyclom)}
+.gear,.x{background:var(--panel2);border:1px solid var(--edge);border-radius:12px}
+.badge{background:var(--cyclom-soft);color:var(--cyclom);border-radius:6px}
+.bar i{background:linear-gradient(90deg,var(--cyclom),var(--cyclom2))}
+.obj .tr i{background:linear-gradient(90deg,var(--cyclom),var(--cyan))}
+.tile small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.obj.fait .tr i{background:linear-gradient(90deg,var(--cyclom),var(--cyclom2))}
+.poste{border:1px solid rgba(71,204,192,.4);background:linear-gradient(135deg,rgba(71,204,192,.22),rgba(37,244,238,.05))}
+.in,.row{background:var(--panel);border:1px solid var(--edge);border-radius:14px}
+.in .ic.g{background:var(--cyclom);box-shadow:0 0 0 4px var(--cyclom-soft)}
+.pill.g{background:var(--cyclom-soft);color:var(--cyclom)}
+.pill.b{background:var(--accent-soft);color:var(--bad)}
+.cd.record{box-shadow:inset 0 0 0 2px var(--cyclom)}
+.hb.best .tr i{background:linear-gradient(90deg,var(--cyclom),var(--cyclom2))}
+.hb .tr i{background:#1f5f66}
+.camp-h b,.camp-n b,.kv b,.ms b,.hb .vl b,.row .t b{font-family:var(--display);font-weight:800}
+.sheet{background:#0b1426;border-color:var(--edge2)}
+th{background:var(--panel)} td:first-child{background:var(--bg)}
+.fab{background:var(--panel2);color:var(--fg);border:1px solid var(--edge2);box-shadow:0 10px 30px -10px rgba(0,0,0,.8)}
+.fab svg{color:var(--cyclom)}
+/* vignettes vidéo : cadre net, dégradé lisible, vues en gros, gain du jour en turquoise, badge néon */
+.vc{border-radius:12px;border:1px solid var(--edge);background:var(--panel2)}
+.vc .ov{padding:28px 8px 8px;background:linear-gradient(transparent,rgba(3,7,16,.92) 70%)}
+.vc .ov b{font:800 16px var(--display);gap:5px}
+.vc .ov b svg{width:12px;height:12px;opacity:.9}
+.vc .ov small{font:600 11px var(--body);color:var(--fg2)}
+.vc .ov small.auj{color:var(--cyclom)}
+.vc .tag{top:7px;left:7px;font:800 11px var(--display);padding:3px 7px;border-radius:6px;background:var(--accent);box-shadow:-1.5px 0 var(--cyan)}
+.vc .tag.r{background:var(--warn);box-shadow:none}
+.vc .ph{background:radial-gradient(70% 45% at 50% 38%,rgba(71,204,192,.12),transparent 70%),linear-gradient(170deg,#14203a,#0a1222)}
+/* barre d'onglets : icône 24 px (remplie quand l'onglet est actif), libellé 11 px, onglet actif turquoise avec pastille */
+.tabs{background:rgba(5,11,24,.96);border-top:1px solid var(--edge)}
+.tab{min-height:54px;gap:4px;font:600 11px var(--body);color:var(--muted);position:relative}
+.tab svg{width:24px;height:24px;stroke-width:1.9}
+.tab .ico-in{opacity:0;transition:opacity .15s}
+.tab[aria-selected="true"]{color:var(--fg)}
+.tab[aria-selected="true"] svg{color:var(--cyclom)}
+.tab[aria-selected="true"] .ico-in{opacity:1}
+.tab[aria-selected="true"]::before{content:"";position:absolute;top:-6px;left:50%;width:22px;margin-left:-11px;height:3px;border-radius:0 0 3px 3px;background:var(--cyclom);right:auto}
+.tab span.pas{display:none}
+
+/* ===== Analyse en sous-onglets ===== */
+.segw{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;padding:4px;border-radius:14px;background:var(--panel);border:1px solid var(--edge);position:sticky;top:calc(env(safe-area-inset-top,0px) + 112px);z-index:5}
+.segw button{min-height:40px;border-radius:10px;font:700 13px var(--body);color:var(--fg2);padding:0 4px}
+.segw button[aria-selected="true"]{background:var(--cyclom);color:#04121a}
+.segw.seg2{grid-template-columns:1fr 1fr;position:static}.segw button:disabled{opacity:.35}
+.perl{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.note{font-size:12.5px;margin:0}
+.sig{display:block;height:4px;border-radius:2px;background:var(--panel2);overflow:hidden;margin-top:4px;max-width:180px}
+.sig i{display:block;height:100%;border-radius:2px;background:linear-gradient(90deg,var(--cyclom),var(--cyan))}
+.cmp{display:flex;flex-direction:column;gap:2px}
+.cmpl{display:grid;grid-template-columns:minmax(0,1fr) 1fr 1fr 48px;gap:8px;align-items:center;padding:9px 4px;border-bottom:1px solid var(--edge);font-size:13.5px}
+.cmpl:last-child{border-bottom:0}
+.cmpv{display:flex;flex-direction:column;line-height:1.2}
+.cmpv b{font:800 16px var(--display)}.cmpv small{font-size:11px;color:var(--muted)}
+.cmpr{font:800 15px var(--display);text-align:right}
+.cmpr.up{color:var(--cyclom)}.cmpr.down{color:var(--accent)}
+.mots{display:flex;flex-wrap:wrap;gap:6px}
+.mot{display:flex;flex-direction:column;align-items:flex-start;padding:8px 12px;border-radius:12px;background:var(--panel2);border:1px solid var(--edge);min-height:44px}
+.mot b{font:800 15px var(--display)}.mot span{font-size:11.5px;color:var(--muted)}
+.mot.up{border-color:rgba(71,204,192,.4)}.mot.up span{color:var(--cyclom)}
+.mot.down{border-color:rgba(254,44,85,.3)}.mot.down span{color:var(--bad)}
+.vie{display:grid;grid-template-columns:repeat(auto-fit,minmax(36px,1fr));gap:6px;align-items:end}
+.vj{display:flex;flex-direction:column;align-items:center;gap:4px}
+.vb{width:100%;height:110px;border-radius:8px;background:var(--panel2);display:flex;align-items:flex-end;overflow:hidden}
+.vb i{display:block;width:100%;background:linear-gradient(0deg,#1f5f66,var(--cyclom));border-radius:8px 8px 0 0}
+.vj.cle .vb i{background:linear-gradient(0deg,var(--cyclom),var(--cyan))}
+.vj b{font:800 13px var(--display)}.vj small{font-size:11px;color:var(--muted)}
+.vj.cle b{color:var(--cyclom)}
+@media (min-width:960px){.segw{top:84px}}
+/* ===== Vidéos : barre de recherche + filtres ; Historique en liste ; records ===== */
+.vbar{display:flex;gap:8px}.vbar .search{flex:1}
+.fbtn{position:relative;width:46px;min-height:46px;border-radius:12px;background:var(--panel);border:1px solid var(--edge2);display:grid;place-items:center;color:var(--fg2);flex:none}
+.fbtn svg{width:20px;height:20px}.fbtn.on{border-color:var(--cyclom);color:var(--cyclom)}
+.fbtn span{position:absolute;top:-5px;right:-5px;min-width:18px;height:18px;border-radius:9px;background:var(--cyclom);color:#04121a;font:800 11px/18px var(--body);text-align:center;padding:0 4px}
+.chip.actif{background:var(--cyclom-soft);border-color:rgba(71,204,192,.45);color:var(--fg);gap:8px;display:inline-flex;align-items:center}
+.chip.actif span{color:var(--cyclom);font-size:16px;line-height:1}
+.chips.multi{flex-wrap:wrap;overflow:visible;scroll-snap-type:none}
+.fgrp{display:flex;flex-direction:column;gap:8px}.fgrp>.muted{font-size:13px;font-weight:600}
+.seg button svg{display:block}
+.jours{display:flex;flex-direction:column;border:1px solid var(--edge);border-radius:16px;overflow:hidden;background:var(--panel)}
+.jr{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:12px 14px;border-bottom:1px solid var(--edge);min-height:56px}
+.jr:last-child{border-bottom:0}
+.jd{flex:1;min-width:0;display:flex;flex-direction:column}.jd b{font:700 15px var(--display)}.jd small{font-size:12px;color:var(--muted)}
+.jv{display:flex;flex-direction:column;align-items:flex-end}.jv b{font:800 17px var(--display)}.jv small{font-size:11.5px}
+.recs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.rec{display:flex;flex-direction:column;gap:2px;text-align:left;padding:12px;border-radius:14px;background:var(--panel);border:1px solid var(--edge);min-width:0}
+.rec small{font-size:12px;color:var(--muted)}.rec b{font:800 19px var(--display);color:var(--cyclom)}.rec span{font-size:12px;color:var(--fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media (min-width:960px){.recs{grid-template-columns:repeat(4,minmax(0,1fr))}}
+/* ===== Course au classement Cyclom ===== */
+.course{border-color:rgba(71,204,192,.35)}
+.podium{display:flex;flex-direction:column;margin-top:4px;border-top:1px solid var(--edge)}
+.pl{display:grid;grid-template-columns:28px minmax(0,1fr) auto 56px;gap:10px;align-items:center;padding:8px 4px;border-bottom:1px solid var(--edge);font-size:14px}
+.pl:last-child{border-bottom:0}
+.pl .pr{font:800 14px var(--display);color:var(--muted);text-align:center}
+.pl .pp{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pl .pv{font:700 14px var(--display)}.pl .pg{text-align:right;color:var(--cyclom);font-weight:700;font-size:13px}
+.pl.moi{background:var(--cyclom-soft);border-radius:10px;border-bottom-color:transparent}
+.pl.moi .pr,.pl.moi .pp{color:var(--fg);font-weight:800}
+@media (max-width:959px){.fab{width:52px;height:52px;padding:0;justify-content:center;font-size:0;border-radius:50%;gap:0}.fab svg{width:22px;height:22px}}
+body{padding-bottom:calc(150px + env(safe-area-inset-bottom,0px))}
+@media (min-width:960px){body{padding-bottom:40px}}
+.seg button{min-height:40px;min-width:44px}.chip,.acct{min-height:40px}.gear,.x,.calh button{min-width:44px;min-height:44px}
+.chips:not(.multi){-webkit-mask-image:linear-gradient(90deg,#000 88%,transparent);mask-image:linear-gradient(90deg,#000 88%,transparent);padding-right:24px}
+/* ===== Plan du jour, comparaison avec les meilleurs ===== */
+.cmpl.c4{grid-template-columns:minmax(0,1.15fr) 1fr 1fr 1fr}
+.slots{display:flex;flex-direction:column;gap:6px}
+.slot{display:grid;grid-template-columns:30px 70px minmax(0,1fr);gap:10px;align-items:center;padding:10px 12px;border-radius:12px;background:var(--panel2);border:1px solid var(--edge);min-height:52px}
+.slot .ck{width:26px;height:26px;border-radius:8px;border:2px solid var(--edge2);display:grid;place-items:center;font:900 15px var(--display);color:#04121a}
+.slot.ok .ck{background:var(--cyclom);border-color:var(--cyclom)}
+.slot.now{border-color:rgba(71,204,192,.6);background:var(--cyclom-soft)}
+.slot.rate{opacity:.55}
+.slot .st{display:flex;flex-direction:column;line-height:1.15}.slot .st b{font:800 18px var(--display)}.slot .st small{font-size:11.5px;color:var(--muted)}
+.slot.now .st small{color:var(--cyclom)}
+.slot .sd{font-size:13.5px;color:var(--fg2)}
+.insp{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.ic2{position:relative;aspect-ratio:9/16;border-radius:12px;overflow:hidden;background:var(--panel2);border:1px solid var(--edge);display:block;color:var(--fg);text-decoration:none}
+.ic2 img,.ic2 .ph{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.ic2 .ov{position:absolute;inset:auto 0 0 0;padding:26px 8px 8px;background:linear-gradient(transparent,rgba(3,7,16,.92) 70%);display:flex;flex-direction:column}
+.ic2 .ov b{font:800 16px var(--display)}.ic2 .ov small{font-size:11px;color:var(--cyclom)}
+.badge{font:700 10.5px var(--body);vertical-align:middle}
+.login{max-width:420px;margin:40px auto 0;width:100%}
+.login input{min-height:48px;border-radius:12px;background:var(--panel2);border:1px solid var(--edge2);padding:0 14px;color:var(--fg);font-size:16px}
+/* ===== Tactile : appui visible, pas de flash gris, pas de zoom au double appui ni sur les champs, défilement propre ===== */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{overscroll-behavior-y:none}
+button,a,label,[data-hour],tr[data-day]{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+button,a{-webkit-user-select:none;user-select:none}
+button:not(:disabled):active,a.link:active,a.ext:active,.vc:active,.row:active,.in:active,.camp:active,.cd:not(:disabled):active,.tile:active,.rc:active,.hb:not(:disabled):active{transform:scale(.97);transition:transform .08s}
+button,a.link,a.ext,.vc,.row,.in,.camp,.cd,.rc,.hb{transition:transform .15s var(--ease),background .15s}
+.search input,.ask input,.champ input{font-size:16px}
+.sheet{overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.grab{width:44px;height:5px;margin:2px auto 4px;position:relative}
+.grab::after{content:"";position:absolute;inset:-14px -40px}
+.chips,.accts{scroll-snap-type:x proximity;scroll-padding-inline:2px;-webkit-overflow-scrolling:touch}
+.chip,.acct{scroll-snap-align:start}
+.tab{-webkit-tap-highlight-color:transparent}
+@media (hover:none){button.hb:hover,.tab:hover{background:none}}
+@media (prefers-reduced-motion:reduce){button:active,.vc:active,.row:active{transform:none}}
+/* ===== PC (≥ 960 px) : onglets en colonne à gauche, contenu plus large, feuilles au centre ===== */
+@media (min-width:960px){
+  body{padding-left:252px;padding-right:32px;padding-bottom:40px;background-attachment:fixed}
+  .top{margin-left:-252px;margin-right:-32px;padding-left:252px;padding-right:32px}
+  .top-in,.wrap{max-width:980px}
+  .tabs{top:0;bottom:0;left:0;right:auto;width:220px;border-top:0;border-right:1px solid var(--edge);padding:22px 12px 16px}
+  .side-logo{display:block;padding:0 14px 26px}
+  .brand .logo{display:none}
+  .top-in{flex-direction:row;align-items:center;justify-content:space-between}
+  .accts{order:1;flex:1}.brand{order:2}
+  .tabs-in{grid-template-columns:1fr;gap:4px;max-width:none}
+  .tab{flex-direction:row;justify-content:flex-start;gap:14px;min-height:44px;padding:0 14px;border-radius:12px;font-size:15px}
+  .tab:hover{background:rgba(255,255,255,.05)}
+  .tab[aria-selected="true"]{background:rgba(255,255,255,.08)}
+  .tab[aria-selected="true"]::before{display:none}
+  .fab{bottom:24px;right:32px}
+  .jc{height:120px}
+  .tiles{grid-template-columns:repeat(6,minmax(0,1fr))}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+  .recette{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .sheet-bg{align-items:center;padding:24px}
+  .sheet{border-radius:22px;border-bottom:1px solid var(--edge2);max-height:86vh;max-width:640px}
+  .sheet .kv{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .sheet .vd{grid-template-columns:150px minmax(0,1fr)}.sheet .vd img,.sheet .vd .ph{width:150px}
+}
+</style>
+
+<header class="top">
+  <div class="top-in">
+    <div class="brand">
+      <div class="logo">clipfrfilm<b>.</b>Live</div>
+      <div class="brand-r"><div class="fresh"><span id="fresh">…</span></div>
+        <button class="gear" id="gear" type="button" aria-label="Mes comptes et réglages"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg></button></div>
+    </div>
+    <div class="accts" id="accts" role="group" aria-label="Choisir le compte"></div>
+  </div>
+</header>
+
+<main class="wrap" id="main" style="padding-top:14px">
+  <div class="sk" style="height:220px"></div><div class="tiles"><div class="sk" style="height:78px"></div><div class="sk" style="height:78px"></div><div class="sk" style="height:78px"></div></div><div class="sk" style="height:180px"></div>
+</main>
+
+<button class="fab" id="fab" type="button" aria-label="Ouvrir l'assistant">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 4.6L18.5 9.5l-4.6 1.9L12 16l-1.9-4.6L5.5 9.5l4.6-1.9z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg>
+  Assistant
+</button>
+
+<nav class="tabs" aria-label="Sections">
+  <div class="side-logo" aria-hidden="true"></div>
+  <div class="tabs-in" role="tablist" id="tabs">
+    <button class="tab" role="tab" data-v="direct" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ico-in" d="M13 2L4 14h7l-1 8 9-12h-7z" fill="currentColor" fill-opacity=".25" stroke="none"/><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg>Direct</button>
+    <button class="tab" role="tab" data-v="videos" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ico-in" d="M7 3h10a4 4 0 014 4v10a4 4 0 01-4 4H7a4 4 0 01-4-4V7a4 4 0 014-4z" fill="currentColor" fill-opacity=".25" stroke="none"/><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M10 8.5v7l6-3.5z" fill="currentColor"/></svg>Vidéos</button>
+    <button class="tab" role="tab" data-v="campagnes" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ico-in" d="M7 4h10v5a5 5 0 01-10 0z" fill="currentColor" fill-opacity=".25" stroke="none"/><path d="M7 4h10v5a5 5 0 01-10 0z"/><path d="M7 6H4.5a2.5 2.5 0 003 3.5M17 6h2.5a2.5 2.5 0 01-3 3.5M12 14v4M8.5 21h7M9.5 18h5"/></svg>Campagnes</button>
+    <button class="tab" role="tab" data-v="historique" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ico-in" d="M3 10h18v9a2 2 0 01-2 2H5a2 2 0 01-2-2z" fill="currentColor" fill-opacity=".25" stroke="none"/><rect x="3" y="4" width="18" height="17" rx="2.5"/><path d="M3 10h18M8 2.5v3M16 2.5v3M8 14.5v3M12 13v4.5M16 15.5v2"/></svg>Historique</button>
+    <button class="tab" role="tab" data-v="creneaux" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ico-in" d="M12 3a9 9 0 110 18 9 9 0 010-18z" fill="currentColor" fill-opacity=".25" stroke="none"/><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>Analyse</button>
+  </div>
+</nav>
+
+<div id="sheet" hidden></div>
+
+<script>
+(() => {
+'use strict';
+// ---------- Source des données ----------
+// Sur le vrai site, le serveur définit window.CYCLOM_API (ex. "/api/moi"). Sans ça : aperçu avec demo.json.
+// Trois sources : 'site' (window.CYCLOM_API, serveur Cyclom), 'drive' (dashboard perso : fichier du relevé cloud sur Google Drive), 'demo' (demo.json).
+const API = window.CYCLOM_API || null;
+const SITE = !!API;
+const SRC = document.querySelector('meta[name="cyclom-source"]')?.content;
+const WEB = !SITE && SRC === 'web';                       // page web (GitHub Pages) : données chiffrées, mot de passe
+const DRIVE = !SITE && (SRC === 'drive' || WEB);          // même comportement que le dashboard perso
+let COV = {};
+const TZ = 'Europe/Paris';
+const JOURS = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
+const JOURS_L = ['lundi','mardi','mercredi','jeudi','vendredi','samedi','dimanche'];
+
+let RAW = null, ACC = 'tous', VIEW = 'direct', AGENCE = false;
+try { AGENCE = !!localStorage.getItem('cs_agence'); } catch (e) {}
+const st = { jour:null, an:'resume', dvue:'monte', q:'', per:'tout', sort:'recent', shown:60, hPer:14, hMet:'g', slotMode:'post', slotSel:null, slotPer:30, heat:false, flt:'', vmode:'grille', hourSel:null };
+let CTX = []; const SCROLL = {};
+const ORDRE = ['direct','videos','campagnes','historique','creneaux'];
+try { const s = JSON.parse(localStorage.getItem('cs_ui') || '{}'); if (s.view) VIEW = s.view; if (s.acc) ACC = s.acc; } catch (e) {}
+const save = () => { try { localStorage.setItem('cs_ui', JSON.stringify({ view: VIEW, acc: ACC })); } catch (e) {} };
+
+// ---------- Outils ----------
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+const nb_ = t => t.replace(/\u202f/g, '\u00a0');
+const fmt = n => n == null || isNaN(n) ? '—' : nb_(Math.round(n).toLocaleString('fr-FR'));
+const k = n => { if (n == null || isNaN(n)) return '—'; const a = Math.abs(n);
+  if (a >= 1e6) return (n / 1e6).toLocaleString('fr-FR', { maximumFractionDigits: a >= 1e7 ? 1 : 2 }) + ' M';
+  if (a >= 1e4) return (n / 1e3).toLocaleString('fr-FR', { maximumFractionDigits: a >= 1e5 ? 0 : 1 }) + ' k';
+  return fmt(n); };
+const fx = f => f.toLocaleString('fr-FR', { maximumFractionDigits: f >= 10 ? 0 : 1 }) + '×';
+// largeur de dessin des graphiques : ~ la vraie largeur affichée, pour que les textes des axes restent petits et nets (PC compris)
+const CW = (feuille) => innerWidth >= 960 ? (feuille ? 520 : 820) : 340;
+const pct = (a, b) => b > 0 ? (a - b) / b * 100 : null;
+const pctTxt = p => p == null ? '' : (p >= 0 ? '+' : '−') + Math.abs(p).toLocaleString('fr-FR', { maximumFractionDigits: Math.abs(p) < 10 ? 1 : 0 }) + ' %';
+const median = a => { const s = a.filter(x => x != null && !isNaN(x)).sort((x, y) => x - y); if (!s.length) return null; const m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
+const parts = new Intl.DateTimeFormat('fr-FR', { timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', weekday: 'short', hourCycle: 'h23' });
+function pz(ms) { const o = {}; for (const p of parts.formatToParts(new Date(ms))) o[p.type] = p.value;
+  const wd = ['lun.','mar.','mer.','jeu.','ven.','sam.','dim.'].indexOf(o.weekday);
+  return { day: o.year + o.month + o.day, hour: +o.hour, key: o.year + o.month + o.day + o.hour.padStart(2, '0'), wd: wd < 0 ? 0 : wd }; }
+const dayLabel = d => { const dt = new Date(+d.slice(0, 4), +d.slice(4, 6) - 1, +d.slice(6, 8)); return JOURS[(dt.getDay() + 6) % 7] + ' ' + d.slice(6, 8) + '/' + d.slice(4, 6); };
+const ago = ms => { const m = Math.round((Date.now() - ms) / 60000); if (m < 1) return "à l'instant"; if (m < 60) return 'il y a ' + m + ' min'; const h = Math.floor(m / 60); if (h < 24) return 'il y a ' + h + ' h'; return 'il y a ' + Math.floor(h / 24) + ' j'; };
+const dateVid = t => new Date(t * 1000).toLocaleString('fr-FR', { timeZone: TZ, day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }).replace(' ', ' à ');
+const tags = d => (String(d || '').toLowerCase().match(/#[\p{L}\p{N}_]+/gu) || []).map(t => t.slice(1));
+const titreVid = v => { const t = sansTags(v.d); if (t) return t; const c = tags(v.d).find(x => x.startsWith('cyclomx'));
+  const nomC = c ? ((RAW?.campagnes || []).find(x => x.tag === c)?.nom || '#' + c) : 'Vidéo'; return nomC + (v.du ? ' · ' + v.du + ' s' : '') + ' · ' + dateVid(v.t); };
+const sansTags = d => String(d || '').replace(/#[\p{L}\p{N}_]+/gu, '').replace(/\s+/g, ' ').trim();
+const cover = (v, cls = '') => (v.cover = v.cover || COV[v.id]) ? `<img src="${esc(v.cover)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" class="${cls}" data-ph="${esc(sansTags(v.d).slice(0, 60))}">` : `<div class="ph ${cls}">${esc(sansTags(v.d).slice(0, 60))}</div>`;
+// couverture qui ne charge plus (lien TikTok expiré) : on remet le texte de la vidéo à la place
+document.addEventListener('error', e => { const i = e.target; if (i.tagName !== 'IMG' || !i.hasAttribute('data-ph')) return;
+  const d = document.createElement('div'); d.className = 'ph ' + i.className; d.textContent = i.dataset.ph; i.replaceWith(d); }, true);
+
+// ---------- Préférences du clippeur (gardées sur son téléphone) ----------
+const PREF = (() => { try { return JSON.parse(localStorage.getItem('cs_pref') || '{}'); } catch (e) { return {}; } })();
+const savePref = () => { try { localStorage.setItem('cs_pref', JSON.stringify(PREF)); } catch (e) {} };
+const eur = n => n == null || isNaN(n) ? '—' : nb_(n.toLocaleString('fr-FR', { maximumFractionDigits: n < 100 ? 2 : 0, minimumFractionDigits: n < 100 ? 2 : 0 })) + '\u00a0€';
+const estCamp = t => t.startsWith('cyclomx') || (RAW.campagnes || []).some(c => c.tag === t);
+// tarif d'une campagne en € pour 1000 vues : celui réglé par le clippeur, sinon celui donné par l'agence
+const tarif = t => (RAW.campagnes || []).find(c => c.tag === t && c.en_cours)?.cpm ?? null;
+function gains(A) {
+  let auj = 0, tot = 0, ok = false;
+  for (const v of A.videos) { const t = tags(v.d).find(x => tarif(x) != null); if (!t) continue; ok = true; const r = tarif(t) / 1000; auj += (v.gj || 0) * r; tot += v.v * r; }
+  return ok ? { auj, tot } : null;
+}
+// objectif de vues du jour : réglé par le clippeur, sinon ~10 % au-dessus de son rythme récent (médiane des 3 derniers jours)
+function objectif(A, C) {
+  const o = PREF.obj?.[A.id]; if (o) return { v: o, auto: false };
+  const cle = A.id + ':' + C.P.day, fixe = PREF.objJour?.[cle]; if (fixe) return { v: fixe, auto: true };
+  const Q = A.quotidien || {}, l = []; for (let i = 1; i <= 3; i++) { const g = Q[addJour(C.P.day, -i)]?.g; if (g) l.push(g); }
+  const m = median(l); if (!m) return null;
+  // atteignable : un peu au-dessus du rythme récent, mais jamais plus de 20 % au-dessus de l'estimation du jour (sinon ça décourage)
+  const now = C.now / 1000, par = median(A.videos.filter(x => now - x.t > 86400 && now - x.t < 14 * 86400 && !x.r).map(x => x.ms?.['24'] ?? x.v)) || 0;
+  let v = m * 1.05; if (C.est && v > C.est + 3 * par) v = C.est + 3 * par; // faisable : ce qui est prévu + 3 bonnes vidéos
+  const p = Math.pow(10, Math.floor(Math.log10(v)) - 1); v = Math.ceil(v / p) * p;
+  if (C.est && !C.partiel && C.P.hour >= 10) { PREF.objJour = Object.fromEntries(Object.entries(PREF.objJour || {}).filter(([kk]) => kk.endsWith(C.P.day))); PREF.objJour[cle] = v; savePref(); } // fixé pour la journée
+  return { v, auto: true };
+}
+// guide : pour faire « manque » vues, combien de vidéos, de quelle durée, à quelle heure (ses propres chiffres, 14 derniers jours)
+function guide(A, C, manque) {
+  if (!(manque > 0)) return null;
+  const now = C.now / 1000, rec = A.videos.filter(v => now - v.t > 86400 && now - v.t < 14 * 86400 && !v.r);
+  const par = median(rec.map(v => v.ms?.['24'] ?? v.v)); if (!par) return null;
+  const D = parDuree(A, C), bd = D.rows.filter(r => r.n >= 5 && r.m).sort((a, b) => b.m - a.m)[0];
+  const parBest = bd && bd.m > par ? bd.m : par;
+  const n = Math.max(1, Math.ceil(manque / parBest)), F = heuresFortes(A, C);
+  let quand = null; if (F) for (let i = 0; i < 24; i++) { const h = (C.P.hour + i) % 24; if (F.has(h)) { quand = i === 0 ? 'maintenant' : (C.P.hour + i >= 24 ? 'demain ' : '') + 'vers ' + h + 'h'; break; } }
+  const jours = n > 5 ? Math.ceil(n / 5) : 1; // sain : pas plus de 5 vidéos par jour
+  return { n, jours, par: parBest, duree: bd && bd.m > par * 1.1 ? bd.l : null,
+    quand };
+}
+const guideTxt = g => !g ? '' : `<b>${g.n} vidéo${g.n > 1 ? 's' : ''}</b>${g.jours > 1 ? ` sur ${g.jours} jours` : ''}${g.duree ? ` de <b>${g.duree}</b>` : ''}${g.quand ? ` <b>${g.quand}</b>` : ''} (≈ ${k(g.par)} vues chacune en 24 h).`;
+
+// course au classement Cyclom (top 10 payé). Source : RAW.classement (serveur) ou fichier Drive cyclom_classement.json (CLASSEMENT),
+// format { campagnes:[{ id, nom, tag, fin, prix:{vues,posts,bonus}, lignes:[{ pseudo, comptes, rv, rp, vues, clips, meilleur, gain }] }] }.
+let CLASSEMENT = null;
+function mesComptesTT(A) { return new Set([...(A.user || '').split(' + '), ...RAW.comptes.map(c => c.user)].filter(Boolean).map(x => String(x).toLowerCase())); }
+function courses(A) {
+  const src = RAW.classement || CLASSEMENT; if (!src?.campagnes) return [];
+  const moi = mesComptesTT(A), out = [];
+  for (const c of src.campagnes) {
+    const L = c.lignes || [], m = L.find(l => (l.comptes || [l.pseudo]).some(x => moi.has(String(x).toLowerCase())));
+    if (!m) continue;
+    const fin = c.fin ? new Date(c.fin + 'T23:59:00').getTime() : null;
+    // ordre OFFICIEL de cyclom.fr (rangVues / rangPosts), rien n'est recalculé ici ; sans place = en fin de liste
+    // place = ordre des vues validées par cyclom.fr (l'ordre « rang » de cyclom.fr n'est pas toujours trié : 9e < 10e)
+    const officiel = cle => [...L].filter(l => (cle === 'rv' ? l.vues : l.clips) > 0 || l === m)
+      .sort((a, b) => cle === 'rv' ? b.vues - a.vues || b.clips - a.clips : b.clips - a.clips || b.vues - a.vues);
+    out.push({ ...c, type: 'vues', cle: 'rv', prixL: c.prix?.vues || [], moi: m, fin, tri: officiel('rv') });
+    if ((c.prix?.posts || []).length) out.push({ ...c, type: 'clips', cle: 'rp', prixL: c.prix.posts, moi: m, fin, tri: officiel('rp') });
+  }
+  return out;
+}
+function course(A, C, mode) {
+  const L = courses(A); if (!L.length) return '';
+  return L.map(x => {
+    const val = r => x.type === 'clips' ? r.clips : r.vues, unite = x.type === 'clips' ? 'clips' : 'vues';
+    const i = x.tri.indexOf(x.moi), place = i + 1, devant = x.tri[i - 1], derriere = x.tri[i + 1], dixieme = x.tri[x.prixL.length - 1];
+    const prix = p => x.prixL[p - 1] || 0, gainSuivant = devant ? prix(place - 1) - prix(place) : 0;
+    const manque = devant ? val(devant) - val(x.moi) + 1 : 0, avance = derriere ? val(x.moi) - val(derriere) : null;
+    const g = x.type === 'clips' || !manque ? null : guide(A, C, manque);
+    // prix provisoire officiel (gain calculé par cyclom.fr), sinon le prix de la place
+    const titre = place <= x.prixL.length ? `${place}${place === 1 ? 'er' : 'e'} · ${eur(prix(place))}` : `${place}e · hors des prix`;
+    let t;
+    if (place === 1) t = `Tu es devant tout le monde.${avance != null ? ` Le 2e est à <b>${k(avance)} ${unite}</b> derrière toi : continue à poster pour garder ta place.` : ''}`;
+    else if (place > x.prixL.length && dixieme) t = `Il te manque <b>${k(val(dixieme) - val(x.moi) + 1)} ${unite}</b> pour entrer dans les prix et gagner <b>${eur(prix(x.prixL.length))}</b>.`;
+    else t = `Il te manque <b>${k(manque)} ${unite}</b> pour passer ${place - 1 === 1 ? '1er' : (place - 1) + 'e'} et gagner <b>${eur(gainSuivant)} de plus</b>.${avance != null ? ` Le suivant est à ${k(avance)} ${unite} derrière toi.` : ''}`;
+    // rythme (vues gagnées par heure depuis le relevé précédent) : quand passes-tu devant, quand te rattrape-t-on
+    if (x.type === 'vues' && x.moi.vh != null) {
+      const vm = x.moi.vh || 0, dur = hh => hh < 1 ? 'moins d’1 h' : hh < 48 ? '≈ ' + Math.round(hh) + ' h' : '≈ ' + Math.round(hh / 24) + ' jours';
+      if (devant && devant.vh != null && vm > devant.vh) t += ` À ce rythme (+${k(vm)}/h contre +${k(devant.vh)}/h), tu passes devant dans <b>${dur(manque / (vm - devant.vh))}</b>.`;
+      else if (devant && devant.vh != null) t += ` Le ${place - 1 === 1 ? '1er' : (place - 1) + 'e'} prend +${k(devant.vh)} vues/h, toi +${k(vm)}/h : il faut accélérer.`;
+      if (derriere && derriere.vh != null && derriere.vh > vm && avance > 0) t += ` <b class="down">Le suivant va plus vite</b> (+${k(derriere.vh)}/h) : il te rattrape dans ${dur(avance / (derriere.vh - vm))}.`;
+    }
+    const reste = x.fin ? x.fin - Date.now() : null;
+    const finTxt = reste == null ? '' : reste <= 0 ? 'Campagne terminée, résultats après vérification.' : reste < 864e5 ? `Fin de la campagne dans ${Math.max(1, Math.round(reste / 3600e3))} h.` : `Fin de la campagne dans ${Math.round(reste / 864e5)} jours.`;
+    let h = `<section class="card money course"><div class="gain"><span>${esc(x.nom)}${x.type === 'clips' ? ' · classement des clips' : ''}</span><b class="num">${titre}</b></div>
+      <p class="say" style="max-width:none">${t}</p>${g ? `<p class="say" style="max-width:none;font-size:14px">Pour y arriver : ${guideTxt(g)}</p>` : ''}
+      <div class="muted" style="font-size:12.5px">${finTxt ? finTxt + ' ' : ''}${(() => { const mj = new Date((RAW.classement || CLASSEMENT).maj).getTime(), vieux = Date.now() - mj > 3 * 3600e3; return `${vieux ? '<b class="down">Classement pas mis à jour depuis ' + ago(mj).replace('il y a ', '') + '.</b> ' : ''}Place selon les vues validées par cyclom.fr (tout est recompté avant le paiement), relevé ${ago(mj)}.`; })()}</div>`;
+    if (mode === 'complet') {
+      const top = x.tri.slice(0, Math.max(10, x.prixL.length)), lignes = top.includes(x.moi) ? top : [...top, x.moi];
+      h += `<div class="podium">${lignes.map(r => { const p = x.tri.indexOf(r) + 1; return `<div class="pl ${r === x.moi ? 'moi' : ''}"><span class="pr">${p}</span><span class="pp">${r === x.moi ? 'Toi' : 'Clippeur ' + p}</span><span class="pv num">${k(val(r))}</span><span class="pg num">${prix(p) ? eur(prix(p)) : ''}</span></div>`; }).join('')}</div>`;
+    }
+    return h + `</section>`;
+  }).join('');
+}
+
+// série : jours d'affilée avec au moins une vidéo postée (aujourd'hui compte s'il y en a déjà une)
+function serie(A, C) {
+  const jours = new Set(A.videos.map(v => pz(v.t * 1000).day)); let d = jours.has(C.P.day) ? C.P.day : C.yd, n = 0;
+  while (jours.has(d) && n < 999) { n++; d = addJour(d, -1); } return n;
+}
+
+// ---------- Calendrier ----------
+const ICAL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>';
+const addJour = (d, n) => { const dt = new Date(+d.slice(0, 4), +d.slice(4, 6) - 1, +d.slice(6, 8) + n); return dt.getFullYear() + String(dt.getMonth() + 1).padStart(2, '0') + String(dt.getDate()).padStart(2, '0'); };
+const versInput = d => d.slice(0, 4) + '-' + d.slice(4, 6) + '-' + d.slice(6, 8);
+const depuisInput = v => v.replace(/-/g, '');
+function bornes(A, C) { let mn = C.P.day; for (const v of A.videos) { const d = pz(v.t * 1000).day; if (d < mn) mn = d; } for (const d of Object.keys(A.quotidien || {})) if (d < mn) mn = d; return { mn, mx: C.P.day }; }
+const MOIS = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+function calendrier(cible, sel, mois) {
+  const A = compteCourant(), C = calc(A), B = bornes(A, C), Q = A.quotidien || {};
+  const m = mois || sel.slice(0, 6), y = +m.slice(0, 4), mo = +m.slice(4, 6) - 1;
+  const nbj = new Date(y, mo + 1, 0).getDate(), dec = (new Date(y, mo, 1).getDay() + 6) % 7;
+  const jours = Array.from({ length: nbj }, (_, i) => m + String(i + 1).padStart(2, '0'));
+  const vals = jours.map(d => Q[d]?.g ?? null), ok = vals.filter(v => v > 0);
+  const mx = Math.max(1, ...ok), tot = ok.reduce((a, b) => a + b, 0);
+  const iTop = ok.length >= 3 ? vals.indexOf(Math.max(...ok)) : -1;
+  const prevM = (mo === 0 ? (y - 1) + '12' : y + String(mo).padStart(2, '0')), nextM = (mo === 11 ? (y + 1) + '01' : y + String(mo + 2).padStart(2, '0'));
+  let h = `<div class="grab"></div><div class="calh"><button type="button" data-calm="${prevM}" ${prevM < B.mn.slice(0, 6) ? 'disabled' : ''} aria-label="Mois d'avant">‹</button><b>${MOIS[mo]} ${y}</b><button type="button" data-calm="${nextM}" ${nextM > B.mx.slice(0, 6) ? 'disabled' : ''} aria-label="Mois d'après">›</button></div>
+    <div class="calg">${['L','M','M','J','V','S','D'].map(j => `<div class="hd">${j}</div>`).join('')}${'<div></div>'.repeat(dec)}`;
+  jours.forEach((d, i) => { const v = vals[i], hors = d < B.mn || d > B.mx, a = v > 0 ? .14 + .78 * Math.pow(v / mx, .75) : 0;
+    h += `<button class="cd ${i === iTop ? 'record' : ''} ${d === C.P.day ? 'auj' : ''}" type="button" data-cal="${d}" ${hors ? 'disabled' : ''} aria-current="${d === sel}" aria-label="${dayLabel(d)}${v != null ? ', ' + fmt(v) + ' vues' : ''}" style="${a ? `background:rgba(71,204,192,${a.toFixed(2)})` : ''}"><b>${i + 1}</b><small>${v > 0 ? k(v).replace(' ', '') : ''}</small></button>`; });
+  h += `</div><div class="calf">${ok.length ? `En ${MOIS[mo]} : <b class="num">${k(tot)}</b> vues sur ${ok.length} jour${ok.length > 1 ? 's' : ''}${iTop >= 0 ? `. Meilleur jour : le ${iTop + 1} (${k(vals[iTop])}), entouré.` : '.'}` : 'Pas de chiffres pour ce mois.'} Plus la case est turquoise, plus le jour a fait de vues.</div>`;
+  ouvrir(h); const sh = $('#sheet'); sh.dataset.cal = cible; sh.dataset.sel = sel;
+}
+function choisirJour(cible, d) {
+  fermer();
+  if (cible === 'djour') { st.jour = d === pz(RAW.maj).day ? null : d; st.hourSel = null; if (VIEW !== 'direct') return go('direct', true); render(); return window.scrollTo({ top: 0 }); }
+  if (cible === 'vday') { st.flt = ''; st.per = d === pz(RAW.maj).day ? 'jour' : d === pz(RAW.maj - 864e5).day ? 'hier' : 'd:' + d; st.shown = 60; return render(); }
+  return ficheJour(d); // fday, hday
+}
+function jourLong(d, C) { return d === C.P.day ? "Aujourd'hui" : d === C.yd ? 'Hier' : d === addJour(C.yd, -1) ? 'Avant-hier · ' + dayLabel(d) : dayLabel(d) + '/' + d.slice(0, 4); }
+function navJour(d, A, C, id) { const B = bornes(A, C);
+  return `<div class="daynav"><button class="ar" type="button" data-dj="${addJour(d, -1)}" data-for="${id}" aria-label="Jour d'avant" ${d <= B.mn ? 'disabled' : ''}>‹</button>
+    <button class="cal" type="button" data-calo="${id}" data-sel="${d}" aria-label="Ouvrir le calendrier">${ICAL}<span>${jourLong(d, C)}</span></button>
+    <button class="ar" type="button" data-dj="${addJour(d, 1)}" data-for="${id}" aria-label="Jour d'après" ${d >= B.mx ? 'disabled' : ''}>›</button></div>`; }
+
+// ---------- Fusion des comptes ----------
+function compteCourant() {
+  const L = RAW.comptes;
+  if (ACC !== 'tous') { const a = L.find(x => x.id === ACC); if (a) return a; ACC = 'tous'; }
+  if (L.length === 1) return L[0];
+  const sumMap = (key, inner) => { const o = {}; for (const a of L) for (const [kk, v] of Object.entries(a[key] || {})) {
+    if (inner) { o[kk] = o[kk] || {}; for (const [f, x] of Object.entries(v)) o[kk][f] = (o[kk][f] || 0) + (x || 0); }
+    else o[kk] = (o[kk] || 0) + (v || 0); } return o; };
+  const vids = []; for (const a of L) for (const v of a.videos) vids.push({ ...v, acc: a.user });
+  vids.sort((a, b) => b.t - a.t);
+  return { id: 'tous', user: L.map(a => a.user).join(' + '), abonnes: L.reduce((s, a) => s + (a.abonnes || 0), 0), likes: L.reduce((s, a) => s + (a.likes || 0), 0),
+    nb_videos: L.reduce((s, a) => s + (a.nb_videos || 0), 0), vues_total: L.reduce((s, a) => s + (a.vues_total || 0), 0),
+    jour: { gained: L.reduce((s, a) => s + (a.jour?.gained || 0), 0), since: Math.max(0, ...L.map(a => a.jour?.since || 0)) || null }, heure: { gained: L.every(a => a.heure?.gained == null) ? null : L.reduce((s, a) => s + (a.heure?.gained || 0), 0) },
+    abonnes_jour: L.reduce((s, a) => s + (a.abonnes_jour || 0), 0), horaire: sumMap('horaire'), quotidien: sumMap('quotidien', true), videos: vids, courbe: null };
+}
+
+// ---------- Calculs ----------
+function calc(A) {
+  const now = RAW.maj || Date.now(), P = pz(now);
+  const yd = pz(now - 864e5).day;
+  const H = A.horaire || {};
+  const frac = (new Date(now).getMinutes()) / 60;
+  const cumAt = (day, h, f) => { let s = 0, ok = false; for (let i = 0; i < h; i++) { const v = H[day + String(i).padStart(2, '0')]; if (v != null) { s += v; ok = true; } }
+    const v = H[day + String(h).padStart(2, '0')]; if (v != null) { s += v * f; ok = true; } return ok ? s : null; };
+  const today = A.jour?.gained ?? 0;
+  const md = now - ((P.hour * 60 + new Date(now).getMinutes()) * 60e3);
+  const partiel = A.jour?.since && A.jour.since - md > 20 * 60e3 ? A.jour.since : null; // relevé commencé en cours de journée
+  const ySame = partiel ? null : cumAt(yd, P.hour, frac);
+  const yTot = A.quotidien?.[yd]?.g ?? cumAt(yd, 24, 0);
+  // estimation : part de la journée habituellement faite à cette heure (7 derniers jours complets)
+  const fr = [];
+  for (let i = 1; i <= 7; i++) { const d = pz(now - i * 864e5).day; const tot = A.quotidien?.[d]?.g; const c = cumAt(d, P.hour, frac);
+    let hours = 0; for (let h = 0; h < 24; h++) if (H[d + String(h).padStart(2, '0')] != null) hours++;
+    if (tot > 0 && c != null && hours >= 20) fr.push(c / tot); }
+  const f = median(fr);
+  const est = !partiel && f && f > 0.04 ? today / f : null;
+  // normale par âge : médiane des vues à 1/3/6/12/24 h
+  const msMed = {}; for (const m of ['1','3','6','12','24']) msMed[m] = median(A.videos.slice(0, 300).map(v => v.ms?.[m]).filter(x => x > 0));
+  const vieux = A.videos.filter(v => now / 1000 - v.t > 2 * 86400).slice(0, 60);
+  const normal = median(vieux.map(v => v.v));
+  const attendu = age => { let m = null; for (const x of ['1','3','6','12','24']) if (age >= +x && msMed[x]) m = x;
+    return age > 30 ? normal : m ? msMed[m] : msMed['1']; };
+  const fois = v => { const ref = attendu((now / 1000 - v.t) / 3600); return ref > 0 ? v.v / ref : null; };
+  // vidéo peut-être bloquée : entre 2 h et 3 jours, moins de 15 % des vues habituelles à cet âge
+  const suspecte = v => { const age = (now / 1000 - v.t) / 3600; if (age < 2 || age > 72 || v.r) return false; const ref = attendu(age); return ref >= 500 && v.v < ref * .15; };
+  const duJour = A.videos.filter(v => pz(v.t * 1000).day === P.day);
+  return { now, P, yd, today, ySame, yTot, est, normal, fois, suspecte, duJour, partiel, Q: A.quotidien?.[P.day] || {} };
+}
+
+// ---------- Rendu : en-tête ----------
+function fraicheur() {
+  if (!RAW || !RAW.maj) return; const m = (Date.now() - RAW.maj) / 60000, lim = DRIVE ? 20 : 45;
+  $('#fresh').textContent = 'Mis à jour ' + ago(RAW.maj);
+}
+function renderHead() {
+  fraicheur();
+  const sl = $('.side-logo'); if (sl && !sl.innerHTML) sl.innerHTML = $('.logo').outerHTML;
+  const L = RAW.comptes;
+  let h = '';
+  if (L.length > 1) h += `<button class="acct" type="button" data-acc="tous" aria-pressed="${ACC === 'tous'}"><span class="av all">∑</span>Tous mes comptes</button>`;
+  for (const a of L) h += `<button class="acct" type="button" data-acc="${esc(a.id)}" aria-pressed="${ACC === a.id || L.length === 1}"><span class="av">${esc((a.user || '?')[0].toUpperCase())}</span>@${esc(a.user)}</button>`;
+  if (!DRIVE) h += `<button class="acct add" type="button" id="addAcc">+ Ajouter un compte</button>`;
+  $('#accts').innerHTML = h;
+}
+
+// ---------- Vue : Direct ----------
+function vDirect(A, C) {
+  if (st.jour && st.jour !== C.P.day) return navJour(st.jour, A, C, 'djour') + vJourPasse(A, C, st.jour);
+  const p = pct(C.today, C.ySame);
+  const nb = C.duJour.length;
+  const hot = [...C.duJour, ...A.videos.slice(0, 40)].map(v => ({ v, f: C.fois(v) })).filter(x => x.f >= 3 && x.v.v >= 1000).sort((a, b) => b.f - a.f)[0];
+  let h = '';
+  if ((SITE || DRIVE) && Date.now() - RAW.maj > (DRIVE ? 20 : 45) * 60000) h += `<div class="warnbox">Le dernier relevé date de ${ago(RAW.maj).replace('il y a ', '')} : les chiffres du jour peuvent être en dessous de la réalité.</div>`;
+  h += bandeaux();
+  if (!SITE && !DRIVE) h += `<div class="demo">Aperçu avec les vrais chiffres de @clipfrfilm. Sur le site, chaque clippeur voit ses propres comptes.</div>`;
+  h += navJour(C.P.day, A, C, 'djour');
+  h += posteMaintenant(A, C);
+  h += course(A, C, 'court');
+  h += `<section class="card hero">
+    <div class="lbl" style="display:flex;justify-content:space-between;align-items:center;gap:8px">${C.partiel ? 'Vues depuis ' + new Date(C.partiel).toLocaleTimeString('fr-FR', { timeZone: TZ, hour: '2-digit', minute: '2-digit' }).replace(':', 'h') : "Vues aujourd'hui"}</div>
+    <div class="big num">${fmt(C.today)}</div>
+    <p class="say">${phrase(A, C)}</p>
+    ${C.partiel ? '' : courbeJour(A, C, C.P.day)}
+    <div class="est"><span class="muted">Estimation fin de journée</span><b class="num">${C.est ? '≈ ' + k(C.est) : '—'}</b></div>
+    ${(() => { const o = objectif(A, C); if (!o || C.partiel) return ''; const r = C.today / o.v, fait = r >= 1;
+      const manque = C.est ? o.v - C.est : o.v - C.today, g0 = !fait && manque > 0 ? guide(A, C, manque) : null, g = g0 && g0.n <= 5 ? g0 : null;
+      return `<button class="obj ${fait ? 'fait' : ''}" type="button" data-objo aria-label="Régler mon objectif"><span class="l"><span>${fait ? 'Objectif atteint, bien joué' : C.est && C.est >= o.v ? 'Objectif du jour : bien parti' : 'Objectif du jour'} · ${Math.min(999, Math.round(r * 100))} %</span><b class="num">${k(o.v)}</b></span><span class="tr"><i style="width:${Math.min(100, r * 100).toFixed(1)}%"></i></span>
+        ${g ? `<span class="say" style="font-size:14px;max-width:none">Il manquera ≈ <b>${k(manque)}</b> vues → ${guideTxt(g)}</span>` : ''}</button>`; })()}
+    ${C.yTot ? `<div class="est" style="border:0;padding:0;margin:0"><span class="muted">Hier au total</span><span class="num">${k(C.yTot)}</span></div>` : ''}
+  </section>`;
+  const Q = C.Q;
+  h += `<div class="tiles">
+    <div class="tile"><span>Sur 1 heure</span><b class="num">${A.heure?.gained != null ? '+' + k(A.heure.gained) : '—'}</b><small class="muted">vues</small></div>
+    <div class="tile"><span>Abonnés</span><b class="num ${A.abonnes_jour > 0 ? 'up' : ''}">${A.abonnes_jour != null ? (A.abonnes_jour >= 0 ? '+' : '') + fmt(A.abonnes_jour) : '—'}</b><small class="muted">${k(A.abonnes)} au total</small></div>
+    ${nb ? `<div class="tile"><span>Postées</span><b class="num">${nb}</b><small class="muted">${(() => { const sr = serie(A, C); return sr >= 2 ? `série : ${sr} jours` : `vidéo${nb > 1 ? 's' : ''} aujourd'hui`; })()}</small></div>`
+      : `<div class="tile"><span>Dernière vidéo</span><b class="num">${A.videos[0] ? Math.floor((C.now / 1000 - A.videos[0].t) / 3600) + '\u00a0h' : '—'}</b><small class="muted">rien posté aujourd'hui</small></div>`}
+    <div class="tile"><span>Likes</span><b class="num">${Q.l != null ? '+' + k(Q.l) : '—'}</b><small class="muted">aujourd'hui</small></div>
+    <div class="tile"><span>Partages</span><b class="num">${Q.s != null ? '+' + k(Q.s) : '—'}</b><small class="muted">aujourd'hui</small></div>
+    ${(() => { const G = gains(A); return G ? `<button class="tile" type="button" data-go="campagnes" style="text-align:left"><span>Gagné</span><b class="num" style="color:var(--gold)">${eur(G.auj)}</b><small class="muted">aujourd'hui</small></button>`
+      : `<div class="tile"><span>Comms</span><b class="num">${Q.c != null ? '+' + k(Q.c) : '—'}</b><small class="muted">aujourd'hui</small></div>`; })()}
+  </div>`;
+  h += planJour(A, C);
+  h += inspiration(A);
+  const I = insights(A, C);
+  if (I.length) h += `<section class="sec"><div class="sec-h"><h2>À retenir</h2><small>calculé tout seul</small></div><div class="ins">${I.map(x => `<button class="in" type="button" ${x.a}>${x.v ? cover(x.v) : `<span class="ic ${x.c}"></span>`}<span class="tx">${x.t}</span><span class="chev">›</span></button>`).join('')}</div></section>`;
+  h += `<section class="sec card chart"><div class="sec-h"><h2>Vues heure par heure</h2><small>touche une barre</small></div>${chartJour(A, C, C.P.day)}${hourTip(A, C, C.P.day)}
+    <div class="legend"><span><i style="background:var(--accent)"></i>Aujourd'hui</span><span><i style="background:#5a5a66"></i>Hier</span></div></section>`;
+  // une seule liste avec deux vues : ce qui monte maintenant / postées aujourd'hui (moins de scroll)
+  const dj = [...C.duJour].sort((a, b) => b.t - a.t);
+  const rise = A.videos.filter(v => v.gh > 0).sort((a, b) => b.gh - a.gh).slice(0, 5);
+  const topJ = A.videos.filter(v => v.gj > 0).sort((a, b) => b.gj - a.gj).slice(0, 5);
+  const lst = rise.length ? rise : topJ, vue = (st.dvue === 'postees' && C.duJour.length) || !lst.length ? 'postees' : 'monte';
+  h += `<section class="sec"><div class="segw seg2" role="tablist"><button type="button" role="tab" data-dvue="monte" aria-selected="${vue === 'monte'}" ${lst.length ? '' : 'disabled'}>${rise.length ? 'Ce qui monte' : 'Ce qui rapporte'}</button>${nb ? `<button type="button" role="tab" data-dvue="postees" aria-selected="${vue === 'postees'}">Postées aujourd’hui · ${nb}</button>` : ''}</div>`;
+  if (vue === 'monte') h += `<div class="rows">${lst.map(v => `<button class="row" type="button" data-vid="${v.id}">${cover(v)}<div class="t"><b class="num">+${k(rise.length ? v.gh : v.gj)} <small class="muted" style="font:500 12px var(--body)">${rise.length ? 'sur 1 h' : "aujourd'hui"}</small></b><span>${esc(titreVid(v))}</span></div><div class="r num"><b>${k(v.v)}</b><br><span class="muted">${dateVid(v.t)}</span></div></button>`).join('')}</div>`;
+  else h += dj.length ? `<div class="grid">${dj.slice(0, 12).map(v => vcard(v, C)).join('')}</div>${dj.length > 12 ? `<button class="more" type="button" data-go="videos" data-per="jour">Voir les ${dj.length} vidéos du jour</button>` : ''}` : `<div class="card muted">Rien posté aujourd’hui pour l’instant${A.videos[0] ? ` : ta dernière vidéo date d’il y a ${Math.floor((C.now / 1000 - A.videos[0].t) / 3600)} h` : ''}.</div>`;
+  h += `</section>`;
+  return h;
+}
+
+function nomCompte(id) { return (RAW.mes_comptes || []).find(c => c.id === id)?.user || RAW.comptes.find(c => c.id === id)?.user || 'un compte'; }
+function bandeaux() {
+  let h = '';
+  for (const id of RAW.a_reconnecter || []) h += `<div class="warnbox">TikTok a coupé l’accès à <b>@${esc(nomCompte(id))}</b> : ses stats ne se mettent plus à jour.<a href="/auth/tiktok?ajout=1">Reconnecter ce compte</a></div>`;
+  const att = (RAW.en_attente || []).filter(id => !(RAW.a_reconnecter || []).includes(id));
+  if (att.length) h += `<div class="warnbox info">${att.length > 1 ? att.length + ' comptes ajoutés' : 'Compte ajouté'} : premier relevé en cours (moins d’une minute). La page se met à jour toute seule.</div>`;
+  return h;
+}
+function courbeJour(A, C, D0) {
+  const H = A.horaire || {}, D1 = addJour(D0, -1), auj = D0 === C.P.day, hmax = auj ? C.P.hour : 23;
+  const cum = (d, n) => { let t = 0, vu = 0; const o = [0]; for (let h = 0; h <= n; h++) { const v = H[d + String(h).padStart(2, '0')]; if (v != null) vu++; t += v || 0; o.push(t); } return vu ? o : []; };
+  const a = cum(D0, hmax), b = cum(D1, 23);
+  if (a.filter(x => x != null).length < 3) return '';
+  const W = 340, Ht = 92, mx = Math.max(1, ...a.filter(x => x != null), ...b.filter(x => x != null));
+  const X = i => i / 24 * W, Y = v => Ht - 4 - (Ht - 10) * v / mx;
+  const path = arr => arr.map((v, i) => v == null ? '' : `${i && arr[i - 1] != null ? 'L' : 'M'}${X(i).toFixed(1)} ${Y(v).toFixed(1)}`).join(' ');
+  const last = a.length - 1, fin = a[last];
+  return `<svg class="jc" viewBox="0 0 ${W} ${Ht}" preserveAspectRatio="none" role="img" aria-label="Vues cumulées de la journée, comparées à la veille">
+    <defs><linearGradient id="jg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fe2c55" stop-opacity=".38"/><stop offset="1" stop-color="#fe2c55" stop-opacity="0"/></linearGradient></defs>
+    <path d="${path(b)}" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="1.6" stroke-dasharray="4 4" vector-effect="non-scaling-stroke"/>
+    <path d="${path(a)} L${X(last).toFixed(1)} ${Ht} L0 ${Ht}Z" fill="url(#jg)"/><path d="${path(a)}" fill="none" stroke="#fe2c55" stroke-width="2.4" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg>
+    <div class="jcl"><span><i></i>${auj ? "Aujourd'hui" : 'Ce jour'}</span><span><i class="h"></i>${auj ? 'Hier' : 'Veille'}, en entier</span><span>0h → 24h</span></div>`;
+}
+// le public est-il là en ce moment ? (vues gagnées par heure, moyenne des jours passés)
+function heuresFortes(A, C) {
+  const H = A.horaire || {}, s = Array(24).fill(0), n = Array(24).fill(0);
+  for (const [kk, g] of Object.entries(H)) { if (kk.slice(0, 8) === C.P.day) continue; const h = +kk.slice(8, 10); s[h] += g; n[h]++; }
+  const moy = s.map((x, h) => n[h] >= 3 ? x / n[h] : null); if (moy.filter(x => x != null).length < 18) return null;
+  const tri = moy.map((m, h) => [h, m || 0]).sort((a, b) => b[1] - a[1]); return new Set(tri.slice(0, 6).map(x => x[0]));
+}
+function posteMaintenant(A, C) {
+  if (A.id === 'tous' && !A.videos.length) return '';
+  const F = heuresFortes(A, C), now = C.now / 1000, dern = A.videos[0], depuis = dern ? (now - dern.t) / 3600 : 99;
+  const camp = (RAW.campagnes || []).find(c => c.en_cours);
+  if (!F || !F.has(C.P.hour) || depuis < 1.5) return '';
+  let fin = C.P.hour; while (F.has((fin + 1) % 24) && fin - C.P.hour < 6) fin++;
+  return `<section class="poste">
+    <div class="t">C’est le moment de poster</div>
+    <p>Ton public est le plus actif jusqu’à <b>${fin + 1}h</b>. Ta dernière vidéo date d’il y a ${Math.floor(depuis)} h${camp ? `, et la campagne <b>${esc(camp.nom)}</b> est en cours` : ''}.</p>
+    <a href="https://www.tiktok.com/tiktokstudio/upload" target="_blank" rel="noopener">Poster une vidéo</a></section>`;
+}
+function phrase(A, C) {
+  if (C.partiel) return 'Le suivi a démarré à cette heure-là. La comparaison avec hier arrive demain.';
+  const out = [], d = C.ySame != null ? C.today - C.ySame : null, p = pct(C.today, C.ySame);
+  if (d != null && p != null) out.push(Math.abs(p) < 3 ? 'Même rythme qu’hier à cette heure.'
+    : d > 0 ? `<b class="up">${k(d)} vues de plus</b> qu’hier à la même heure.` : `<b class="down">${k(-d)} vues de moins</b> qu’hier à la même heure.`);
+  const star = A.videos.filter(v => v.gj > 0).sort((a, b) => b.gj - a.gj)[0];
+  if (star && C.today > 0 && star.gj / C.today >= .3) out.push(`Une seule vidéo fait <b>${Math.round(star.gj / C.today * 100)} %</b> de ta journée.`);
+  if (C.P.hour < 7) out.push('La nuit est calme, c’est normal : tes vues repartent le matin.');
+  else if (C.P.hour >= 22 && C.est) out.push('La journée se termine, le chiffre final sera proche de l’estimation.');
+  return out.join(' ') || 'Les chiffres se mettent à jour tout seuls pendant la journée.';
+}
+function vJourPasse(A, C, d) {
+  const Q = A.quotidien || {}, q = Q[d] || {}, pd = addJour(d, -1), p = Q[pd];
+  const dv = q.g != null && p?.g ? pct(q.g, p.g) : null, df = q.f != null && p?.f != null ? q.f - p.f : null;
+  const vs = A.videos.filter(v => pz(v.t * 1000).day === d).sort((a, b) => b.t - a.t);
+  const nb = vs.length, H = A.horaire || {};
+  const aHeures = Array.from({ length: 24 }, (_, h) => H[d + String(h).padStart(2, '0')]).some(x => x != null);
+  // ce qui a rapporté ce jour-là : vues de fin de journée de chaque vidéo (vd)
+  const gains = A.videos.map(v => { if (!v.vd || v.vd[d] == null) return null; const ks = Object.keys(v.vd).sort(), i = ks.indexOf(d);
+    const avant = i > 0 ? v.vd[ks[i - 1]] : pz(v.t * 1000).day === d ? 0 : null; return avant == null ? null : { v, g: v.vd[d] - avant }; })
+    .filter(x => x && x.g > 0 && !(x.v.v >= 1e6 && x.g % 1e5 === 0)) // palier d'arrondi TikTok (1,2 M → 1,3 M) : pas un vrai gain du jour
+    .sort((a, b) => b.g - a.g).slice(0, 8);
+  const veille = d === C.yd ? 'hier' : 'la veille'; // hier → on compare à avant-hier
+  let h = `<section class="card hero"><div class="lbl">Vues ${d === C.yd ? 'hier' : 'ce jour-là'}</div>
+    <div class="big num">${q.g != null ? fmt(q.g) : '—'}</div>
+    ${dv != null ? `<p class="say">${Math.abs(dv) < 3 ? 'Presque pareil que' : dv > 0 ? `<b class="up">${pctTxt(dv)}</b> par rapport à` : `<b class="down">${pctTxt(dv)}</b> par rapport à`} ${veille === 'hier' ? 'avant-hier' : 'la veille'} (${k(p.g)} vues).${gains[0] && q.g ? ` La vidéo qui a le plus rapporté a fait <b>${Math.round(gains[0].g / q.g * 100)} %</b> de la journée.` : ''}</p>` : ''}
+    ${Q[d] ? '' : '<div class="muted" style="font-size:13px">Pas de chiffres du compte pour ce jour (avant le début du suivi). Les vidéos postées restent visibles.</div>'}
+    ${courbeJour(A, C, d)}
+    <div class="est"><span class="muted">Abonnés en fin de journée</span><b class="num">${q.f != null ? fmt(q.f) : '—'}</b></div>
+  </section>
+  <div class="tiles">
+    <div class="tile"><span>Abonnés</span><b class="num ${df > 0 ? 'up' : ''}">${df != null ? (df >= 0 ? '+' : '') + fmt(df) : '—'}</b><small class="muted">gagnés</small></div>
+    <div class="tile"><span>Postées</span><b class="num">${nb}</b><small class="muted">vidéo${nb > 1 ? 's' : ''}</small></div>
+    <div class="tile"><span>Par vidéo</span><b class="num">${nb && q.g ? k(q.g / nb) : '—'}</b><small class="muted">vues / postée</small></div>
+    <div class="tile"><span>Likes</span><b class="num">${q.l != null ? '+' + k(q.l) : '—'}</b><small class="muted">ce jour</small></div>
+    <div class="tile"><span>Partages</span><b class="num">${q.s != null ? '+' + k(q.s) : '—'}</b><small class="muted">ce jour</small></div>
+    <div class="tile"><span>Comms</span><b class="num">${q.c != null ? '+' + k(q.c) : '—'}</b><small class="muted">ce jour</small></div>
+  </div>`;
+  if (aHeures) h += `<section class="sec card chart"><div class="sec-h"><h2>Vues heure par heure</h2><small>touche une barre</small></div>${chartJour(A, C, d)}${hourTip(A, C, d)}
+    <div class="legend"><span><i style="background:var(--accent)"></i>${d === C.yd ? 'Hier' : 'Ce jour'}</span><span><i style="background:#5a5a66"></i>${d === C.yd ? 'Avant-hier' : 'Veille'}</span></div></section>`;
+  if (gains.length) h += `<section class="sec"><div class="sec-h"><h2>Ce qui a rapporté ce jour-là</h2><small>vues gagnées dans la journée</small></div>
+    <div class="rows">${gains.map(({ v, g }) => `<button class="row" type="button" data-vid="${v.id}">${cover(v)}<div class="t"><b class="num">+${k(g)}</b><span>${esc(titreVid(v))}</span></div><div class="r num"><b>${k(v.v)}</b><br><span class="muted">${dateVid(v.t)}</span></div></button>`).join('')}</div></section>`;
+  h += `<section class="sec"><div class="sec-h"><h2>Postées ce jour-là</h2><small>${nb} vidéo${nb > 1 ? 's' : ''} · ${k(vs.reduce((s, v) => s + v.v, 0))} vues à ce jour</small></div>`;
+  h += nb ? `<div class="grid">${vs.slice(0, 30).map(v => vcard(v, C)).join('')}</div>` : `<div class="card muted">Aucune vidéo postée ce jour-là.</div>`;
+  if (nb > 30) h += `<button class="more" type="button" data-go="videos" data-per="d:${d}">Voir les ${nb} vidéos de ce jour</button>`;
+  h += `</section><button class="more" type="button" data-dj="${C.P.day}" data-for="djour">Revenir à aujourd'hui</button>`;
+  return h;
+}
+function liensExternes(A) {
+  const u = (A.user || '').split(' + ')[0];
+  return `<section class="sec"><div class="links"><a class="ext" href="https://www.tiktok.com/@${encodeURIComponent(u)}" target="_blank" rel="noopener">Mon profil TikTok ↗</a><a class="ext" href="https://www.tiktok.com/tiktokstudio" target="_blank" rel="noopener">TikTok Studio ↗</a><a class="ext" href="https://www.tiktok.com/tiktokstudio/upload" target="_blank" rel="noopener">Poster une vidéo ↗</a></div></section>`;
+}
+function hourTip(A, C, D0) {
+  if (st.hourSel == null) return '';
+  const D1 = addJour(D0, -1), auj = D0 === C.P.day;
+  const H = A.horaire || {}, kk = String(st.hourSel).padStart(2, '0'), t = H[D0 + kk], y = H[D1 + kk], p = t != null && y ? pct(t, y) : null;
+  const nb = A.videos.filter(v => { const z = pz(v.t * 1000); return z.day === D0 && z.hour === st.hourSel; }).length;
+  return `<div class="hourtip"><span><b>${st.hourSel}h–${st.hourSel + 1}h</b> · ${t != null ? '<b class="num">' + fmt(t) + '</b> vues' : 'pas encore'}${nb ? ' · ' + nb + ' postée' + (nb > 1 ? 's' : '') : ''}</span><span class="muted">${auj ? 'hier' : 'veille'} ${y != null ? fmt(y) : '—'}${p != null ? ` <span class="${p >= 0 ? 'up' : 'down'}">${pctTxt(p)}</span>` : ''}</span></div>`;
+}
+const DUREES = ['moins de 20 s', '20 à 40 s', '40 à 60 s', '1 min à 1 min 30', 'plus d’1 min 30'];
+const bucket = du => du < 20 ? 0 : du < 40 ? 1 : du < 60 ? 2 : du < 90 ? 3 : 4;
+function recentes(A, C, jours) { const lim = C.now / 1000 - jours * 86400, max = C.now / 1000 - 86400; return A.videos.filter(v => v.t >= lim && v.t <= max && !v.r); }
+function parDuree(A, C) { const by = DUREES.map(() => []); for (const v of recentes(A, C, 30)) if (v.du) by[bucket(v.du)].push(v.v);
+  const med = median(by.flat()); return { med, rows: by.map((a, i) => ({ l: DUREES[i], n: a.length, m: median(a) })) }; }
+function prochainCreneau(A, C) {
+  const save = st.slotMode; st.slotMode = 'post'; const D = slotsData(A, C); st.slotMode = save;
+  const cand = D.flatMap((r, wd) => r.map((c, b) => ({ wd, b, c }))).filter(x => x.c.vs.length >= 3).sort((a, b) => b.c.val - a.c.val);
+  if (cand.length < 5) return null;
+  const bons = new Set(cand.slice(0, Math.max(5, Math.round(cand.length / 6))).map(x => x.wd * 12 + x.b));
+  for (let i = 0; i < 84; i++) { const p = pz(C.now + i * 2 * 3600e3), b = p.hour >> 1;
+    if (bons.has(p.wd * 12 + b)) return { wd: p.wd, b, val: D[p.wd][b].val, jour: i === 0 ? 'maintenant' : p.day === C.P.day ? "aujourd'hui" : JOURS_L[p.wd] }; }
+  return null;
+}
+function insights(A, C) {
+  const L = [], p = pct(C.today, C.ySame), now = C.now / 1000;
+  const star = A.videos.filter(v => v.gj > 0).sort((a, b) => b.gj - a.gj)[0];
+  if (star && C.today > 0) L.push({ v: star, t: `Ta vidéo qui rapporte le plus aujourd'hui : <b>+${k(star.gj)}</b>, soit ${Math.round(star.gj / C.today * 100)} % de tes vues du jour`, a: `data-vid="${star.id}"` });
+  const hot = A.videos.filter(v => now - v.t < 48 * 3600 && v.id !== star?.id).map(v => ({ v, f: C.fois(v) })).filter(x => x.f >= 3 && x.v.v >= 1000).sort((a, b) => b.f - a.f)[0];
+  if (hot) L.push({ v: hot.v, t: `Une vidéo du ${dateVid(hot.v.t)} décolle : <b>${fx(hot.f)} ta normale</b> (${k(hot.v.v)} vues)`, a: `data-vid="${hot.v.id}"` });
+  const ct = {}; for (const v of A.videos) if (v.gj) for (const t of tags(v.d)) if (t.startsWith('cyclomx')) ct[t] = (ct[t] || 0) + v.gj;
+  const tc = Object.entries(ct).sort((a, b) => b[1] - a[1])[0];
+  if (tc && C.today > 0 && tc[1] / C.today >= .25) L.push({ c: 'c', t: `<b>#${esc(tc[0])}</b> fait ${Math.round(tc[1] / C.today * 100)} % de tes vues du jour (+${k(tc[1])})`, a: `data-q="#${esc(tc[0])}"` });
+  const last = A.videos[0]; const depuis = last ? (now - last.t) / 3600 : null;
+  const F = heuresFortes(A, C); let nx = null;
+  if (F) for (let i = 0; i < 24; i++) { const h = (C.P.hour + i) % 24; if (F.has(h)) { nx = { i, h }; break; } }
+  const nxTxt = nx ? (nx.i === 0 ? '<b>maintenant</b>' : (C.P.hour + nx.i >= 24 ? 'demain ' : '') + '<b>vers ' + nx.h + 'h</b>') : '';
+  if (depuis != null && depuis >= 3 && !(nx && nx.i === 0 && depuis >= 1.5)) L.push({ c: 'w', t: `Pas de nouvelle vidéo depuis <b>${Math.floor(depuis)} h</b>${nx ? ' · bon moment pour poster : ' + nxTxt : ''}`, a: 'data-go="creneaux"' });
+  else if (nx && nx.i > 0) L.push({ c: 'c', t: `Prochain bon moment pour poster : ${nxTxt}, quand ton public est le plus là`, a: 'data-go="creneaux"' });
+  const bloq = A.videos.filter(v => C.suspecte(v));
+  if (bloq.length) L.unshift({ v: bloq[0], c: 'b', t: bloq.length > 1 ? `<b>${bloq.length} vidéos</b> font beaucoup moins de vues que d’habitude : peut-être bloquées par TikTok` : `Une vidéo du ${dateVid(bloq[0].t)} fait <b>${k(bloq[0].v)} vues</b>, bien moins que d’habitude : peut-être bloquée par TikTok`, a: 'data-flt="bloquee"' });
+  const sous = C.duJour.filter(v => now - v.t > 3 * 3600).map(v => C.fois(v)).filter(f => f != null);
+  const ns = sous.filter(f => f < .6).length;
+  if (sous.length >= 3 && ns / sous.length >= .5) L.push({ c: 'b', t: `<b>${ns} vidéos du jour sur ${sous.length}</b> sont sous ta normale`, a: 'data-flt="sous"' });
+  const D = parDuree(A, C), best = D.rows.filter(r => r.n >= 8 && r.m).sort((a, b) => b.m - a.m)[0];
+  if (best && D.med && best.m / D.med >= 1.3) L.push({ c: 'a', t: `Tes vidéos de <b>${best.l}</b> font <b>${(best.m / D.med).toLocaleString('fr-FR', { maximumFractionDigits: 1 })}×</b> plus de vues que ta moyenne (30 j)`, a: 'data-go="creneaux"' });
+  return L.slice(0, 3); // 3 maximum : l'essentiel, sans scroller
+}
+function chartJour(A, C, D0) {
+  const H = A.horaire || {}, W = CW(), Ht = W > 400 ? 190 : 150, pl = 34, pb = 20, pt = 8;
+  const D1 = addJour(D0, -1), auj = D0 === C.P.day, hmax = auj ? C.P.hour : 23;
+  const tv = [], yv = [];
+  for (let h = 0; h < 24; h++) { const kk = String(h).padStart(2, '0'); tv.push(h <= hmax ? H[D0 + kk] : null); yv.push(H[D1 + kk]); }
+  const mx = Math.max(1, ...tv.filter(x => x != null), ...yv.filter(x => x != null));
+  const nice = (() => { const p = Math.pow(10, Math.floor(Math.log10(mx))); for (const m of [1, 2, 2.5, 5, 10]) if (m * p >= mx) return m * p; return 10 * p; })();
+  const bw = (W - pl) / 24, y = v => pt + (Ht - pt - pb) * (1 - v / nice);
+  let s = `<svg viewBox="0 0 ${W} ${Ht}" role="img" aria-label="Vues par heure aujourd'hui et hier">`;
+  for (const g of [0, .5, 1]) { const yy = y(nice * g); s += `<line x1="${pl}" x2="${W}" y1="${yy}" y2="${yy}" stroke="rgba(255,255,255,.07)"/><text x="${pl - 5}" y="${yy + 3.5}" text-anchor="end" font-size="9.5" fill="#7f7f8b">${k(nice * g)}</text>`; }
+  for (let h = 0; h < 24; h++) { const x = pl + h * bw;
+    if (yv[h] != null) s += `<rect x="${x + 1}" y="${y(yv[h])}" width="${bw - 2}" height="${Ht - pb - y(yv[h])}" rx="2" fill="#3a3a44"/>`;
+    if (tv[h] != null) s += `<rect x="${x + bw * .22}" y="${y(tv[h])}" width="${bw * .56}" height="${Ht - pb - y(tv[h])}" rx="2" fill="${auj && h === C.P.hour ? '#ff7a93' : '#fe2c55'}"/>`;
+    if (h % 3 === 0) s += `<text x="${x + bw / 2}" y="${Ht - 6}" text-anchor="middle" font-size="9.5" fill="#7f7f8b">${h}h</text>`;
+    if (st.hourSel === h) s += `<rect x="${x}" y="${pt}" width="${bw}" height="${Ht - pt - pb}" rx="3" fill="rgba(255,255,255,.08)"/>`;
+    s += `<rect data-hour="${h}" x="${x}" y="0" width="${bw}" height="${Ht}" fill="transparent"/>`; }
+  return s + '</svg>';
+}
+
+function vcard(v, C) {
+  const f = C.fois(v);
+  const tg = v.r ? '<span class="tag r">Restreinte</span>' : f >= 3 ? `<span class="tag">${fx(f)}</span>` : '';
+  return `<button class="vc" type="button" data-vid="${v.id}" aria-label="Vidéo, ${fmt(v.v)} vues">${cover(v)}${tg}<div class="ov"><b class="num"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>${k(v.v)}</b><small class="${v.gj > 0 ? 'auj' : ''}">${v.gj > 0 ? '+' + k(v.gj) + " aujourd'hui" : dateVid(v.t)}</small></div></button>`;
+}
+
+function vrow(v, C) {
+  const f = C.fois(v), lr = v.v ? v.l / v.v * 100 : 0;
+  return `<button class="row" type="button" data-vid="${v.id}">${cover(v)}<div class="t"><b class="num">${k(v.v)} <small class="muted" style="font:500 12px var(--body)">vues</small></b><span>${esc(titreVid(v))}</span><span class="muted" style="font-size:12px">${dateVid(v.t)} · ${lr.toLocaleString('fr-FR', { maximumFractionDigits: 1 })} % likes${v.du ? ' · ' + v.du + ' s' : ''}</span></div><div class="r num">${f != null ? `<b class="${f >= 1 ? 'up' : 'down'}">${f.toLocaleString('fr-FR', { maximumFractionDigits: 1 })}×</b><br>` : ''}${v.gj ? `<span class="up">+${k(v.gj)}</span>` : ''}</div></button>`;
+}
+// ---------- Vue : Vidéos ----------
+function filtreVideos(A, C) {
+  const q = st.q.trim().toLowerCase().replace(/^#/, '');
+  const now = C.now / 1000;
+  let L = A.videos;
+  const jSel = st.per === 'jour' ? C.P.day : st.per === 'hier' ? C.yd : st.per.startsWith('d:') ? st.per.slice(2) : null;
+  if (jSel) L = L.filter(v => pz(v.t * 1000).day === jSel);
+  else if (st.per === '7') L = L.filter(v => now - v.t < 7 * 86400);
+  else if (st.per === '30') L = L.filter(v => now - v.t < 30 * 86400);
+  if (q) L = L.filter(v => (v.d || '').toLowerCase().includes(q));
+  if (st.flt === 'hot') L = L.filter(v => (C.fois(v) || 0) >= 3);
+  else if (st.flt === 'sous') L = L.filter(v => now - v.t > 3 * 3600 && now - v.t < 7 * 86400 && (C.fois(v) ?? 9) < .6);
+  else if (st.flt === 'monte') L = L.filter(v => v.gh > 0 || v.gj > 0);
+  else if (st.flt === 'bloquee') L = L.filter(v => C.suspecte(v));
+  const S = { recent: (a, b) => b.t - a.t, vues: (a, b) => b.v - a.v, jour: (a, b) => (b.gj || 0) - (a.gj || 0), likes: (a, b) => (b.l / Math.max(b.v, 1)) - (a.l / Math.max(a.v, 1)), partages: (a, b) => b.s - a.s };
+  return [...L].sort(S[st.sort]);
+}
+const FLT = { '': 'Sans filtre', monte: 'Rapportent aujourd’hui', hot: 'Décollent (3× et +)', sous: 'Sous la normale', bloquee: 'Peut-être bloquées' };
+const TRI = { recent: 'Plus récentes', vues: 'Plus de vues', jour: "Gagnées aujourd'hui", likes: 'Meilleur % de likes', partages: 'Plus partagées' };
+function vVideos(A, C) {
+  const L = filtreVideos(A, C), nf = (st.flt ? 1 : 0) + (st.sort !== 'recent' ? 1 : 0) + (st.q ? 1 : 0);
+  let h = `<div class="vbar"><div class="search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" color="#7f7f8b"><circle cx="11" cy="11" r="7"/><path d="M21 21l-5-5"/></svg>
+    <input id="q" type="search" placeholder="Mot ou #hashtag" value="${esc(st.q)}" autocomplete="off" enterkeyhint="search"></div>
+    <button class="fbtn ${nf ? 'on' : ''}" type="button" data-filtres aria-label="Filtres et tri"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>${nf ? `<span>${nf}</span>` : ''}</button></div>
+    <div class="chips">${[['tout','Toutes'],['jour',"Aujourd'hui"],['hier','Hier'],['7','7 jours'],['30','30 jours']].map(([v, l]) => `<button class="chip" type="button" data-per="${v}" aria-pressed="${st.per === v}">${l}</button>`).join('')}<button class="chip calchip" type="button" data-calo="vday" data-sel="${st.per.startsWith('d:') ? st.per.slice(2) : C.P.day}" aria-pressed="${st.per.startsWith('d:')}">${ICAL}${st.per.startsWith('d:') ? dayLabel(st.per.slice(2)) : 'Un jour'}</button></div>`;
+  if (['jour', 'hier'].includes(st.per) || st.per.startsWith('d:')) h += navJour(st.per === 'jour' ? C.P.day : st.per === 'hier' ? C.yd : st.per.slice(2), A, C, 'vday');
+  const actifs = [st.q ? [`« ${esc(st.q)} »`, 'data-q=""'] : null, st.flt ? [FLT[st.flt], 'data-flt=""'] : null, st.sort !== 'recent' ? [TRI[st.sort], 'data-tri="recent"'] : null].filter(Boolean);
+  if (actifs.length) h += `<div class="chips">${actifs.map(([l, a]) => `<button class="chip actif" type="button" ${a} aria-label="Retirer ${l}">${l}<span aria-hidden="true">×</span></button>`).join('')}</div>`;
+  h += `<div class="sumbar"><span><b class="num">${fmt(L.length)}</b> vidéos · <b class="num">${k(L.reduce((s, v) => s + v.v, 0))}</b> vues${L.some(v => v.gj) ? ` · <b class="num up">+${k(L.reduce((s, v) => s + (v.gj || 0), 0))}</b> auj.` : ''}</span>
+    <div class="seg" role="group" aria-label="Affichage"><button type="button" data-vm="grille" aria-pressed="${st.vmode === 'grille'}" aria-label="Grille"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg></button><button type="button" data-vm="liste" aria-pressed="${st.vmode === 'liste'}" aria-label="Liste"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button></div></div>`;
+  if (st.flt === 'bloquee') h += `<div class="warnbox info">Ces vidéos ont moins de 15 % des vues que tes vidéos font d’habitude au même âge. Ouvre-les dans TikTok Studio : si TikTok les a restreintes (musique, contenu non original…), consulte le motif dans Studio avant de décider quoi faire.</div>`;
+  h += !L.length ? `<div class="card muted">${st.flt === 'bloquee' ? 'Aucune vidéo anormalement basse en ce moment. Tout va bien.' : 'Aucune vidéo ne correspond. Retire un filtre ou essaie un autre mot.'}</div>`
+    : st.vmode === 'liste' ? `<div class="rows">${L.slice(0, st.shown).map(v => vrow(v, C)).join('')}</div>` : `<div class="grid">${L.slice(0, st.shown).map(v => vcard(v, C)).join('')}</div>`;
+  if (L.length > st.shown) h += `<button class="more" type="button" id="more">Afficher plus (${fmt(L.length - st.shown)} restantes)</button>`;
+  return h;
+}
+function feuilleFiltres() {
+  const A = compteCourant(), C = calc(A), camp = [...new Set(A.videos.flatMap(v => tags(v.d)).filter(estCamp))];
+  const nom = t => (RAW.campagnes || []).find(c => c.tag === t)?.nom || '#' + t, n = filtreVideos(A, C).length;
+  ouvrir(`<div class="grab"></div><div class="sheet-h"><h2>Filtres et tri</h2><button class="x" type="button" data-close aria-label="Fermer">×</button></div>
+    ${camp.length ? `<div class="fgrp"><div class="muted">Campagne</div><div class="chips multi">${camp.map(t => `<button class="chip" type="button" data-fq="#${esc(t)}" aria-pressed="${st.q.replace(/^#/, '') === t}">${esc(nom(t))}</button>`).join('')}</div></div>` : ''}
+    <div class="fgrp"><div class="muted">Performance</div><div class="chips multi">${Object.entries(FLT).map(([v, l]) => `<button class="chip" type="button" data-fflt="${v}" aria-pressed="${st.flt === v}">${l}</button>`).join('')}</div></div>
+    <div class="fgrp"><div class="muted">Trier par</div><div class="chips multi">${Object.entries(TRI).map(([v, l]) => `<button class="chip" type="button" data-ftri="${v}" aria-pressed="${st.sort === v}">${l}</button>`).join('')}</div></div>
+    <button class="btn" type="button" data-close-f>Voir ${fmt(n)} vidéo${n > 1 ? 's' : ''}</button>
+    ${st.flt || st.sort !== 'recent' || st.q ? `<button class="more" type="button" data-freset>Tout effacer</button>` : ''}`);
+}
+
+// ---------- Campagnes : ce que font les meilleurs, clips qui cartonnent (page publique cyclom.fr, auteurs anonymes) ----------
+let CAMPINFO = null;
+function infosCampagnes() { return (RAW.campagnes_info || CAMPINFO)?.campagnes || []; }
+function monProfilCampagne(A, c) {
+  const deb = c.debut ? new Date(c.debut + 'T00:00:00').getTime() / 1000 : 0;
+  const vs = A.videos.filter(v => tags(v.d).includes(c.tag) && v.t >= deb);
+  if (!vs.length) return null;
+  const jours = new Set(vs.map(v => pz(v.t * 1000).day)).size, heures = {};
+  for (const v of vs) { const h = pz(v.t * 1000).hour; heures[h] = (heures[h] || 0) + 1; }
+  return { clips: vs.length, clips_par_jour: vs.length / Math.max(1, jours), vues_par_clip: median(vs.map(v => v.v)),
+    partages_pour_mille: 1000 * vs.reduce((s, v) => s + v.s, 0) / Math.max(1, vs.reduce((s, v) => s + v.v, 0)),
+    titre_ecrit: Math.round(100 * vs.filter(v => sansTags(v.d)).length / vs.length), heures };
+}
+function heuresTop(h, n = 3) { return Object.entries(h || {}).sort((a, b) => b[1] - a[1]).slice(0, n).map(([x]) => +x).sort((a, b) => a - b); }
+function blocMeilleurs(A, c) {
+  const M = c.meilleurs, T = c.tous, moi = monProfilCampagne(A, c);
+  const lignes = [
+    ['Clips par jour', moi?.clips_par_jour, M.clips_par_jour, T.clips_par_jour, x => x.toLocaleString('fr-FR', { maximumFractionDigits: 1 }), 'Poste plus régulièrement : les meilleurs tiennent ce rythme tous les jours.'],
+    ['Vues par clip', moi?.vues_par_clip, M.vues_par_clip, T.vues_par_clip, k, 'Travaille l’accroche des 2 premières secondes et le choix du moment.'],
+    ['Partages ‰', moi?.partages_pour_mille, M.partages_pour_mille, T.partages_pour_mille, x => x.toLocaleString('fr-FR', { maximumFractionDigits: 1 }), 'Coupe sur la chute : un moment qu’on a envie d’envoyer à un pote.'],
+    ['Avec un vrai titre', moi?.titre_ecrit, M.titre_ecrit, T.titre_ecrit, x => Math.round(x) + ' %', 'Écris la vanne ou le contexte en titre, pas seulement les hashtags.'],
+  ];
+  const conseils = lignes.filter(l => l[1] != null && l[2] && l[1] < l[2] * .85).map(l => l[5]);
+  const hM = heuresTop(M.heures), hMoi = moi ? heuresTop(moi.heures) : [];
+  return `<section class="card sec"><div class="sec-h"><h2>Ce que font les meilleurs</h2><small>${esc(c.nom)} · top 10 contre toi</small></div>
+    <div class="cmp">${lignes.map(([l, me, m, t, f]) => `<div class="cmpl c4"><span class="lb">${l}</span><span class="cmpv"><b>${me != null ? f(me) : '—'}</b><small>toi</small></span><span class="cmpv"><span>${f(m)}</span><small>top 10</small></span><span class="cmpv"><span>${f(t)}</span><small>tous</small></span></div>`).join('')}
+      <div class="cmpl c4"><span class="lb">Heures de post</span><span class="cmpv"><b>${hMoi.length ? hMoi.map(h => h + 'h').join(' ') : '—'}</b><small>toi</small></span><span class="cmpv" style="grid-column:span 2"><span>${hM.map(h => h + 'h').join(' · ')}</span><small>top 10</small></span></div></div>
+    ${conseils.length ? `<div class="conseils">${conseils.slice(0, 2).map(t => `<p class="say" style="max-width:none;font-size:14px">→ ${t}</p>`).join('')}</div>` : moi ? `<p class="say" style="max-width:none;font-size:14px">Tu fais aussi bien que le top 10 sur ces points : garde le rythme.</p>` : ''}
+    <p class="muted note">${c.clippeurs} clippeurs, ${fmt(c.clips)} clips, ${k(c.vues)} vues sur la campagne. Données publiques de cyclom.fr, auteurs anonymes.</p></section>`;
+}
+const idLien = u => (String(u || '').match(/(\d{15,})/) || [])[1];
+function blocCartons(c, A) {
+  if (!c.cartons?.length) return '';
+  const miens = new Set(A.videos.map(v => String(v.id)));
+  return `<section class="card sec"><div class="sec-h"><h2>Les clips qui cartonnent</h2><small>${esc(c.nom)} · tous clippeurs</small></div>
+    <div class="rows">${c.cartons.slice(0, 8).map(x => `<a class="row" href="${esc(x.lien)}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit">${x.img ? `<img src="${esc(x.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" data-ph="">` : '<div class="ph"></div>'}<div class="t"><b class="num">${k(x.vues)}${miens.has(idLien(x.lien)) ? ' <small class="badge">ton clip</small>' : ''}</b><span>${esc(sansTags(x.titre) || 'Titre : hashtags seulement')}</span><span class="muted" style="font-size:12px">${x.publie ? dateVid(new Date(x.publie).getTime() / 1000) : ''}${x.gain24 ? ' · +' + k(x.gain24) + ' en 24 h' : ''}</span></div><span class="chev">↗</span></a>`).join('')}</div>
+    <p class="muted note">Regarde ce qui marche chez les autres pour trouver tes prochains moments, et évite de reposter exactement le même extrait.</p></section>`;
+}
+
+// ---------- Inspire-toi : les clips des autres qui font le plus de vues sur la campagne en cours (accueil) ----------
+function inspiration(A) {
+  const c = infosCampagnes()[0]; if (!c?.cartons?.length) return '';
+  const miens = new Set(A.videos.map(v => String(v.id))), L = c.cartons.filter(x => !miens.has(idLien(x.lien))).slice(0, 3);
+  if (!L.length) return '';
+  return `<section class="sec"><div class="sec-h"><h2>Inspire-toi</h2><small>ce qui fait le plus de vues sur ${esc(c.nom)}</small></div>
+    <div class="insp">${L.map(x => `<a class="ic2" href="${esc(x.lien)}" target="_blank" rel="noopener">${x.img ? `<img src="${esc(x.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" data-ph="">` : '<div class="ph"></div>'}<span class="ov"><b class="num">${k(x.vues)}</b><small>${x.gain24 ? '+' + k(x.gain24) + ' en 24 h' : 'à regarder'}</small></span></a>`).join('')}</div>
+    <button class="more" type="button" data-go="campagnes">Voir tous les clips qui cartonnent et ce que font les meilleurs</button></section>`;
+}
+// ---------- Plan de la journée : 3 créneaux aux heures fortes du public, cochés tout seuls quand une vidéo est postée ----------
+function planJour(A, C) {
+  const F = heuresFortes(A, C); if (!F) return '';
+  const camp = (RAW.campagnes || []).find(c => c.en_cours), D = parDuree(A, C), bd = D.rows.filter(r => r.n >= 5 && r.m).sort((a, b) => b.m - a.m)[0];
+  const fortes = [...F].sort((a, b) => a - b), choix = [];
+  for (const h of fortes) if (h >= 8 && !choix.some(x => Math.abs(x - h) < 2)) choix.push(h);
+  const slots = choix.slice(0, 3); if (!slots.length) return '';
+  const postes = C.duJour.map(v => pz(v.t * 1000).hour);
+  const fait = h => postes.some(p => Math.abs(p - h) <= 1), nbFait = slots.filter(fait).length;
+  return `<section class="card sec plan"><div class="sec-h"><h2>Plan du jour</h2><small>${nbFait} / ${slots.length} fait${nbFait > 1 ? 's' : ''}</small></div>
+    <div class="slots">${slots.map(h => { const ok = fait(h), passe = !ok && C.P.hour > h + 1;
+      return `<div class="slot ${ok ? 'ok' : passe ? 'rate' : C.P.hour >= h - 1 ? 'now' : ''}"><span class="ck">${ok ? '✓' : ''}</span><span class="st"><b>${h}h</b><small>${ok ? 'posté' : passe ? 'raté, rattrape au suivant' : C.P.hour >= h - 1 ? 'c’est maintenant' : 'à venir'}</small></span><span class="sd">1 clip${bd ? ' de ' + bd.l : ''}${camp ? ' · ' + esc(camp.nom) : ''}</span></div>`; }).join('')}</div>
+    <p class="muted note">Heures où ton public regarde le plus. Une case se coche toute seule quand une vidéo est postée à moins d’une heure du créneau.</p></section>`;
+}
+
+// ---------- Vue : Campagnes ----------
+function vCampagnes(A, C) {
+  const known = Object.fromEntries((RAW.campagnes || []).map(c => [c.tag, c]));
+  const by = {};
+  for (const v of A.videos) for (const t of tags(v.d)) if (t.startsWith('cyclomx') || known[t]) (by[t] = by[t] || []).push(v);
+  const list = Object.entries(by).map(([t, vs]) => ({ t, vs, info: known[t] || { nom: t.replace(/^cyclomx/, ''), en_cours: false },
+    vues: vs.reduce((s, v) => s + v.v, 0), auj: vs.reduce((s, v) => s + (v.gj || 0), 0), last: Math.max(...vs.map(v => v.t)) }))
+    .sort((a, b) => (b.info.en_cours - a.info.en_cours) || b.auj - a.auj || b.vues - a.vues);
+  const tot = A.videos.reduce((s, v) => s + v.v, 0) || 1;
+  const G = gains(A);
+  let h = course(A, C, 'complet');
+  for (const c of infosCampagnes()) h += blocCartons(c, A) + blocMeilleurs(A, c);
+  h += `<div class="sec-h"><h2>Tes campagnes Cyclom</h2><small>Clips repérés via les hashtags</small></div>`;
+  if (!list.length) return h + `<div class="card muted">Aucune vidéo avec un hashtag de campagne (#cyclomx…) pour l'instant.</div>`;
+  for (const c of list) {
+    const best = [...c.vs].sort((a, b) => b.v - a.v).slice(0, 8);
+    h += `<button class="card camp" type="button" data-q="#${c.t}">
+      <div class="camp-h"><b>${esc(c.info.nom)}</b><span class="badge ${c.info.en_cours ? '' : 'off'}">${c.info.en_cours ? 'En cours' : known[c.t] ? 'Terminée' : 'Statut inconnu'}</span></div>
+      <div class="camp-n"><div><span>Vidéos</span><b class="num">${fmt(c.vs.length)}</b></div><div><span>Vues</span><b class="num">${k(c.vues)}</b></div><div><span>Aujourd'hui</span><b class="num ${c.auj > 0 ? 'up' : ''}">${c.auj ? '+' + k(c.auj) : '—'}</b></div></div>
+      <div class="bar" title="Part de tes vues"><i style="width:${Math.max(2, c.vues / tot * 100).toFixed(1)}%"></i></div>
+      <div class="sumbar"><span>${(c.vues / tot * 100).toLocaleString('fr-FR', { maximumFractionDigits: 1 })} % de tes vues · moyenne ${k(c.vues / c.vs.length)} par vidéo</span><span class="muted">#${esc(c.t)}</span></div>
+      <div class="strip">${best.map(v => cover(v)).join('')}</div></button>`;
+  }
+  if (!courses(A).length) h += `<p class="muted" style="font-size:12.5px;margin:0">Bientôt ici : ta place au classement de chaque campagne et combien de vues il te manque pour passer devant le suivant.</p>`;
+  return h;
+}
+
+// ---------- Vue : Historique ----------
+function vHistorique(A, C) {
+  const Q = A.quotidien || {};
+  const days = Object.keys(Q).sort(); while (days.length > 1 && !Q[days[0]].g) days.shift(); // pas de jour vide au début
+  const sel = st.hPer === 0 ? days : days.slice(-st.hPer);
+  const M = { g: ['Vues', d => Q[d].g], f: ['Abonnés gagnés', (d, i) => { const p = Q[days[days.indexOf(d) - 1]]; return Q[d].f != null && p?.f != null ? Q[d].f - p.f : null; }],
+    l: ['Likes', d => Q[d].l], s: ['Partages', d => Q[d].s], c: ['Comms', d => Q[d].c] };
+  const [lab, get] = M[st.hMet];
+  const vals = sel.map(d => get(d));
+  let h = `<div class="sec-h"><h2>Historique</h2><small>${days.length ? 'depuis le ' + dayLabel(days[0]) : ''}</small></div>
+    <div class="chips">${Object.entries(M).map(([kk, [l]]) => `<button class="chip" type="button" data-met="${kk}" aria-pressed="${st.hMet === kk}">${l}</button>`).join('')}</div>
+    <div class="chips">${[[7,'7 j'],[14,'14 j'],[30,'30 j'],[0,'Tout']].map(([v, l]) => `<button class="chip" type="button" data-hper="${v}" aria-pressed="${st.hPer === v}">${l}</button>`).join('')}<button class="chip calchip" type="button" data-calo="hday" data-sel="${C.yd}">${ICAL}Aller à un jour</button></div>`;
+  const okv = vals.filter(x => x != null);
+  const tot = okv.reduce((s, x) => s + x, 0);
+  const prev = (st.hPer ? days.slice(-2 * st.hPer, -st.hPer) : []).map(d => get(d)).filter(x => x != null);
+  const pp = prev.length === sel.length ? pct(tot, prev.reduce((s, x) => s + x, 0)) : null;
+  h += `<section class="card sec chart"><div class="sec-h"><div><div class="muted" style="font-size:13px">${lab} sur la période</div><div style="font:800 28px var(--display)" class="num">${fmt(tot)}</div></div>
+    ${pp != null ? `<span class="pill ${pp >= 0 ? 'g' : 'b'}">${pctTxt(pp)} vs période d'avant</span>` : ''}</div>${barres(sel, vals)}</section>`;
+  const nbv0 = {}; for (const v of A.videos) { const d = pz(v.t * 1000).day; nbv0[d] = (nbv0[d] || 0) + 1; }
+  if (innerWidth < 700) {
+    h += `<div class="jours">${[...sel].reverse().map(d => { const q = Q[d], p = Q[days[days.indexOf(d) - 1]], dv = p && d !== C.P.day ? pct(q.g, p.g) : null, df = q.f != null && p?.f != null ? q.f - p.f : null;
+      return `<button class="jr" type="button" data-day="${d}"><span class="jd"><b>${dayLabel(d)}</b><small>${nbv0[d] || 0} vidéo${(nbv0[d] || 0) > 1 ? 's' : ''}${df != null ? ` · ${df >= 0 ? '+' : ''}${fmt(df)} abonnés` : ''}</small></span><span class="jv"><b class="num">${k(q.g)}</b>${d === C.P.day ? '<small class="muted">en cours</small>' : ''}${dv != null ? `<small class="${dv >= 0 ? 'up' : 'down'}">${pctTxt(dv)}</small>` : ''}</span><span class="chev">›</span></button>`; }).join('')}</div>
+      <p class="muted" style="font-size:12.5px;margin:0">Touche un jour pour voir ses vidéos et ses likes, partages, commentaires. Le jour en cours est partiel. Jours terminés : TikTok Studio ; aujourd'hui : relevé toutes les 5 min.</p>`;
+    return h;
+  }
+  h += `<div class="tbl-wrap"><table><thead><tr><th>Jour</th><th>Vues</th><th>Abonnés</th><th>Likes</th><th>Partages</th><th>Comms</th><th>Vidéos</th></tr></thead><tbody>`;
+  const nbv = {}; for (const v of A.videos) { const d = pz(v.t * 1000).day; nbv[d] = (nbv[d] || 0) + 1; }
+  for (const d of [...sel].reverse()) { const q = Q[d], i = days.indexOf(d), p = Q[days[i - 1]];
+    const dv = p && d !== C.P.day ? pct(q.g, p.g) : null; const df = q.f != null && p?.f != null ? q.f - p.f : null;
+    h += `<tr data-day="${d}"><td>${dayLabel(d)} <span class="muted">›</span></td><td class="num">${fmt(q.g)}${dv != null ? `<small class="${dv >= 0 ? 'up' : 'down'}">${pctTxt(dv)}</small>` : ''}</td><td class="num">${df != null ? (df >= 0 ? '+' : '') + fmt(df) : '—'}${q.f ? `<small class="muted">${fmt(q.f)}</small>` : ''}</td><td class="num">${fmt(q.l)}</td><td class="num">${fmt(q.s)}</td><td class="num">${fmt(q.c)}</td><td class="num">${nbv[d] || 0}</td></tr>`; }
+  h += `</tbody></table></div><p class="muted" style="font-size:12.5px;margin:0">Touche un jour pour voir ses vidéos. Le jour en cours est partiel.</p>`;
+  return h;
+}
+function barres(days, vals, feuille) {
+  const W = CW(feuille), Ht = W > 600 ? 210 : 160, pl = 36, pb = 22, pt = 10, n = days.length || 1;
+  const mx = Math.max(1, ...vals.filter(x => x != null).map(Math.abs));
+  const nice = (() => { const p = Math.pow(10, Math.floor(Math.log10(mx))); for (const m of [1, 2, 2.5, 5, 10]) if (m * p >= mx) return m * p; return 10 * p; })();
+  const signe = vals.some(v => v < 0);
+  const bw = (W - pl) / n;
+  const y = v => pt + (Ht - pt - pb) * (1 - v / nice) / (signe ? 2 : 1);
+  const zero = y(0);
+  let s = `<svg viewBox="0 0 ${W} ${Ht}" role="img" aria-label="Barres par jour">`;
+  for (const g of (signe ? [-1, 0, 1] : [0, .5, 1])) { const yy = y(nice * g); s += `<line x1="${pl}" x2="${W}" y1="${yy}" y2="${yy}" stroke="rgba(255,255,255,.07)"/><text x="${pl - 5}" y="${yy + 3.5}" text-anchor="end" font-size="9.5" fill="#7f7f8b">${k(nice * g)}</text>`; }
+  const step = Math.ceil(n / 7);
+  days.forEach((d, i) => { const v = vals[i]; const x = pl + i * bw;
+    if (v != null && v !== 0) s += `<rect x="${x + bw * .15}" y="${Math.min(zero, y(v))}" width="${bw * .7}" height="${Math.abs(zero - y(v))}" rx="2.5" fill="${v < 0 ? '#ff7a93' : i === n - 1 ? '#fe2c55' : '#47ccc0'}"/>`;
+    if ((n - 1 - i) % step === 0) s += `<text x="${x + bw / 2}" y="${Ht - 7}" text-anchor="middle" font-size="9.5" fill="#7f7f8b">${d.slice(6, 8)}/${d.slice(4, 6)}</text>`; });
+  return s + '</svg>';
+}
+
+// ---------- Vue : Créneaux ----------
+const BLOCS = 12; // créneaux de 2 h
+function slotsData(A, C) {
+  const cells = Array.from({ length: 7 }, () => Array.from({ length: BLOCS }, () => []));
+  if (st.slotMode === 'post') {
+    const lim = C.now / 1000 - st.slotPer * 86400, max = C.now / 1000 - 86400; // vidéos d'au moins 24 h
+    for (const v of A.videos) if (v.t >= lim && v.t <= max && !v.r) { const p = pz(v.t * 1000); cells[p.wd][p.hour >> 1].push(v); }
+    return cells.map(r => r.map(vs => ({ vs, val: vs.length ? median(vs.map(v => v.v)) : null })));
+  }
+  const H = A.horaire || {};
+  for (const [key, g] of Object.entries(H)) { const d = key.slice(0, 8), h = +key.slice(8, 10); if (d === C.P.day) continue;
+    const dt = new Date(+d.slice(0, 4), +d.slice(4, 6) - 1, +d.slice(6, 8)); const wd = (dt.getDay() + 6) % 7; cells[wd][h >> 1].push(g); }
+  return cells.map(r => r.map(gs => ({ gs, val: gs.length ? gs.reduce((s, x) => s + x, 0) / gs.length * 2 : null })));
+}
+// ---------- Analyse avancée : diagnostic, signal précoce, cartons, mots, vie d'une vidéo, essoufflement ----------
+const quant = (a, q) => { const s = a.filter(x => x != null && !isNaN(x)).sort((x, y) => x - y); if (!s.length) return null; return s[Math.min(s.length - 1, Math.floor(q * s.length))]; };
+const rangPct = (a, x) => { const s = a.filter(y => y != null); if (!s.length) return null; return Math.round(s.filter(y => y > x).length / s.length * 100); };
+const MOTS_VIDES = new Set('les des une un le la de du et en au aux pour pas que qui quand avec sur dans est son sa ses ce cet cette il elle ils on je tu ma mon mes ta ton tes vous nous plus tout tous mais par fait faire comme quoi dit très bien chez sont être avoir trop moi toi lui leur leurs ça cest jai the and you'.split(' '));
+const motsDe = d => [...new Set(sansTags(d).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9 ]+/g, ' ').split(' ').filter(w => w.length >= 3 && !MOTS_VIDES.has(w) && !/^\d+$/.test(w)))];
+const JAL = ['1', '3', '6', '12', '24', '48', '72', '168'], JAL_L = { '1': '1\u00a0h', '3': '3\u00a0h', '6': '6\u00a0h', '12': '12\u00a0h', '24': '24\u00a0h', '48': '2\u00a0j', '72': '3\u00a0j', '168': '7\u00a0j' };
+
+// records : meilleur jour, meilleure vidéo, meilleure heure, plus gros gain d'abonnés (et où on en est aujourd'hui)
+function records(A, C) {
+  const Q = A.quotidien || {}, ds = Object.keys(Q).filter(d => d !== C.P.day && Q[d].g > 0);
+  if (ds.length < 7) return '';
+  const bj = ds.reduce((a, d) => Q[d].g > Q[a].g ? d : a, ds[0]);
+  const H = A.horaire || {};
+  const hk = Object.keys(H).filter(x => x < C.P.key && H[x] > 0)
+    .reduce((best, x) => best === null || H[x] > H[best] ? x : best, null);
+  const bv = A.videos.reduce((a, v) => v.v > (a?.v || 0) ? v : a, null);
+  const ab = ds.map(d => { const p = Q[addJour(d, -1)]; return Q[d].f != null && p?.f != null ? [d, Q[d].f - p.f] : null; }).filter(x => x && x[1] > 0).sort((a, b) => b[1] - a[1])[0];
+  const ecart = C.today == null || C.partiel ? null : Q[bj].g - C.today;
+  const L = [
+    ['Meilleur jour', k(Q[bj].g) + ' vues', dayLabel(bj) + (ecart === null ? '' : ecart > 0 ? ' · ' + k(ecart) + ' à rattraper' : ecart === 0 ? ' · égalé aujourd’hui' : ' · dépassé aujourd’hui'), `data-day="${bj}"`],
+    bv ? ['Meilleure vidéo', k(bv.v) + ' vues', dateVid(bv.t), `data-vid="${bv.id}"`] : null,
+    hk ? ['Meilleure heure', '+' + k(H[hk]) + ' vues', dayLabel(hk.slice(0, 8)) + ' ' + (+hk.slice(8)) + 'h', `data-day="${hk.slice(0, 8)}"`] : null,
+    ab ? ['Abonnés en un jour', '+' + fmt(ab[1]), dayLabel(ab[0]), `data-day="${ab[0]}"`] : null,
+  ].filter(Boolean);
+  return `<section class="sec"><div class="sec-h"><h2>Tes records</h2><small>depuis le début du suivi</small></div><div class="recs">${L.map(([t, v, d, a]) => `<button class="rec" type="button" ${a}><small>${t}</small><b class="num">${v}</b><span>${d}</span></button>`).join('')}</div></section>`;
+}
+// signal précoce : place d'une vidéo récente parmi toutes les autres au même âge + vues probables à 24 h
+function signalPrecoce(A, C) {
+  const now = C.now / 1000, base = A.videos.filter(v => v.ms && !v.r);
+  const recentes = A.videos.filter(v => { const a = (now - v.t) / 3600; return a >= 1 && a < 24 && !v.r; });
+  return recentes.map(v => {
+    const age = (now - v.t) / 3600; let m = null; for (const x of JAL) if (+x <= age && v.ms?.[x] != null) m = x;
+    const val = m ? v.ms[m] : null; if (val == null) return null;
+    const pairs = base.filter(b => b.id !== v.id && b.ms[m] > 0 && b.ms['24'] > 0);
+    if (pairs.length < 12) return null;
+    const p = rangPct(pairs.map(b => b.ms[m]), val), pred = val * median(pairs.map(b => b.ms['24'] / b.ms[m]));
+    return { v, m, val, top: Math.max(1, p), pred: m === '24' ? val : pred };
+  }).filter(Boolean).sort((a, b) => a.top - b.top);
+}
+
+// tes cartons (top 10 % des vues) comparés au reste
+function cartons(vs) {
+  if (vs.length < 30) return null;
+  const seuil = quant(vs.map(v => v.v), .9), T = vs.filter(v => v.v >= seuil), R = vs.filter(v => v.v < seuil);
+  const crit = [
+    ['durée', v => v.du || null, x => Math.round(x) + ' s', 'durent'],
+    ['partages', v => v.v ? v.s / v.v * 1000 : null, x => x.toLocaleString('fr-FR', { maximumFractionDigits: 1 }) + ' ‰', 'sont partagés'],
+    ['favoris', v => v.v && v.sv != null ? v.sv / v.v * 1000 : null, x => x.toLocaleString('fr-FR', { maximumFractionDigits: 1 }) + ' ‰', 'sont mis en favoris'],
+    ['likes', v => v.v ? v.l / v.v * 100 : null, x => x.toLocaleString('fr-FR', { maximumFractionDigits: 1 }) + ' %', 'sont likés'],
+    ['commentaires', v => v.v ? v.c / v.v * 1000 : null, x => x.toLocaleString('fr-FR', { maximumFractionDigits: 2 }) + ' ‰', 'sont commentés'],
+    ['titre', v => sansTags(v.d).length || null, x => Math.round(x) + ' caractères', 'ont un titre de'],
+  ];
+  const lignes = crit.map(([nom, f, fmtx, verbe]) => { const a = median(T.map(f)), b = median(R.map(f)); if (!a || !b) return null;
+    const r = a / b; return { nom, a, b, r, fmtx, verbe }; }).filter(x => x && (x.r >= 1.2 || x.r <= .83)).sort((x, y) => Math.abs(Math.log(y.r)) - Math.abs(Math.log(x.r)));
+  return { seuil, n: T.length, lignes };
+}
+
+// mots du titre qui font monter ou baisser les vues (au moins 8 vidéos par mot)
+function motsQuiMarchent(vs) {
+  const med = median(vs.map(v => v.v)); if (!med || vs.length < 40) return null;
+  const by = {}; for (const v of vs) for (const w of motsDe(v.d)) (by[w] = by[w] || []).push(v.v);
+  const L = Object.entries(by).filter(([, a]) => a.length >= 8).map(([w, a]) => ({ w, n: a.length, r: median(a) / med }));
+  return { haut: L.filter(x => x.r >= 1.3).sort((a, b) => b.r - a.r).slice(0, 8), bas: L.filter(x => x.r <= .7).sort((a, b) => a.r - b.r).slice(0, 5) };
+}
+
+// vie d'une vidéo : part des vues (par rapport au dernier jalon bien rempli) atteinte à chaque âge
+function vieVideo(A) {
+  const base = A.videos.filter(v => v.ms && !v.r);
+  const ref = ['168', '72', '48', '24'].find(r => base.filter(v => v.ms[r] > 0).length >= 15); if (!ref) return null;
+  const L = base.filter(v => v.ms[ref] > 0), jal = JAL.slice(0, JAL.indexOf(ref) + 1);
+  const pts = jal.map(m => ({ m, p: m === ref ? 1 : median(L.filter(v => v.ms[m] != null).map(v => Math.min(1, v.ms[m] / v.ms[ref]))) })).filter(x => x.p != null);
+  const q80 = pts.find(x => x.p >= .8);
+  return { ref, n: L.length, pts, q80 };
+}
+
+// essoufflement : vues à 24 h des vidéos de chaque campagne, cette semaine contre la semaine d'avant
+function essoufflement(A, C) {
+  const now = C.now / 1000, out = [];
+  const tagsC = [...new Set(A.videos.flatMap(v => tags(v.d)).filter(estCamp))];
+  for (const t of tagsC) {
+    const info = (RAW.campagnes || []).find(c => c.tag === t); if (info && !info.en_cours) continue; // campagne finie : inutile de changer d'angle
+    const vs = A.videos.filter(v => tags(v.d).includes(t) && v.ms?.['24'] > 0);
+    const s1 = vs.filter(v => now - v.t >= 86400 && now - v.t < 8 * 86400).map(v => v.ms['24']), s2 = vs.filter(v => now - v.t >= 8 * 86400 && now - v.t < 15 * 86400).map(v => v.ms['24']);
+    if (s1.length < 6 || s2.length < 6) continue;
+    const r = median(s1) / median(s2); out.push({ t, nom: (RAW.campagnes || []).find(c => c.tag === t)?.nom || '#' + t, r, a: median(s1), b: median(s2), n1: s1.length, n2: s2.length });
+  }
+  return out.sort((a, b) => a.r - b.r);
+}
+
+function vCreneaux(A, C) {
+  const vs = recentes(A, C, st.slotPer), med = median(vs.map(v => v.v)), an = st.an || 'resume';
+  const T = [['resume', 'Résumé'], ['contenu', 'Contenu'], ['moment', 'Horaires'], ['vie', 'Longévité']];
+  let h = `<div class="segw" role="tablist" aria-label="Parties de l’analyse">${T.map(([id, l]) => `<button type="button" role="tab" data-an="${id}" aria-selected="${an === id}">${l}</button>`).join('')}</div>`;
+  const per = `<div class="perl"><div class="chips">${[[14, '14 j'], [30, '30 j'], [90, '90 j']].map(([v, l]) => `<button class="chip" type="button" data-sp="${v}" aria-pressed="${st.slotPer === v}">${l}</button>`).join('')}</div><small class="muted">${fmt(vs.length)} vidéos de plus de 24 h</small></div>`;
+  const peu = n => `<div class="card muted">Pas encore assez de vidéos sur cette période (il en faut au moins ${n}). Choisis une période plus longue.</div>`;
+  if (an === 'resume') {
+    const S = signalPrecoce(A, C), K = cartons(vs), M = motsQuiMarchent(vs), V = vieVideo(A), E = essoufflement(A, C), D = [];
+    if (S.length && S[0].top <= 15) D.push({ f: 3, c: 'g', t: `Une vidéo récente est dans ton <b>top ${S[0].top} %</b> à ${JAL_L[S[0].m]} : elle peut faire ≈ <b>${k(S[0].pred)}</b> en 24 h.`, a: `data-vid="${S[0].v.id}"` });
+    if (K && K.lignes[0]) { const x = K.lignes[0]; D.push({ f: Math.abs(Math.log(x.r)) * 2, c: 'g', t: `Tes cartons ${x.verbe} <b>${x.r >= 1 ? fx(x.r) + ' plus' : fx(1 / x.r) + ' moins'}</b>${x.nom === 'durée' ? ' longtemps' : ''} que tes autres vidéos (${x.fmtx(x.a)} contre ${x.fmtx(x.b)}).`, a: 'data-an="contenu"' }); }
+    if (M && M.haut[0]) D.push({ f: Math.log(M.haut[0].r), c: 'c', t: `Le mot <b>« ${esc(M.haut[0].w)} »</b> dans le titre : <b>${fx(M.haut[0].r)}</b> ta vidéo normale (${M.haut[0].n} vidéos).`, a: 'data-an="contenu"' });
+    if (E[0] && E[0].r <= .75) D.push({ f: Math.abs(Math.log(E[0].r)) * 1.5, c: 'b', t: `<b>${esc(E[0].nom)}</b> s’essouffle : <b>${Math.round((1 - E[0].r) * 100)} % de vues en moins</b> à 24 h que la semaine d’avant. Change d’angle ou de format.`, a: 'data-an="vie"' });
+    const G = groupes(A, C, vs), bh = G.heure.filter(r => r.n >= MINI && r.m).sort((a, b) => b.m - a.m)[0];
+    if (bh && med && bh.m / med >= 1.2) D.push({ f: Math.log(bh.m / med), c: 'g', t: `Tes vidéos postées entre <b>${bh.l}</b> font <b>${fx(bh.m / med)}</b> ta vidéo normale.`, a: 'data-an="moment"' });
+    if (V?.q80) D.push({ f: .4, c: 'w', t: `Tes vidéos font <b>80 % de leurs vues en ${JAL_L[V.q80.m]}</b>.`, a: 'data-an="vie"' });
+    D.sort((a, b) => b.f - a.f);
+    h += D.length ? `<section class="sec"><div class="sec-h"><h2>Ton diagnostic</h2><small>sur ${st.slotPer} jours · touche une ligne</small></div><div class="ins">${D.slice(0, 4).map(x => `<button class="in" type="button" ${x.a}><span class="ic ${x.c}"></span><span class="tx">${x.t}</span><span class="chev">›</span></button>`).join('')}</div></section>` : '';
+    h += records(A, C);
+    h += `<section class="card sec"><div class="sec-h"><h2>Signal précoce</h2><small>tes vidéos de moins de 24 h</small></div>`;
+    h += S.length ? `<div class="rows">${S.slice(0, 5).map(x => `<button class="row" type="button" data-vid="${x.v.id}">${cover(x.v)}<div class="t"><b class="num">${k(x.val)} <small class="muted" style="font:500 12px var(--body)">à ${JAL_L[x.m]}</small></b><span>${esc(titreVid(x.v))}</span><span class="sig"><i style="width:${Math.max(4, 100 - x.top)}%"></i></span></div><div class="r num"><b class="${x.top <= 20 ? 'up' : x.top >= 70 ? 'down' : ''}">top ${x.top} %</b><br><span class="muted">≈ ${k(x.pred)} à 24 h</span></div></button>`).join('')}</div>
+      <p class="muted note">Top 10 % = à cet âge, elle fait mieux que 90 % de tes vidéos au même âge. Dans ton top 20 % : décline-la (même moment, autre accroche) ou poste la suite.</p>`
+      : `<div class="muted">Aucune vidéo de moins de 24 h. Poste, et reviens 1 h après : tu sauras tout de suite si elle part bien.</div>`;
+    return h + `</section>`;
+  }
+  if (an === 'contenu') {
+    h += per; if (vs.length < 30) return h + peu(30);
+    const K = cartons(vs), M = motsQuiMarchent(vs), G = groupes(A, C, vs);
+    if (K) h += `<section class="card sec"><div class="sec-h"><h2>Ce qui fait un carton</h2><small>tes ${K.n} meilleures (plus de ${k(K.seuil)} vues) contre le reste</small></div>
+      ${K.lignes.length ? `<div class="cmp">${K.lignes.map(x => `<div class="cmpl"><span class="lb">${x.nom[0].toUpperCase() + x.nom.slice(1)}</span><span class="cmpv"><b>${x.fmtx(x.a)}</b><small>cartons</small></span><span class="cmpv"><span>${x.fmtx(x.b)}</span><small>les autres</small></span><span class="cmpr ${x.r >= 1 ? 'up' : 'down'}">${x.r >= 1 ? fx(x.r) : '÷' + fx(1 / x.r).replace('×', '')}</span></div>`).join('')}</div>`
+        : `<div class="muted">Tes cartons ressemblent à tes autres vidéos : c’est surtout le moment et le contenu qui font la différence.</div>`}</section>`;
+    if (M && (M.haut.length || M.bas.length)) h += `<section class="card sec"><div class="sec-h"><h2>Les mots qui marchent</h2><small>dans tes titres, 8 vidéos minimum</small></div>
+      ${M.haut.length ? `<div class="mots">${M.haut.map(x => `<button class="mot up" type="button" data-q="${esc(x.w)}"><b>${esc(x.w)}</b><span>${fx(x.r)} · ${x.n} vid.</span></button>`).join('')}</div>` : ''}
+      ${M.bas.length ? `<div class="muted" style="font-size:13px">Font moins bien :</div><div class="mots">${M.bas.map(x => `<button class="mot down" type="button" data-q="${esc(x.w)}"><b>${esc(x.w)}</b><span>${fx(x.r)} · ${x.n} vid.</span></button>`).join('')}</div>` : ''}
+      <p class="muted note">Comparé à ta vidéo normale (${k(med)} vues). Touche un mot pour voir ses vidéos.</p></section>`;
+    h += bloc('duree', 'Durée de la vidéo', 'vues habituelles par durée', G.duree, med);
+    if (G.son.filter(r => r.n >= MINI).length >= 2) h += bloc('son', 'Son utilisé', '10 vidéos minimum', G.son.filter(r => r.n >= MINI).slice(0, 6), med);
+    if (G.camp.length) h += bloc('camp', 'Campagne', 'vues habituelles par campagne', G.camp, med);
+    return h;
+  }
+  if (an === 'moment') {
+    h += per; if (vs.length < 15) return h + peu(15);
+    const G = groupes(A, C, vs), best = id => G[id].filter(r => r.n >= MINI && r.m).sort((a, b) => b.m - a.m)[0];
+    const R = [['heure', 'Poste entre'], ['jour', 'Le meilleur jour']].map(([id, lab]) => { const r = best(id); return r && med && r.m / med >= 1.1 ? `<button class="rc" type="button" data-grp="${id}:${r.i}"><span class="muted">${lab}</span><span><b>${r.l}</b></span><span class="rx">${fx(r.m / med)} ta normale</span></button>` : ''; }).join('');
+    const F = heuresFortes(A, C), fortes = F ? [...F].sort((a, b) => a - b) : [];
+    h += `<section class="card sec"><div class="sec-h"><h2>Ta recette</h2><small>ta vidéo normale : ${k(med)} vues</small></div>${R ? `<div class="recette">${R}</div>` : '<div class="muted">Aucun moment ne sort nettement du lot sur cette période.</div>'}
+      ${fortes.length ? `<div class="say" style="max-width:none;font-size:14px">Ton public regarde le plus vers <b>${fortes.map(x => x + 'h').join(', ')}</b>.</div>` : ''}</section>`;
+    h += bloc('heure', 'Heure de publication', 'vues habituelles d’une vidéo postée à cette heure', G.heure, med);
+    h += bloc('jour', 'Jour de publication', 'vues habituelles par jour', G.jour, med);
+    h += public_(A, C);
+    h += `<button class="more" type="button" id="heatTog">${st.heat ? 'Cacher' : 'Voir'} le détail jour × heure</button>`;
+    if (st.heat) h += heatmap(A, C, med);
+    return h + `<p class="muted note">« Vues habituelles » = la médiane : la moitié de tes vidéos font plus, l’autre moitié moins. Une ligne grisée a moins de ${MINI} vidéos.</p>`;
+  }
+  const V = vieVideo(A), E = essoufflement(A, C);
+  if (V) h += `<section class="card sec"><div class="sec-h"><h2>Vie d’une vidéo</h2><small>part des vues faites à chaque âge (${V.n} vidéos)</small></div>
+    <div class="vie">${V.pts.map(x => `<div class="vj ${V.q80 && x.m === V.q80.m ? 'cle' : ''}"><span class="vb"><i style="height:${Math.max(3, x.p * 100).toFixed(0)}%"></i></span><b class="num">${Math.round(x.p * 100)} %</b><small>${JAL_L[x.m]}</small></div>`).join('')}</div>
+    <p class="muted note">${V.q80 ? `80 % des vues sont faites en ${JAL_L[V.q80.m]}. ` : ''}100 % = vues à ${JAL_L[V.ref]}. Les premières heures décident presque tout : réponds aux commentaires dans la première heure.</p></section>`;
+  if (E.length) h += `<section class="card sec"><div class="sec-h"><h2>Essoufflement des campagnes</h2><small>vues à 24 h, cette semaine contre la précédente</small></div>
+    <div class="rows">${E.map(x => `<button class="row" type="button" data-q="#${esc(x.t)}" style="padding:12px"><div class="t"><b>${esc(x.nom)}</b><span class="muted" style="white-space:normal">${k(x.a)} vues à 24 h cette semaine, ${k(x.b)} la semaine d’avant</span></div><div class="r num"><b class="${x.r >= 1.05 ? 'up' : x.r <= .9 ? 'down' : ''}">${pctTxt((x.r - 1) * 100)}</b><br><span class="muted">${x.r <= .75 ? 'change d’angle' : x.r >= 1.1 ? 'ça monte' : 'stable'}</span></div></button>`).join('')}</div></section>`;
+  const vieilles = A.videos.filter(v => { const j = (C.now / 1000 - v.t) / 86400; return j >= 21 && j <= 180 && !v.r; }), medV = median(vieilles.map(v => v.v));
+  const rep_ = vieilles.filter(v => medV && v.v >= medV * 4).sort((a, b) => b.v - a.v).slice(0, 5);
+  if (rep_.length) h += `<section class="card sec"><div class="sec-h"><h2>À reposter</h2><small>tes cartons d’il y a 3 semaines et plus</small></div>
+    <div class="rows">${rep_.map(v => `<button class="row" type="button" data-vid="${v.id}">${cover(v)}<div class="t"><b class="num">${k(v.v)}</b><span>${esc(titreVid(v))}</span><span class="muted" style="font-size:12px">${dateVid(v.t)} · dans ton top ${Math.max(1, Math.ceil(vieilles.filter(x => x.v > v.v).length / vieilles.length * 100))} %</span></div></button>`).join('')}</div>
+    <p class="muted note">Une vidéo qui a déjà explosé a de bonnes chances de repartir : reposte-la avec un nouveau début ou un nouveau titre.</p></section>`;
+  if (!V && !E.length && !rep_.length) h += `<div class="card muted">Pas encore assez d’historique : reviens dans quelques jours.</div>`;
+  return h;
+}
+const MINI = 10; // en dessous, une ou deux vidéos virales faussent tout
+function groupes(A, C, vs) {
+  const mk = (labels, key) => { const by = labels.map(() => []); for (const v of vs) { const i = key(v); if (i != null && i >= 0) by[i].push(v); }
+    return by.map((a, i) => ({ i, l: labels[i], vs: a, n: a.length, m: median(a.map(v => v.v)) })); };
+  const known = Object.fromEntries((RAW.campagnes || []).map(c => [c.tag, c.nom]));
+  const tagsC = [...new Set(vs.flatMap(v => tags(v.d)).filter(t => t.startsWith('cyclomx')))];
+  return {
+    heure: mk(Array.from({ length: 12 }, (_, b) => `${b * 2}h – ${b * 2 + 2}h`), v => pz(v.t * 1000).hour >> 1),
+    jour: mk(JOURS_L.map(j => j[0].toUpperCase() + j.slice(1)), v => pz(v.t * 1000).wd),
+    duree: mk(DUREES, v => v.du ? bucket(v.du) : null),
+    camp: mk(tagsC.map(t => esc(known[t] || t)), v => tagsC.indexOf(tags(v.d).find(t => t.startsWith('cyclomx')))).filter(r => r.n).sort((a, b) => (b.m || 0) - (a.m || 0)),
+    son: (() => { const sons = [...new Set(vs.map(v => v.mu).filter(Boolean))]; return mk(sons.map(x => esc(x.slice(0, 40))), v => v.mu ? sons.indexOf(v.mu) : null).sort((a, b) => (b.m || 0) - (a.m || 0)); })(),
+  };
+}
+function bloc(id, titre, sous, rows, med) {
+  const ok = rows.filter(r => r.n >= MINI && r.m), mx = Math.max(1, med * 1.2, ...ok.map(r => r.m)); // échelle = lignes fiables seulement
+  const top = [...ok].sort((a, b) => b.m - a.m).slice(0, 1).map(r => r.i);
+  return `<section class="card sec"><div class="sec-h"><h2>${titre}</h2><small>${sous}</small></div><div class="bars">${rows.map(r => {
+    const fiable = r.n >= MINI && r.m, f = med && r.m ? r.m / med : null;
+    return `<button class="hb ${fiable ? '' : 'faible'} ${top.includes(r.i) ? 'best' : ''}" type="button" data-grp="${id}:${r.i}" ${r.n ? '' : 'disabled'}>
+      <span class="lb">${r.l}</span><span class="tr"><i style="width:${r.m ? Math.min(100, Math.max(2, r.m / mx * 100)).toFixed(1) : 0}%"></i><em class="med" style="left:${Math.min(100, med / mx * 100).toFixed(1)}%"></em></span>
+      <span class="vl"><b class="num">${!fiable ? (r.n ? 'peu' : '—') : k(r.m)}</b><small class="${!fiable || f == null ? 'muted' : f >= 1.15 ? 'up' : f <= .85 ? 'down' : 'muted'}">${fiable && f != null ? f.toLocaleString('fr-FR', { maximumFractionDigits: 1 }) + '× · ' : ''}${r.n} vid.</small></span></button>`; }).join('')}</div>
+    <div class="legend"><span><i style="background:var(--fg2);width:2px;height:10px"></i>ta vidéo normale</span><span>touche une ligne pour voir les vidéos</span></div></section>`;
+}
+function public_(A, C) {
+  const Hh = A.horaire || {}, sum = Array(12).fill(0), nb = Array(12).fill(0);
+  for (const [key, g] of Object.entries(Hh)) { if (key.slice(0, 8) === C.P.day) continue; const b = +key.slice(8, 10) >> 1; sum[b] += g; nb[b]++; }
+  const rows = sum.map((s, b) => ({ l: `${b * 2}h – ${b * 2 + 2}h`, m: nb[b] ? s / nb[b] : null, n: nb[b] }));
+  if (rows.filter(r => r.n).length < 8) return '';
+  const mx = Math.max(1, ...rows.map(r => r.m || 0)), bi = rows.reduce((a, r, i) => (r.m || 0) > (rows[a].m || 0) ? i : a, 0);
+  return `<section class="card sec"><div class="sec-h"><h2>Quand ton public regarde</h2><small>vues gagnées par heure, toutes vidéos</small></div><div class="bars">${rows.map((r, i) => `<div class="hb ${i === bi ? 'best' : ''}"><span class="lb">${r.l}</span><span class="tr"><i style="width:${r.m ? Math.max(2, r.m / mx * 100).toFixed(1) : 0}%;background:var(--cyan)"></i></span><span class="vl"><b class="num">${r.m ? k(r.m) : '—'}</b><small class="muted">par heure</small></span></div>`).join('')}</div></section>`;
+}
+function heatmap(A, C, med) {
+  const save = st.slotMode; st.slotMode = 'post'; const D = slotsData(A, C); st.slotMode = save;
+  const mx = Math.max(1, ...D.flat().filter(c => c.vs.length >= 5).map(c => c.val));
+  let h = `<section class="card sec"><div class="sec-h"><h2>Jour × heure</h2><small>vues habituelles · touche une case</small></div><div class="heat2"><div></div>${JOURS.map(j => `<div class="hd">${j}</div>`).join('')}`;
+  for (let b = 0; b < 12; b++) { h += `<div class="hr">${b * 2}h</div>`;
+    for (let wd = 0; wd < 7; wd++) { const c = D[wd][b], ok = c.vs.length >= 5, a = ok ? Math.pow(Math.min(1, c.val / mx), .7) : 0;
+      h += `<button class="c2 ${ok ? '' : 'vide'}" type="button" data-slot="${wd},${b}" ${c.vs.length ? '' : 'disabled'} style="${ok ? `background:rgba(71,204,192,${(.12 + a * .88).toFixed(2)})` : ''}" aria-label="${JOURS_L[wd]} ${b * 2}h, ${c.vs.length} vidéos">${ok ? k(c.val) : c.vs.length ? '·' : ''}</button>`; } }
+  return h + `</div><div class="muted" style="font-size:11.5px">Case vide ou « · » = moins de 5 vidéos postées à ce moment : pas assez pour juger.</div></section>`;
+}
+function ficheGroupe(id, i) {
+  const A = compteCourant(), C = calc(A), vs = recentes(A, C, st.slotPer), med = median(vs.map(v => v.v));
+  let r, titre;
+  if (id === 'slot') { const [wd, b] = i.split(',').map(Number); const L = vs.filter(v => { const p = pz(v.t * 1000); return p.wd === wd && p.hour >> 1 === b; });
+    r = { vs: L, n: L.length, m: median(L.map(v => v.v)) }; titre = `${JOURS_L[wd]} ${b * 2}h – ${b * 2 + 2}h`; }
+  else { r = groupes(A, C, vs)[id].find(x => x.i === +i); titre = { heure: 'Postées entre ', jour: 'Postées le ', duree: 'Durée : ', camp: 'Campagne ', son: 'Son : ' }[id] + r.l; }
+  const L = [...r.vs].sort((a, b) => b.v - a.v);
+  const f = med && r.m ? r.m / med : null;
+  let h = `<div class="grab"></div><div class="sheet-h"><h2>${titre}</h2><button class="x" type="button" data-close aria-label="Fermer">×</button></div>
+    <div class="kv"><div><span>Vidéos (${st.slotPer} j)</span><b class="num">${r.n}</b></div><div><span>Vues habituelles</span><b class="num">${r.m ? k(r.m) : '—'} ${f ? `<small class="${f >= 1 ? 'up' : 'down'}">${f.toLocaleString('fr-FR', { maximumFractionDigits: 1 })}×</small>` : ''}</b></div>
+    <div><span>Meilleure</span><b class="num">${L[0] ? k(L[0].v) : '—'}</b></div><div><span>Total</span><b class="num">${k(L.reduce((s, v) => s + v.v, 0))}</b></div></div>
+    ${r.n < MINI ? `<div class="muted" style="font-size:12.5px">Moins de ${MINI} vidéos : à prendre avec des pincettes.</div>` : ''}
+    <div class="grid">${L.slice(0, 30).map(v => vcard(v, C)).join('')}</div>`;
+  ouvrir(h);
+}
+
+function ficheJour(d) {
+  const A = compteCourant(), C = calc(A), Q = A.quotidien || {}, q = Q[d] || {}, p = Q[addJour(d, -1)];
+  const vs = A.videos.filter(v => pz(v.t * 1000).day === d).sort((a, b) => b.v - a.v);
+  const dv = p ? pct(q.g, p.g) : null, df = q.f != null && p?.f != null ? q.f - p.f : null;
+  let h = `<div class="grab"></div><div class="sheet-h"><h2>${dayLabel(d)}${d === C.P.day ? " · aujourd'hui" : ''}</h2><button class="x" type="button" data-close aria-label="Fermer">×</button></div>
+    ${navJour(d, A, C, 'fday')}
+    ${Q[d] ? '' : '<div class="muted" style="font-size:12.5px">Pas de chiffres du compte pour ce jour (avant le début du relevé). Les vidéos postées restent visibles.</div>'}
+    <div class="kv"><div><span>Vues</span><b class="num">${fmt(q.g)} ${dv != null ? `<small class="${dv >= 0 ? 'up' : 'down'}">${pctTxt(dv)}</small>` : ''}</b></div><div><span>Abonnés gagnés</span><b class="num">${df != null ? (df >= 0 ? '+' : '') + fmt(df) : '—'}</b></div>
+    <div><span>Likes</span><b class="num">${fmt(q.l)}</b></div><div><span>Partages</span><b class="num">${fmt(q.s)}</b></div><div><span>Commentaires</span><b class="num">${fmt(q.c)}</b></div><div><span>Vidéos postées</span><b class="num">${vs.length}</b></div></div>`;
+  h += vs.length ? `<div class="sec-h"><h2>Postées ce jour</h2><small>${k(vs.reduce((s, v) => s + v.v, 0))} vues à ce jour</small></div><div class="grid">${vs.slice(0, 15).map(v => vcard(v, C)).join('')}</div>` : `<div class="muted">Aucune vidéo postée ce jour.</div>`;
+  h += `<button class="more" type="button" data-go="videos" data-per="d:${d}">Voir les ${vs.length} vidéos de ce jour dans Vidéos</button>`;
+  ouvrir(h);
+}
+
+// ---------- Fiche vidéo ----------
+function ficheVideo(id) {
+  const A = compteCourant(), C = calc(A), v = A.videos.find(x => String(x.id) === String(id)); if (!v) return;
+  const f = C.fois(v), user = v.acc || A.user;
+  const lr = v.v ? v.l / v.v * 100 : null, sr = v.v ? v.s / v.v * 100 : null;
+  let h = `<div class="grab"></div><div class="sheet-h"><h2>Vidéo du ${dateVid(v.t)}</h2><button class="x" type="button" data-close aria-label="Fermer">×</button></div>
+  <div class="vd">${cover(v)}<div class="info">
+    <div style="font:800 30px var(--display)" class="num">${fmt(v.v)} <span style="font-size:14px;font-weight:600" class="muted">vues</span></div>
+    <div class="pills">${f != null ? `<span class="pill ${f >= 1 ? 'g' : 'b'}">${fx(f)} ta normale</span>` : ''}${v.gj ? `<span class="pill g">+${k(v.gj)} aujourd'hui</span>` : ''}${v.r ? '<span class="pill b">Restreinte par TikTok</span>' : ''}</div>
+    <div class="desc">${esc(v.d || 'Sans description')}</div>
+    <div class="muted" style="font-size:12.5px">${v.du ? v.du + ' s · ' : ''}@${esc(user)}</div></div></div>
+  <div class="kv"><div><span>Likes</span><b class="num">${fmt(v.l)} <small class="muted">${lr != null ? lr.toLocaleString('fr-FR', { maximumFractionDigits: 1 }) + ' %' : ''}</small></b></div>
+    <div><span>Partages</span><b class="num">${fmt(v.s)} <small class="muted">${sr != null ? sr.toLocaleString('fr-FR', { maximumFractionDigits: 2 }) + ' %' : ''}</small></b></div>
+    <div><span>Commentaires</span><b class="num">${fmt(v.c)}</b></div><div><span>Enregistrements</span><b class="num">${v.sv != null ? fmt(v.sv) : '—'} <small class="muted">${v.sv != null && v.v ? (v.sv / v.v * 100).toLocaleString('fr-FR', { maximumFractionDigits: 2 }) + ' %' : ''}</small></b></div>
+    <div><span>Dernière heure</span><b class="num">${v.gh ? '+' + fmt(v.gh) : '—'}</b></div><div><span>Aujourd'hui</span><b class="num">${v.gj ? '+' + fmt(v.gj) : '—'}</b></div></div>
+  ${v.mu ? `<div class="muted" style="font-size:13px">Son : <span style="color:var(--fg)">${esc(v.mu)}</span></div>` : ''}`;
+  if (v.ms) h += `<div><div class="muted" style="font-size:12.5px;margin-bottom:6px">Vues après la publication</div><div class="ms">${['1','3','6','12','24','48','72','168'].filter(m => +m <= 24 || v.ms[m] != null).map(m => `<div><span>${m === '168' ? '7 j' : m + ' h'}</span><b class="num">${v.ms[m] != null ? k(v.ms[m]) : '—'}</b></div>`).join('')}</div></div>`;
+  if (v.vd && Object.keys(v.vd).length > 1) { const ds = Object.keys(v.vd).sort(); const g = ds.slice(1).map((d, i) => Math.max(0, v.vd[d] - v.vd[ds[i]]));
+    h += `<div class="chart"><div class="muted" style="font-size:12.5px;margin-bottom:6px">Vues gagnées par jour</div>${barres(ds.slice(1), g, true)}</div>`; }
+  if (v.vh && v.vh.length > 2) h += `<div class="chart"><div class="muted" style="font-size:12.5px;margin-bottom:6px">Courbe des vues</div>${courbe(v.vh)}</div>`;
+  const url = `https://www.tiktok.com/@${encodeURIComponent(user.split(' + ')[0])}/video/${v.id}`;
+  const ix = CTX.indexOf(String(v.id));
+  h += `<a class="link" href="${url}" target="_blank" rel="noopener">Ouvrir sur TikTok ↗</a>
+    <div class="navv"><button type="button" data-nav="-1" ${ix > 0 ? '' : 'disabled'}>‹ Précédente</button><button type="button" data-copy="${url}">Copier le lien</button><button type="button" data-nav="1" ${ix >= 0 && ix < CTX.length - 1 ? '' : 'disabled'}>Suivante ›</button></div>
+    ${ix >= 0 && CTX.length > 1 ? `<div class="quota">${ix + 1} / ${CTX.length} · ${matchMedia('(hover:hover)').matches ? 'flèches ← → du clavier' : 'glisse à gauche ou à droite'}</div>` : ''}`;
+  ouvrir(h, String(v.id));
+}
+function courbe(pts) {
+  const W = CW(true), Ht = 130, pl = 36, pb = 18, pt = 8;
+  const t0 = pts[0][0], t1 = pts[pts.length - 1][0], mx = Math.max(...pts.map(p => p[1])), mn = Math.min(...pts.map(p => p[1]));
+  const x = t => pl + (W - pl) * ((t - t0) / Math.max(1, t1 - t0)), y = v => pt + (Ht - pt - pb) * (1 - (v - mn) / Math.max(1, mx - mn));
+  const d = pts.map((p, i) => (i ? 'L' : 'M') + x(p[0]).toFixed(1) + ' ' + y(p[1]).toFixed(1)).join(' ');
+  const last = pts[pts.length - 1];
+  return `<svg viewBox="0 0 ${W} ${Ht}" role="img" aria-label="Courbe des vues"><line x1="${pl}" x2="${W}" y1="${y(mx)}" y2="${y(mx)}" stroke="rgba(255,255,255,.07)"/><line x1="${pl}" x2="${W}" y1="${y(mn)}" y2="${y(mn)}" stroke="rgba(255,255,255,.07)"/>
+    <text x="${pl - 5}" y="${y(mx) + 3.5}" text-anchor="end" font-size="9.5" fill="#7f7f8b">${k(mx)}</text><text x="${pl - 5}" y="${y(mn) + 3.5}" text-anchor="end" font-size="9.5" fill="#7f7f8b">${k(mn)}</text>
+    <path d="${d} L${x(last[0])} ${Ht - pb} L${pl} ${Ht - pb}Z" fill="rgba(71,204,192,.14)"/><path d="${d}" fill="none" stroke="#47ccc0" stroke-width="2"/><circle cx="${x(last[0])}" cy="${y(last[1])}" r="3.5" fill="#fe2c55"/>
+    <text x="${pl}" y="${Ht - 4}" font-size="9.5" fill="#7f7f8b">${new Date(t0).toLocaleString('fr-FR', { timeZone: TZ, day: '2-digit', month: '2-digit', hour: '2-digit' })}</text><text x="${W}" y="${Ht - 4}" text-anchor="end" font-size="9.5" fill="#7f7f8b">maintenant</text></svg>`;
+}
+
+// ---------- Feuilles ----------
+function ouvrir(html, vid) { const s = $('#sheet'); s.dataset.vid = vid || ''; s.innerHTML = `<div class="sheet-bg" data-close><div class="sheet" role="dialog" aria-modal="true">${html}</div></div>`; s.hidden = false; document.body.style.overflow = 'hidden'; }
+function fermer() { const s = $('#sheet'); s.hidden = true; s.innerHTML = ''; document.body.style.overflow = ''; }
+
+function reglerObjectif() {
+  const A = compteCourant(), C = calc(A), o = objectif(A, C);
+  ouvrir(`<div class="grab"></div><div class="sheet-h"><h2>Objectif du jour</h2><button class="x" type="button" data-close aria-label="Fermer">×</button></div>
+    <div class="muted">Combien de vues tu vises chaque jour sur ${A.id === 'tous' ? 'tous tes comptes' : '@' + esc(A.user)} ? La barre de l’accueil se remplit au fil de la journée.</div>
+    <label class="champ"><span>Vues par jour</span><input id="objv" type="number" inputmode="numeric" min="1000" step="1000" value="${o ? Math.round(o.v) : ''}"></label>
+    <button class="btn" type="button" data-saveobj>Enregistrer</button>
+    ${PREF.obj?.[A.id] ? '<button class="more" type="button" data-saveobj="auto">Revenir à l’objectif automatique</button>' : '<div class="muted" style="font-size:12.5px">Pour l’instant c’est automatique : à peu près ton rythme des 3 derniers jours, en restant atteignable aujourd’hui.</div>'}`);
+}
+function reglerTarifs() {
+  const A = compteCourant(), tg = [...new Set([...(RAW.campagnes || []).map(c => c.tag), ...A.videos.flatMap(v => tags(v.d)).filter(t => t.startsWith('cyclomx'))])];
+  const nom = t => (RAW.campagnes || []).find(c => c.tag === t)?.nom || '#' + t;
+  ouvrir(`<div class="grab"></div><div class="sheet-h"><h2>Mes tarifs</h2><button class="x" type="button" data-close aria-label="Fermer">×</button></div>
+    <div class="muted">Combien tu touches pour 1 000 vues, campagne par campagne. Laisse vide si tu ne sais pas.</div>
+    ${tg.map(t => `<label class="champ"><span>${esc(nom(t))}</span><input data-tarif="${esc(t)}" type="text" inputmode="decimal" placeholder="€ / 1 000" value="${PREF.tarif?.[t] != null ? String(PREF.tarif[t]).replace('.', ',') : ''}"></label>`).join('')}
+    <button class="btn" type="button" data-savetarifs>Enregistrer</button>`);
+}
+function mesComptes() {
+  const L = RAW.mes_comptes || RAW.comptes.map(c => ({ id: c.id, user: c.user }));
+  const R2 = RAW.a_reconnecter || [];
+  let h = `<div class="grab"></div><div class="sheet-h"><h2>${AGENCE ? 'Comptes de l’agence' : 'Mes comptes'}</h2><button class="x" type="button" data-close aria-label="Fermer">×</button></div><div class="rows">`;
+  for (const c of (AGENCE ? RAW.comptes.map(c => ({ id: c.id, user: c.user })) : L)) { const a = RAW.comptes.find(x => x.id === c.id), bad = R2.includes(c.id);
+    h += `<div class="mc"><span class="av">${esc((c.user || '?')[0].toUpperCase())}</span><div class="t"><b>@${esc(c.user || 'en cours…')}</b><small class="${bad ? 'down' : 'muted'}">${bad ? 'Accès coupé : à reconnecter' : a ? fmt(a.abonnes) + ' abonnés · relevé ' + ago(a.maj ?? RAW.maj) : 'Premier relevé en cours'}</small></div>
+      ${bad ? `<a class="ext" href="/auth/tiktok?ajout=1">Reconnecter</a>` : SITE && !AGENCE ? `<button type="button" data-retirer="${esc(c.id)}">Retirer</button>` : ''}</div>`; }
+  h += `</div>`;
+  if (!DRIVE) h += `<button class="more" type="button" id="addAcc">+ Ajouter un compte TikTok</button>`;
+  if (RAW.moi?.admin && SITE) h += `<button class="more" type="button" id="agence">${AGENCE ? 'Voir seulement mes comptes' : 'Voir tous les comptes de l’agence'}</button>`;
+  h += `<div class="muted" style="font-size:12.5px">Tes stats sont relevées toutes les ${DRIVE ? '5' : '15'} minutes, même appli fermée. On ne voit jamais ton mot de passe : TikTok nous donne seulement tes vidéos et leurs chiffres.</div>`;
+  h += liensExternes(compteCourant());
+  if (SITE) h += `<a class="ext" style="justify-content:center" href="/deconnexion">Se déconnecter</a>`;
+  if (WEB) h += `<button class="more" type="button" data-webout>Oublier le mot de passe sur cet appareil</button>`;
+  ouvrir(h);
+}
+async function retirer(id, btn) {
+  if (btn.dataset.ok !== '1') { btn.dataset.ok = '1'; btn.textContent = 'Sûr ? Touche encore'; btn.style.color = 'var(--bad)'; return; }
+  btn.disabled = true; btn.textContent = '…';
+  try { await fetch('/api/retirer', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ compte: id }) }); if (ACC === id) ACC = 'tous'; save(); fermer(); await charger(); }
+  catch (e) { btn.textContent = 'Échec, réessaie'; btn.disabled = false; }
+}
+function ajouterCompte() {
+  ouvrir(`<div class="grab"></div><div class="sheet-h"><h2>Ajouter un compte TikTok</h2><button class="x" type="button" data-close aria-label="Fermer">×</button></div>
+    <ol style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px;color:var(--fg2)">
+      <li>Ouvre l'appli TikTok et <b style="color:var(--fg)">passe sur le compte</b> que tu veux ajouter.</li>
+      <li>Reviens ici et touche le bouton ci-dessous.</li>
+      <li>Accepte sur TikTok. Le compte apparaît en haut, avec tes autres comptes.</li></ol>
+    ${SITE ? `<a class="link" href="/auth/tiktok?ajout=1">Se connecter avec TikTok</a>` : `<div class="demo">Dans l'aperçu, ce bouton ne fait rien. Sur le site, il ouvre la connexion TikTok.</div>`}`);
+}
+
+// ---------- Assistant ----------
+const chat = [];
+let quota = null;
+function resume(A, C) {
+  const top = A.videos.filter(v => v.gj > 0).sort((a, b) => b.gj - a.gj).slice(0, 8).map(v => `- ${dateVid(v.t)} « ${(v.d || '').slice(0, 70)} » : ${v.v} vues, +${v.gj} aujourd'hui, ${C.fois(v)?.toFixed(1) ?? '?'}× normale, ${v.du || '?'} s, ${v.l} likes, ${v.s} partages${v.sv != null ? ', ' + v.sv + ' enregistrements' : ''}${v.mu ? ', son « ' + v.mu + ' »' : ''}`);
+  const G = groupes(A, C, recentes(A, C, 30)); const meilleur = id => { const r = G[id].filter(x => x.n >= MINI && x.m).sort((a, b) => b.m - a.m)[0]; return r ? r.l + ' (médiane ' + Math.round(r.m) + ' vues, ' + r.n + ' vidéos)' : '?'; };
+  const Q = A.quotidien || {}; const days = Object.keys(Q).sort().slice(-14).map(d => `${d}: ${Q[d].g} vues, abonnés fin ${Q[d].f ?? '?'}`);
+  const D = (() => { const save = st.slotMode; st.slotMode = 'post'; const r = slotsData(A, C); st.slotMode = save; return r; })();
+  const slots = D.flatMap((r, wd) => r.map((c, b) => ({ wd, b, c }))).filter(x => x.c.vs.length >= 2).sort((a, b) => b.c.val - a.c.val).slice(0, 5).map(x => `${JOURS_L[x.wd]} ${x.b * 2}h-${x.b * 2 + 2}h : médiane ${Math.round(x.c.val)} vues (${x.c.vs.length} vidéos)`);
+  const camp = {}; for (const v of A.videos) for (const t of tags(v.d)) if (t.startsWith('cyclomx')) { camp[t] = camp[t] || [0, 0]; camp[t][0]++; camp[t][1] += v.v; }
+  return `Compte(s) : @${A.user}. Abonnés ${A.abonnes}. ${A.nb_videos} vidéos, ${A.vues_total} vues au total.
+Aujourd'hui (${C.P.hour}h) : ${C.today} vues, hier à la même heure ${Math.round(C.ySame ?? 0)}, estimation fin de journée ${Math.round(C.est ?? 0)}, ${C.duJour.length} vidéos postées, abonnés +${A.abonnes_jour ?? '?'}.
+Vidéo normale : ~${Math.round(C.normal ?? 0)} vues.
+Objectif du jour : ${objectif(A, C) ? Math.round(objectif(A, C).v) : '?'} vues. Série : ${serie(A, C)} jours d'affilée avec une vidéo postée.
+Gains estimés (tarifs du clippeur) : ${(() => { const G = gains(A); return G ? Math.round(G.auj * 100) / 100 + ' € aujourd\'hui, ' + Math.round(G.tot) + ' € au total' : 'tarifs non renseignés'; })()}.
+Vidéos peut-être bloquées (moins de 15 % des vues habituelles) : ${A.videos.filter(v => C.suspecte(v)).length}.
+Meilleures vidéos du jour :\n${top.join('\n') || 'aucune'}
+14 derniers jours :\n${days.join('\n')}
+Meilleurs créneaux pour poster (30 j) :\n${slots.join('\n') || 'pas assez de données'}
+Ce qui marche (30 j) : heure ${meilleur('heure')} ; jour ${meilleur('jour')} ; durée ${meilleur('duree')} ; son ${meilleur('son')}.
+Campagnes : ${Object.entries(camp).map(([t, [n, v]]) => `#${t} ${n} vidéos ${v} vues`).join(' ; ') || 'aucune'}`;
+}
+function assistant() {
+  const sugg = ['Pourquoi aujourd’hui est mieux ou moins bien qu’hier ?', 'À quelle heure je poste demain ?', 'Quelle vidéo je dois refaire ?', 'Combien je vais finir ce soir ?'];
+  const restant = quota ?? RAW.assistant?.restant ?? 10;
+  ouvrir(`<div class="grab"></div><div class="sheet-h"><h2>Assistant</h2><button class="x" type="button" data-close aria-label="Fermer">×</button></div>
+    <div class="chat" id="chat">${chat.length ? chat.map(m => `<div class="msg ${m.role === 'user' ? 'me' : 'ai'}">${esc(m.content)}</div>`).join('') : '<div class="msg ai">Pose-moi une question sur tes stats. Je réponds court, avec tes vrais chiffres.</div>'}</div>
+    ${chat.length ? '' : `<div class="chips" style="flex-wrap:wrap">${sugg.map(s => `<button class="chip" type="button" data-sugg="${esc(s)}">${esc(s)}</button>`).join('')}</div>`}
+    <form class="ask" id="askf"><input id="askq" placeholder="Ta question…" autocomplete="off" aria-label="Ta question"><button type="submit" id="asksend" ${restant <= 0 ? 'disabled' : ''}>Envoyer</button></form>
+    <div class="quota" id="quota">${restant > 0 ? restant + ' question' + (restant > 1 ? 's' : '') + " restante" + (restant > 1 ? 's' : '') + " aujourd'hui" : "Plus de questions pour aujourd'hui, reviens demain."}</div>`);
+  const c = $('#chat'); c.scrollIntoView({ block: 'end' });
+}
+async function demander(q) {
+  q = q.trim(); if (!q) return;
+  const A = compteCourant(), C = calc(A);
+  chat.push({ role: 'user', content: q }); chat.push({ role: 'assistant', content: '…' }); assistant();
+  const sys = `Tu es l'assistant stats TikTok d'un clippeur de l'agence Cyclom. Réponds en français simple, court (3 à 6 lignes), direct, avec ses vrais chiffres. Pas de longs conseils génériques. Si tu ne sais pas, dis-le.\n\nSES DONNÉES :\n${resume(A, C)}`;
+  const hist = chat.slice(0, -1).slice(-8);
+  let out = '';
+  try {
+    if (SITE) {
+      const r = await fetch('/api/assistant', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ messages: hist, donnees: resume(A, C), compte: ACC }) }); // consignes fixées par le serveur : seuls les chiffres partent d'ici
+      const j = await r.json(); if (!r.ok) throw new Error(j.erreur || 'Erreur'); out = j.texte; quota = j.restant;
+    } else {
+      const sample = await window.claude?.use?.('sample');
+      if (!sample) throw new Error("L'assistant n'est pas disponible dans cet aperçu.");
+      const msgs = [{ role: 'user', content: sys + '\n\nQUESTION : ' + hist[0].content }, ...hist.slice(1)];
+      if (msgs.length > 1) { msgs[0].content = sys + '\n\n' + 'QUESTION : ' + hist[0].content; }
+      const r = await sample(msgs, { modelTier: 'quick', cache: false });
+      out = r.text; quota = Math.max(0, (quota ?? RAW.assistant?.restant ?? 10) - 1);
+    }
+  } catch (e) { out = (e && (e.message || e.code)) ? 'Impossible de répondre : ' + (e.message || e.code) : 'Impossible de répondre pour le moment.'; }
+  chat[chat.length - 1].content = out; if (!$('#sheet').hidden) assistant();
+}
+
+// ---------- Rendu principal ----------
+function render() {
+  if (!RAW) return;
+  renderHead();
+  if (!RAW.comptes.length) { $('#main').innerHTML = bandeaux() + `<section class="card hero"><div class="lbl">Bienvenue</div><div style="font:700 20px var(--display)">On récupère tes vidéos…</div><p class="muted" style="margin:0">Le premier relevé prend moins d’une minute. Ensuite tes stats se mettent à jour toutes les 15 minutes, même quand l’appli est fermée.</p></section>`; return; }
+  const A = compteCourant(), C = calc(A);
+  const V = { direct: vDirect, videos: vVideos, campagnes: vCampagnes, historique: vHistorique, creneaux: vCreneaux };
+  $('#main').innerHTML = V[VIEW](A, C);
+  document.querySelectorAll('.tab').forEach(t => t.setAttribute('aria-selected', t.dataset.v === VIEW));
+}
+function rendreDoux(avant) {
+  const y = window.scrollY, old = avant ? $('#main .big')?.textContent : null;
+  render(); window.scrollTo({ top: y });
+  const b = $('#main .big'); if (!b || !old || b.textContent === old) return;
+  const a = +old.replace(/\D/g, ''), z = +b.textContent.replace(/\D/g, ''); if (!(z > a) || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const t0 = performance.now(), d = 900; b.style.color = 'var(--good)';
+  const pas = t => { const p = Math.min(1, (t - t0) / d), e = 1 - Math.pow(1 - p, 3); b.textContent = fmt(a + (z - a) * e); if (p < 1) requestAnimationFrame(pas); else setTimeout(() => { b.style.color = ''; }, 600); };
+  b.style.transition = 'color .6s'; requestAnimationFrame(pas);
+}
+function go(v, haut) { if (v === VIEW && !haut) { if (v === 'direct' && st.jour) { st.jour = null; st.hourSel = null; render(); } window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+  SCROLL[VIEW] = window.scrollY; VIEW = v; save(); render(); window.scrollTo({ top: haut ? 0 : SCROLL[v] || 0 }); }
+
+document.addEventListener('click', e => {
+  const hr = e.target.closest('[data-hour]'); if (hr) { const h = +hr.getAttribute('data-hour'); st.hourSel = st.hourSel === h ? null : h; return render(); }
+  const tr = e.target.closest('tr[data-day]'); if (tr) return ficheJour(tr.dataset.day);
+  const t = e.target.closest('button,[data-close],a'); if (!t) return;
+  if (t.hasAttribute('data-close') && (t.classList.contains('x') || e.target === t)) return fermer();
+  if (t.classList.contains('tab')) return go(t.dataset.v);
+  if (t.dataset.acc) { ACC = t.dataset.acc; save(); return render(); }
+  if (t.id === 'addAcc') return ajouterCompte();
+  if (t.id === 'gear') { if (!RAW) return; return mesComptes(); }
+  if (t.hasAttribute('data-webout')) { try { localStorage.removeItem('cs_cle'); } catch (x) {} location.reload(); return; }
+  if (t.hasAttribute('data-filtres')) return feuilleFiltres();
+  if (t.dataset.fq !== undefined) { st.q = st.q === t.dataset.fq ? '' : t.dataset.fq; st.shown = 60; render(); return feuilleFiltres(); }
+  if (t.dataset.fflt !== undefined) { st.flt = t.dataset.fflt; st.shown = 60; render(); return feuilleFiltres(); }
+  if (t.dataset.ftri) { st.sort = t.dataset.ftri; render(); return feuilleFiltres(); }
+  if (t.hasAttribute('data-freset')) { st.flt = ''; st.sort = 'recent'; st.q = ''; st.shown = 60; render(); return feuilleFiltres(); }
+  if (t.hasAttribute('data-close-f')) { fermer(); return window.scrollTo({ top: 0 }); }
+  if (t.dataset.tri) { st.sort = t.dataset.tri; return render(); }
+  if (t.dataset.dvue) { st.dvue = t.dataset.dvue; return render(); }
+  if (t.dataset.an) { st.an = t.dataset.an; if (VIEW !== 'creneaux') return go('creneaux', true); render(); return window.scrollTo({ top: 0 }); }
+  if (t.hasAttribute('data-objo')) return reglerObjectif();
+  if (t.hasAttribute('data-tarifs')) return reglerTarifs();
+  if (t.hasAttribute('data-saveobj')) { const A = compteCourant(); PREF.obj = PREF.obj || {};
+    if (t.dataset.saveobj === 'auto') delete PREF.obj[A.id]; else { const v = +$('#objv').value; if (v > 0) PREF.obj[A.id] = v; } savePref(); fermer(); return render(); }
+  if (t.hasAttribute('data-savetarifs')) { PREF.tarif = PREF.tarif || {};
+    document.querySelectorAll('[data-tarif]').forEach(i => { const v = parseFloat(String(i.value).replace(',', '.')); if (v > 0) PREF.tarif[i.dataset.tarif] = v; else delete PREF.tarif[i.dataset.tarif]; }); savePref(); fermer(); return render(); }
+  if (t.dataset.calo) return calendrier(t.dataset.calo, t.dataset.sel || pz(RAW.maj).day);
+  if (t.dataset.calm) { const sh = $('#sheet'); return calendrier(sh.dataset.cal, sh.dataset.sel, t.dataset.calm); }
+  if (t.dataset.cal) return choisirJour($('#sheet').dataset.cal, t.dataset.cal);
+  if (t.dataset.retirer) return retirer(t.dataset.retirer, t);
+  if (t.id === 'agence') { AGENCE = !AGENCE; try { localStorage.setItem('cs_agence', AGENCE ? '1' : ''); } catch (x) {} ACC = 'tous'; fermer(); return charger(); }
+  if (t.id === 'fab') return assistant();
+  if (t.dataset.sugg) return demander(t.dataset.sugg);
+  if (t.dataset.vid) { const box = t.closest('.grid,.rows,.ins,.strip'); CTX = box ? [...box.querySelectorAll('[data-vid]')].map(x => x.dataset.vid) : [t.dataset.vid]; return ficheVideo(t.dataset.vid); }
+  if (t.dataset.nav) { const i = CTX.indexOf($('#sheet').dataset.vid) + +t.dataset.nav; if (CTX[i]) ficheVideo(CTX[i]); return; }
+  if (t.dataset.copy) { const u = t.dataset.copy; const ok = () => { t.textContent = 'Lien copié'; setTimeout(() => { t.textContent = 'Copier le lien'; }, 1500); };
+    try { navigator.clipboard.writeText(u).then(ok, () => { t.textContent = u; }); } catch (x) { t.textContent = u; } return; }
+  if (t.dataset.day !== undefined && (t.closest('.sheet') || t.classList.contains('jr') || t.classList.contains('rec'))) { if (t.dataset.day) ficheJour(t.dataset.day); return; }
+  if (t.dataset.vm) { st.vmode = t.dataset.vm; return render(); }
+  if (t.dataset.dj) { const d = t.dataset.dj; if (t.dataset.for === 'fday') return ficheJour(d);
+    if (t.dataset.for === 'djour') { st.jour = d === pz(RAW.maj).day ? null : d; st.hourSel = null; render(); return window.scrollTo({ top: 0 }); } st.flt = ''; st.per = d === pz(RAW.maj).day ? 'jour' : d === pz(RAW.maj - 864e5).day ? 'hier' : 'd:' + d; st.shown = 60; return render(); }
+  if (t.dataset.flt !== undefined) { st.flt = t.dataset.flt; st.shown = 60; if (VIEW !== 'videos') { st.q = ''; st.per = 'tout'; fermer(); return go('videos', true); } return render(); }
+  if (t.dataset.q !== undefined) { const q = t.dataset.q; st.q = (st.q === q && VIEW === 'videos') ? '' : q; st.per = 'tout'; st.flt = ''; st.shown = 60; return go('videos', true); }
+  if (t.dataset.go) { if (t.dataset.per) { st.per = t.dataset.per; st.flt = ''; fermer(); } st.q = ''; return go(t.dataset.go, true); }
+  if (t.dataset.per) { st.per = t.dataset.per; st.shown = 60; return render(); }
+  if (t.id === 'more') { st.shown += 60; return render(); }
+  if (t.dataset.met) { st.hMet = t.dataset.met; return render(); }
+  if (t.dataset.hper !== undefined) { st.hPer = +t.dataset.hper; return render(); }
+  if (t.dataset.sm) { st.slotMode = t.dataset.sm; st.slotSel = null; return render(); }
+  if (t.dataset.sp) { st.slotPer = +t.dataset.sp; st.slotSel = null; return render(); }
+  if (t.dataset.slot) return ficheGroupe('slot', t.dataset.slot);
+  if (t.dataset.grp) { const [g, i] = t.dataset.grp.split(':'); return ficheGroupe(g, i); }
+  if (t.id === 'heatTog') { st.heat = !st.heat; return render(); }
+});
+document.addEventListener('input', e => { if (e.target.id === 'q') { st.q = e.target.value; st.shown = 60; const pos = e.target.selectionStart; render(); const i = $('#q'); i.focus(); try { i.setSelectionRange(pos, pos); } catch (x) {} } });
+document.addEventListener('change', e => { const id = e.target.id, v = e.target.value;
+  if (id === 'sort') { st.sort = v; return render(); }
+  if (!v) return;
+  const d = depuisInput(v);
+  if (id === 'vpick' || id === 'vday') { st.flt = ''; st.per = d === pz(RAW.maj).day ? 'jour' : d === pz(RAW.maj - 864e5).day ? 'hier' : 'd:' + d; st.shown = 60; return render(); }
+  if (id === 'djour') { st.jour = d === pz(RAW.maj).day ? null : d; st.hourSel = null; render(); return window.scrollTo({ top: 0 }); }
+  if (id === 'hpick' || id === 'dpick' || id === 'fday') return ficheJour(d); });
+document.addEventListener('submit', e => { if (e.target.id === 'askf') { e.preventDefault(); const q = $('#askq').value; demander(q); } });
+let T0 = null, SH = null;
+document.addEventListener('touchstart', e => { const sh = e.target.closest?.('.sheet'); if (!sh || sh.scrollTop > 0) { SH = null; return; } SH = { sh, y: e.touches[0].clientY, dy: 0 }; }, { passive: true });
+document.addEventListener('touchmove', e => { if (!SH) return; SH.dy = e.touches[0].clientY - SH.y; if (SH.dy > 0) { SH.sh.classList.remove('back'); SH.sh.style.transform = `translateY(${SH.dy}px)`; } }, { passive: true });
+document.addEventListener('touchend', () => { if (!SH) return; const { sh, dy } = SH; SH = null; if (dy > 110) return fermer(); sh.classList.add('back'); sh.style.transform = ''; }, { passive: true });
+document.addEventListener('touchstart', e => { const t = e.touches[0]; T0 = { x: t.clientX, y: t.clientY, el: e.target }; }, { passive: true });
+document.addEventListener('touchend', e => { if (!T0) return; const t = e.changedTouches[0], dx = t.clientX - T0.x, dy = t.clientY - T0.y, el = T0.el; T0 = null;
+  if (Math.abs(dx) < 70 || Math.abs(dy) > 45 || dy > 60) return;
+  if (el.closest && el.closest('.chips,.tbl-wrap,.accts,.heat,input,select')) return;
+  if (!$('#sheet').hidden) { const sv = $('#sheet').dataset.vid; if (!sv) return; const i = CTX.indexOf(sv) + (dx < 0 ? 1 : -1); if (CTX[i]) ficheVideo(CTX[i]); return; }
+  if (VIEW === 'direct' && RAW) { // sur Direct, glisser change de jour (comme les flèches)
+    const auj = pz(RAW.maj).day, cur = st.jour || auj, d = addJour(cur, dx < 0 ? 1 : -1), B = bornes(compteCourant(), calc(compteCourant()));
+    if (d > auj || d < B.mn) return;
+    const m = $('#main'); m.classList.add(dx < 0 ? 'glisse-g' : 'glisse-d'); try { navigator.vibrate?.(8); } catch (x) {}
+    setTimeout(() => { st.jour = d === auj ? null : d; st.hourSel = null; render(); window.scrollTo({ top: 0 }); m.classList.remove('glisse-g', 'glisse-d'); }, 110); return;
+  }
+  const i = ORDRE.indexOf(VIEW) + (dx < 0 ? 1 : -1); if (ORDRE[i]) { const m = $('#main'); m.classList.add('fade'); setTimeout(() => { go(ORDRE[i], true); m.classList.remove('fade'); }, 90); } }, { passive: true });
+document.addEventListener('keydown', e => {
+  if ($('#sheet').hidden) return;
+  if (e.key === 'Escape') return fermer();
+  const sv = $('#sheet').dataset.vid; if (!sv || !['ArrowLeft', 'ArrowRight'].includes(e.key)) return;
+  const i = CTX.indexOf(sv) + (e.key === 'ArrowRight' ? 1 : -1); if (CTX[i]) { e.preventDefault(); ficheVideo(CTX[i]); } });
+
+// ---------- Mode Drive (dashboard perso) ----------
+function convertir(d) {
+  const gj = Object.fromEntries(d.top_today?.list || []), gh = Object.fromEntries(d.rising?.list || []);
+  const videos = Object.entries(d.items || {}).map(([id, it]) => ({ id, t: it.t || Number(BigInt(id) >> 32n), d: it.d || '', du: it.du || 0, v: it.v || 0, l: it.l || 0, c: it.c || 0, s: it.s || 0, r: it.r || 0,
+    gj: gj[id] || 0, gh: gh[id] || 0, vh: d.vh?.[id], ms: d.ms?.[id], vd: d.vd?.[id], sv: it.sv, mu: it.mu })).sort((a, b) => b.t - a.t);
+  const Q = {};
+  const S = d.studio?.hist, st0 = d.studio?.start;
+  if (S && st0) { const base = new Date(+st0.slice(0, 4), +st0.slice(4, 6) - 1, +st0.slice(6, 8));
+    (S.vv || []).forEach((g, i) => { const dt = new Date(base); dt.setDate(base.getDate() + i);
+      const key = dt.getFullYear() + String(dt.getMonth() + 1).padStart(2, '0') + String(dt.getDate()).padStart(2, '0');
+      Q[key] = { g, f: S.followers?.[i], l: S.like?.[i], c: S.comment?.[i], s: S.share?.[i] }; }); }
+  for (const [kk, x] of Object.entries(d.daily || {})) { if (!x.g && Q[kk]) continue;
+    Q[kk] = { g: x.g || 0, f: x.f ?? Q[kk]?.f, l: x.l0 != null ? x.l - x.l0 : Q[kk]?.l, c: x.c0 != null ? x.c - x.c0 : Q[kk]?.c, s: x.s0 != null ? x.s - x.s0 : Q[kk]?.s }; }
+  const H = {}; for (const [kk, x] of Object.entries(d.hourly || {})) H[kk] = x.g || 0;
+  return { maj: d.updated, moi: { nom: 'Jawed', admin: true }, assistant: { restant: 30, max: 30 },
+    campagnes: [{ tag: 'cyclomxdjadelshow', nom: 'Djadel Show', en_cours: true }, { tag: 'cyclomxdeja', nom: 'Ilyes Djadel — Déjà' }, { tag: 'cyclomxmdr', nom: 'MDR' }, { tag: 'cyclomxredouane', nom: 'Redouane Bougheraba' }, { tag: 'cyclomxkraken', nom: 'Kraken' }],
+    comptes: [{ id: 'clipfrfilm', user: 'clipfrfilm', abonnes: d.followers, likes: d.hearts, nb_videos: d.tracked, vues_total: d.total,
+      jour: d.today, heure: d.hour, abonnes_jour: d.followers_day, horaire: H, quotidien: Q, videos }] };
+}
+const DRIVE_ERR = { server_not_connected: 'Google Drive n’est pas connecté : ajoute-le dans claude.ai, Paramètres, Connecteurs.', needs_reauth: 'La connexion Google Drive a expiré : reconnecte-la dans claude.ai, Paramètres, Connecteurs.',
+  not_granted: 'Autorise la page à lire Google Drive pour voir tes stats.', approval_required: 'Autorise la page à lire Google Drive pour voir tes stats.', no_file: 'Fichier de stats introuvable sur Google Drive.' };
+function b64json(ev) { const b64 = ev?.result?.payload?.content; if (!b64) return null; const bin = atob(b64), u = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return JSON.parse(new TextDecoder().decode(u)); }
+async function chargerDrive() {
+  const mcp = await window.claude?.use?.('mcp');
+  if (!mcp) { $('#main').innerHTML = `<div class="card">Ouvre cette page dans claude.ai pour voir tes stats.</div>`; return; }
+  const G = 'Google Drive';
+  const fichier = async nom => { const r = await mcp.callTool(G, 'search_files', { query: `title = '${nom}' and trashed = false`, excludeContentSnippets: true, pageSize: 5, orderBy: 'modifiedTime desc' }, { cache: { staleTime: 6 * 3600e3, gcTime: 7 * 24 * 3600e3 } });
+    const f = (r.payload?.files || [])[0]; if (!f) throw { code: 'no_file' }; return f.id; };
+  try {
+    const id = await fichier('clipfrfilm_live.json');
+    mcp.watchTool(G, 'download_file_content', { fileId: id }, ev => {
+      if (ev.type === 'error') { if (!RAW) $('#main').innerHTML = `<div class="card">${DRIVE_ERR[ev.error?.code] || 'Les stats ne répondent pas, nouvel essai dans 1 minute.'}</div>`; return; }
+      try { const d = b64json(ev); if (!d || (RAW && d.updated < RAW.maj)) return; const avant = RAW; RAW = convertir(d); if (!avant || ($('#sheet').hidden && document.activeElement?.id !== 'q')) rendreDoux(avant); else fraicheur(); } catch (e) {}
+    }, { cache: { staleTime: 60e3, gcTime: 3600e3 }, refetchInterval: 60e3 });
+  } catch (e) { $('#main').innerHTML = `<div class="card">${DRIVE_ERR[e?.code] || 'Les stats ne répondent pas pour l’instant.'}</div>`; return; }
+  // ce qui marche sur les campagnes (page publique cyclom.fr, analysée par le robot)
+  try {
+    const r = await mcp.callTool(G, 'search_files', { query: "title = 'cyclom_campagnes.json' and trashed = false", excludeContentSnippets: true, pageSize: 3, orderBy: 'modifiedTime desc' }, { cache: { staleTime: 10 * 60e3, gcTime: 24 * 3600e3 } });
+    const f = (r.payload?.files || [])[0];
+    if (f) mcp.watchTool(G, 'download_file_content', { fileId: f.id }, ev => { if (ev.type !== 'data') return;
+      try { const d = b64json(ev); if (d?.campagnes) { CAMPINFO = d; if (RAW && $('#sheet').hidden && document.activeElement?.id !== 'q') render(); } } catch (e) {} }, { cache: { staleTime: 10 * 60e3, gcTime: 6 * 3600e3 }, refetchInterval: 10 * 60e3 });
+  } catch (e) { /* pas encore d'analyse des campagnes */ }
+  // classement Cyclom (fichier nettoyé déposé par le robot, ~toutes les 30 min)
+  try {
+    const r = await mcp.callTool(G, 'search_files', { query: "title = 'cyclom_classement.json' and trashed = false", excludeContentSnippets: true, pageSize: 3, orderBy: 'modifiedTime desc' }, { cache: { staleTime: 10 * 60e3, gcTime: 24 * 3600e3 } });
+    const f = (r.payload?.files || [])[0];
+    if (f) mcp.watchTool(G, 'download_file_content', { fileId: f.id }, ev => { if (ev.type !== 'data') return;
+      try { const d = b64json(ev); if (d?.campagnes) { CLASSEMENT = d; if (RAW && $('#sheet').hidden && document.activeElement?.id !== 'q') render(); } } catch (e) {} }, { cache: { staleTime: 10 * 60e3, gcTime: 6 * 3600e3 }, refetchInterval: 10 * 60e3 });
+  } catch (e) { /* pas encore de classement : la page marche sans */ }
+  try {
+    const idc = await fichier('clipfrfilm_covers.json');
+    let HD = {}, BAS = {}, charges = {};
+    const rafraichir = () => { COV = Object.assign({}, BAS, HD); if (RAW && $('#sheet').hidden && document.activeElement?.id !== 'q') render(); };
+    mcp.watchTool(G, 'download_file_content', { fileId: idc }, async ev => { if (ev.type !== 'data') return;
+      let d; try { d = b64json(ev); } catch (e) { return; } if (!d?.c) return;
+      HD = d.c; rafraichir();
+      // paquets de la semaine : toutes les autres vidéos de campagne, chargés un par un en arrière-plan (les plus récents d'abord)
+      const sem = Object.entries(d.mois || {}).sort((a, b) => b[0].localeCompare(a[0]));
+      for (const [w, fid] of sem) {
+        const st = (d.stamp || {})[w] || 0; if (charges[w] === st) continue;
+        try { const r = await mcp.callTool(G, 'download_file_content', { fileId: fid }, { cache: { staleTime: w in charges ? 0 : 12 * 3600e3, gcTime: 7 * 24 * 3600e3 } });
+          const p = b64json({ result: r }); if (p?.c) { Object.assign(BAS, p.c); charges[w] = st; rafraichir(); } } catch (e) { /* on réessaiera au prochain passage */ }
+      }
+    }, { cache: { staleTime: 10 * 60e3, gcTime: 6 * 3600e3 }, refetchInterval: 10 * 60e3 });
+  } catch (e) { /* pas encore de couvertures : la page marche sans */ }
+}
+
+// ---------- Mode web (GitHub Pages) : données chiffrées avec le mot de passe, déchiffrées ici dans le navigateur ----------
+const WEB_URL = 'https://raw.githubusercontent.com/Jawedcyclom/clipfrfilm-live/donnees/dash.bin';
+const WEB_SEL = new TextEncoder().encode('cyclom-stats-web-v1'), WEB_TOURS = 310000;
+async function cleDepuisMdp(mdp) {
+  const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(mdp), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey({ name: 'PBKDF2', salt: WEB_SEL, iterations: WEB_TOURS, hash: 'SHA-256' }, base, { name: 'AES-GCM', length: 256 }, true, ['decrypt']);
+}
+async function lireWeb(cle) {
+  const r = await fetch(WEB_URL + '?t=' + Math.floor(Date.now() / 60000), { cache: 'no-store' });
+  if (!r.ok) throw { code: 'reseau' };
+  const bin = Uint8Array.from(atob((await r.text()).trim()), c => c.charCodeAt(0));
+  let gz; try { gz = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: bin.slice(0, 12) }, cle, bin.slice(12)); } catch (e) { throw { code: 'mdp' }; }
+  const txt = await new Response(new Blob([gz]).stream().pipeThrough(new DecompressionStream('gzip'))).text();
+  const P = JSON.parse(txt), avant = RAW;
+  if (avant && P.live.updated < avant.maj) return;
+  COV = P.covers || {}; CLASSEMENT = P.classement || null; CAMPINFO = P.campagnes || null; RAW = convertir(P.live);
+  if (!avant || ($('#sheet').hidden && document.activeElement?.id !== 'q')) rendreDoux(avant); else fraicheur();
+}
+function ecranMdp(msg) {
+  $('#main').innerHTML = `<form class="card sec login" id="loginf"><h2>Accès au dashboard</h2>
+    <p class="muted" style="margin:0">Tape ton mot de passe une fois : cet appareil s’en souviendra. Les données restent chiffrées tant qu’il n’est pas donné.</p>
+    <input id="mdp" type="password" autocomplete="current-password" placeholder="Mot de passe" aria-label="Mot de passe">
+    ${msg ? `<div class="warnbox">${esc(msg)}</div>` : ''}<button class="btn" type="submit">Ouvrir</button></form>`;
+  setTimeout(() => $('#mdp')?.focus(), 50);
+}
+async function chargerWeb() {
+  let cle = null;
+  try { const b = localStorage.getItem('cs_cle'); if (b) cle = await crypto.subtle.importKey('raw', Uint8Array.from(atob(b), c => c.charCodeAt(0)), 'AES-GCM', true, ['decrypt']); } catch (e) {}
+  if (!cle) return ecranMdp();
+  try { await lireWeb(cle); }
+  catch (e) { if (e?.code === 'mdp') { try { localStorage.removeItem('cs_cle'); } catch (x) {} return ecranMdp('Le mot de passe a changé : tape le nouveau.'); }
+    if (!RAW) $('#main').innerHTML = `<div class="warnbox">Les données ne répondent pas pour l’instant. Nouvel essai dans 1 minute.</div>`; }
+  clearInterval(chargerWeb.t); chargerWeb.t = setInterval(() => lireWeb(cle).catch(() => {}), 120000);
+}
+document.addEventListener('submit', async e => {
+  if (e.target.id !== 'loginf') return; e.preventDefault();
+  const b = e.target.querySelector('button'); b.disabled = true; b.textContent = 'Ouverture…';
+  try { const cle = await cleDepuisMdp($('#mdp').value); await lireWeb(cle);
+    try { localStorage.setItem('cs_cle', btoa(String.fromCharCode(...new Uint8Array(await crypto.subtle.exportKey('raw', cle))))); } catch (x) {}
+    chargerWeb(); }
+  catch (x) { ecranMdp(x?.code === 'mdp' ? 'Mot de passe incorrect.' : 'Impossible de charger les données, vérifie ta connexion.'); }
+});
+
+async function charger() {
+  if (DRIVE) return;
+  try {
+    const r = await fetch(API ? API + (AGENCE ? '?tous=1' : '') : 'demo.json', { cache: 'no-store', credentials: 'same-origin' });
+    if (r.status === 401 && SITE) { location.href = '/connexion'; return; }
+    const avant = RAW; RAW = await r.json();
+    clearTimeout(charger.t); if ((RAW.en_attente || []).length || !RAW.comptes.length) charger.t = setTimeout(charger, 15000);
+    if (avant && (!$('#sheet').hidden || document.activeElement?.id === 'q')) { fraicheur(); return; } // ne jamais casser ce que la personne fait
+    rendreDoux(avant);
+  } catch (e) { if (!RAW) $('#main').innerHTML = `<div class="warnbox">Impossible de charger tes stats. Vérifie ta connexion, on réessaie tout seul.</div>`; clearTimeout(charger.t); charger.t = setTimeout(charger, 20000); }
+}
+if (WEB) chargerWeb(); else if (DRIVE) chargerDrive(); else charger();
+setInterval(() => { if (!DRIVE && document.visibilityState === 'visible' && $('#sheet').hidden) charger(); }, SITE ? 120000 : 600000);
+setInterval(fraicheur, 30000);
+})();
+</script>
+</body></html>
