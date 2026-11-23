@@ -67,8 +67,12 @@ def main():
         if time.localtime().tm_min % 30 >= 6 and not os.environ.get('CYCLOM_FORCER'): return   # ~ toutes les 30 min
         brut = nettoyer_brut()
     final = mettre_en_forme(brut)
+    # le classement est PRIVÉ : vers le Drive, seuls MES comptes gardent leur pseudo ; les autres deviennent anonymes
+    # (le serveur reçoit la version complète pour reconnaître chaque clippeur, et anonymise lui-même avant d'envoyer)
+    moi = {x.strip().lower() for x in os.environ.get('MOI_COMPTES', 'clipfrfilm').split(',') if x.strip()}
+    prive = {**final, 'campagnes': [{**c, 'lignes': [l if moi & set(l['comptes']) else {**l, 'pseudo': None, 'comptes': []} for l in c['lignes']]} for c in final['campagnes']]}
     sortie = Path(a[a.index('--sortie') + 1]) if '--sortie' in a else OUT
-    sortie.parent.mkdir(exist_ok=True); sortie.write_text(json.dumps(final, ensure_ascii=False, separators=(',', ':')), encoding='utf-8')
+    sortie.parent.mkdir(exist_ok=True); sortie.write_text(json.dumps(prive, ensure_ascii=False, separators=(',', ':')), encoding='utf-8')
     print(f"classement Cyclom : {len(final['campagnes'])} campagne(s) en cours, {sum(len(c['lignes']) for c in final['campagnes'])} clippeurs")
     if '--depuis' in a: return
     r = subprocess.run(['rclone', 'copyto', str(sortie), DRIVE], capture_output=True, text=True)

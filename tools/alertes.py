@@ -58,10 +58,10 @@ def calculer(live, cl, mem, now):
         if avant and moi['rv'] > avant:
             devant = next((l for l in L if l['rv'] == moi['rv'] - 1), None)
             perte = (prix[avant - 1] if avant <= len(prix) else 0) - (prix[moi['rv'] - 1] if moi['rv'] <= len(prix) else 0)
-            out.append((f"passe:{c['id']}:{moi['rv']}:{now // 3600}", '🏁 On t’est passé devant', f"{c['nom']} : tu es maintenant {moi['rv']}e{(' derrière @' + devant['pseudo']) if devant else ''}" + (f" (−{perte} €)" if perte > 0 else '') + ". Il reste du temps pour reprendre ta place.", 'checkered_flag'))
+            out.append((f"passe:{c['id']}:{moi['rv']}:{now // 3600}", '🏁 On t’est passé devant', f"{c['nom']} : tu es maintenant {moi['rv']}e" + (f" (−{perte} €)" if perte > 0 else '') + ". Il reste du temps pour reprendre ta place.", 'checkered_flag'))
         i = L.index(moi)
         if i + 1 < len(L) and moi['vues'] and (moi['vues'] - L[i + 1]['vues']) / moi['vues'] < .1:
-            out.append((f"revient:{c['id']}:{now // (6 * 3600)}", '🏁 Le suivant revient', f"{c['nom']} : @{L[i + 1]['pseudo']} n’est plus qu’à {k(moi['vues'] - L[i + 1]['vues'])} vues de toi.", 'checkered_flag'))
+            out.append((f"revient:{c['id']}:{now // (6 * 3600)}", '🏁 Le suivant revient', f"{c['nom']} : le {L[i + 1]['rv']}e n’est plus qu’à {k(moi['vues'] - L[i + 1]['vues'])} vues de toi.", 'checkered_flag'))
         mem.setdefault('rangs', {})[c['id']] = moi['rv']
         if c.get('fin'):
             fin = time.mktime(time.strptime(c['fin'] + ' 23:59', '%Y-%m-%d %H:%M'))
