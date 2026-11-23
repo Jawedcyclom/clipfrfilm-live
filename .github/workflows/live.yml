@@ -40,6 +40,19 @@ jobs:
           CYCLOM_ADMIN_CLE: ${{ secrets.CYCLOM_ADMIN_CLE }}
           CYCLOM_SERVEUR: ${{ secrets.CYCLOM_SERVEUR }}
           CYCLOM_CLE: ${{ secrets.CYCLOM_CLE }}
+      - name: ce qui marche sur les campagnes (page publique cyclom.fr)
+        continue-on-error: true
+        run: python tools/cyclom_campagnes.py
+        env:
+          TZ: Europe/Paris
+          CYCLOM_SERVEUR: ${{ secrets.CYCLOM_SERVEUR }}
+          CYCLOM_CLE: ${{ secrets.CYCLOM_CLE }}
+      - name: alertes sur le téléphone (ntfy)
+        continue-on-error: true
+        run: python tools/alertes.py
+        env:
+          TZ: Europe/Paris
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
       - name: relancer le relevé suivant (5 min après le début de celui-ci)
         if: always()
         env:
