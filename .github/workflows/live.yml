@@ -31,6 +31,15 @@ jobs:
           PYTHONUNBUFFERED: '1'
           CYCLOM_SERVEUR: ${{ secrets.CYCLOM_SERVEUR }}
           CYCLOM_CLE: ${{ secrets.CYCLOM_CLE }}
+      - name: classement Cyclom (cyclom.fr vers Drive et serveur, nettoyé)
+        continue-on-error: true
+        run: python tools/cyclom_classement.py
+        env:
+          TZ: Europe/Paris
+          PYTHONUNBUFFERED: '1'
+          CYCLOM_ADMIN_CLE: ${{ secrets.CYCLOM_ADMIN_CLE }}
+          CYCLOM_SERVEUR: ${{ secrets.CYCLOM_SERVEUR }}
+          CYCLOM_CLE: ${{ secrets.CYCLOM_CLE }}
       - name: relancer le relevé suivant (5 min après le début de celui-ci)
         if: always()
         env:
