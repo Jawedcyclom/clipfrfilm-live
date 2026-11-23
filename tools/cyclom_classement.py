@@ -44,6 +44,34 @@ def nettoyer_brut():
     return out
 
 
+def verifier(final, prec):
+    """Contrôles avant envoi : nombres valides, pas de campagne vide, pas d'effondrement suspect des vues (relevé cyclom.fr incomplet)."""
+    ok = []
+    anciens = {c['id']: c for c in (prec or {}).get('campagnes', [])}
+    for c in final['campagnes']:
+        c['lignes'] = [l for l in c['lignes'] if isinstance(l.get('vues'), int) and l['vues'] >= 0 and isinstance(l.get('clips'), int)]
+        tot = sum(l['vues'] for l in c['lignes'])
+        if not tot: print('classement : campagne', c['id'], 'sans vues, ignorée'); continue
+        a = anciens.get(c['id'])
+        if a and tot < .5 * sum(l['vues'] for l in a['lignes']):
+            print('classement : campagne', c['id'], 'vues divisées par 2 depuis le dernier relevé, on garde l’ancien'); ok.append(a); continue
+        ok.append(c)
+    final['campagnes'] = ok
+    return final
+
+
+def rythmes(final, prec):
+    """Vues gagnées par heure depuis le relevé précédent, par personne (même liste de comptes)."""
+    if not prec: return
+    dt = (time.time() - time.mktime(time.strptime(prec['maj'][:19], '%Y-%m-%dT%H:%M:%S'))) / 3600
+    if not (0.3 <= dt <= 12): return
+    for c in final['campagnes']:
+        a = {tuple(l['comptes']): l for c2 in prec['campagnes'] if c2['id'] == c['id'] for l in c2['lignes']}
+        for l in c['lignes']:
+            p = a.get(tuple(l['comptes']))
+            if p and l['vues'] >= p['vues']: l['vh'] = round((l['vues'] - p['vues']) / dt)
+
+
 def mettre_en_forme(brut):
     """Format final : une ligne par personne (comptes secondaires réunis), triée par vues."""
     camps = []
@@ -67,6 +95,16 @@ def main():
         if time.localtime().tm_min % 30 >= 6 and not os.environ.get('CYCLOM_FORCER'): return   # ~ toutes les 30 min
         brut = nettoyer_brut()
     final = mettre_en_forme(brut)
+    prec = None
+    if '--depuis' not in a:   # version complète précédente (privée, dossier state du Drive) pour le rythme et les contrôles
+        subprocess.run(['rclone', 'copyto', 'gdrive:CLIP tiktok/dashboard/state/cyclom_classement_complet.json', 'state/cyclom_classement_complet.json'], capture_output=True)
+        try: prec = json.loads(Path('state/cyclom_classement_complet.json').read_text(encoding='utf-8'))
+        except Exception: prec = None
+    final = verifier(final, prec)
+    rythmes(final, prec)
+    if '--depuis' not in a:
+        Path('state/cyclom_classement_complet.json').write_text(json.dumps(final, ensure_ascii=False, separators=(',', ':')), encoding='utf-8')
+        subprocess.run(['rclone', 'copyto', 'state/cyclom_classement_complet.json', 'gdrive:CLIP tiktok/dashboard/state/cyclom_classement_complet.json'], capture_output=True)
     # le classement est PRIVÉ : vers le Drive, seuls MES comptes gardent leur pseudo ; les autres deviennent anonymes
     # (le serveur reçoit la version complète pour reconnaître chaque clippeur, et anonymise lui-même avant d'envoyer)
     moi = {x.strip().lower() for x in os.environ.get('MOI_COMPTES', 'clipfrfilm').split(',') if x.strip()}

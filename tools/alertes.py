@@ -50,8 +50,10 @@ def calculer(live, cl, mem, now):
             out.append(('bloquee:' + vid, '⚠️ Vidéo peut-être bloquée', f"{k(val)} vues à {m} h, d'habitude ≈ {k(attendu)}. Vérifie dans TikTok Studio ; si elle est restreinte, reposte une version modifiée.", 'warning'))
     # classement Cyclom
     for c in (cl or {}).get('campagnes', []):
-        L = sorted([l for l in c.get('lignes', []) if l.get('rv')], key=lambda l: l['rv'])
-        moi = next((l for l in L if 'clipfrfilm' in [x.lower() for x in l.get('comptes', [])]), None)
+        # place = ordre des vues (même règle que la page et le serveur)
+        L = sorted([l for l in c.get('lignes', []) if l.get('vues')], key=lambda l: -l['vues'])
+        for i_, l in enumerate(L): l['rv'] = i_ + 1
+        moi = next((l for l in L if 'clipfrfilm' in [x.lower() for x in (l.get('comptes') or [])]), None)
         if not moi: continue
         prix = (c.get('prix') or {}).get('vues') or []
         avant = (mem.get('rangs') or {}).get(c['id'])

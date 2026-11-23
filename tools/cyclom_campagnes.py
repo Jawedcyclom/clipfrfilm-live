@@ -26,6 +26,20 @@ def med(a):
     return S.median(a) if a else None
 
 
+def couverture(v):
+    """Vignette 160×284 WebP en base64 : image donnée par cyclom.fr, sinon celle de la page publique de la vidéo."""
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import covers, tiktok_watch as W
+    try: return covers.vignette(v['img'], (160, 284), 62)
+    except Exception: pass
+    try:
+        vid = re.search(r'(\d{15,})', v.get('lectureUrl') or '').group(1)
+        it = W._ssr(f'https://www.tiktok.com/@_/video/{vid}').get('webapp.video-detail', {}).get('itemInfo', {}).get('itemStruct', {})
+        url = (it.get('video') or {}).get('cover') or (it.get('video') or {}).get('originCover')
+        return covers.vignette(url, (160, 284), 62) if url else None
+    except Exception: return None
+
+
 def titre_ecrit(desc):
     return bool(re.sub(r'#[\w.]+', '', desc or '').strip())
 
@@ -53,13 +67,16 @@ def analyser(id_, c):
                 'heures': {str(h): round(100 * n / tot) for h, n in sorted(heures.items())}}
 
     top = sorted(vids, key=lambda v: -(v.get('p') or 0))[:12]
+    imgs = {}
+    for v in top:   # la page claude.ai ne charge pas les images TikTok : vignette intégrée (comme covers.py)
+        imgs[id(v)] = couverture(v)
     fiche = c.get('fiche') or {}
     return {'id': id_, 'nom': fiche.get('nom') or id_, 'tag': (c.get('hashtag') or '').lstrip('#'), 'fin': fiche.get('fin'), 'debut': fiche.get('debut'),
             'vues': sum(v.get('p') or 0 for v in vids), 'clips': len(vids), 'clippeurs': len(par),
             'aujourdhui': (c.get('vuesAujourdhui') or {}).get('vues'),
             'meilleurs': profil(auteurs[:10]), 'tous': profil(auteurs),
             'cartons': [{'titre': re.sub(r'\s+', ' ', v.get('description') or '').strip()[:140], 'vues': v.get('p') or 0, 'gain24': ((v.get('progression') or {}).get('24h') or {}).get('gain'),
-                         'partages': v.get('s') or 0, 'publie': v.get('publieLe'), 'lien': v.get('lectureUrl'), 'img': v.get('img')} for v in top],
+                         'partages': v.get('s') or 0, 'publie': v.get('publieLe'), 'lien': v.get('lectureUrl'), 'img': imgs.get(id(v))} for v in top],
             'jours': [[h['t'][:10], h['vues']] for h in (c.get('historique') or [])][-400:]}
 
 
