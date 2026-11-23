@@ -1,0 +1,39 @@
+name: analyse-jour
+# Analyse du compte (titres lus sur les couvertures, stats par critère) + profils des clippeurs concurrents.
+# Une fois par jour, avec tout le temps nécessaire (avant : coincée dans le relevé des vues, jamais finie).
+on:
+  schedule:
+    - cron: '30 4 * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: analyse
+  cancel-in-progress: false
+jobs:
+  analyse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -q yt-dlp curl_cffi pillow numpy
+      - run: sudo apt-get install -y -qq tesseract-ocr tesseract-ocr-fra > /dev/null
+      - run: curl -s https://rclone.org/install.sh | sudo bash > /dev/null
+      - name: config rclone
+        env:
+          RCLONE_CONF: ${{ secrets.RCLONE_CONF }}
+        run: mkdir -p ~/.config/rclone && printf '%s' "$RCLONE_CONF" > ~/.config/rclone/rclone.conf
+      - name: analyse du compte
+        run: python tools/cloud_analyse.py
+        env:
+          TZ: Europe/Paris
+          PYTHONUNBUFFERED: '1'
+      - name: profils des concurrents
+        if: always()
+        run: python tools/cloud_profils.py 1200
+        env:
+          TZ: Europe/Paris
+          PYTHONUNBUFFERED: '1'

@@ -28,6 +28,7 @@ jobs:
       - run: python tools/cloud_live.py
         env:
           TZ: Europe/Paris
+          PYTHONUNBUFFERED: '1'
           CYCLOM_SERVEUR: ${{ secrets.CYCLOM_SERVEUR }}
           CYCLOM_CLE: ${{ secrets.CYCLOM_CLE }}
       - name: relancer le relevé suivant (5 min après le début de celui-ci)

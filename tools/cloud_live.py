@@ -104,22 +104,6 @@ try:
     covers.maj(L.OUT, W.COVERS, ST)
 except Exception as e: print('couvertures :', e)
 
-# analyse du compte (ce qui marche) : une fois par jour après 5h, dans le même run (pas de nouveau workflow)
-try:
-    if time.localtime().tm_hour >= 5:
-        r = subprocess.run(['rclone', 'lsjson', 'gdrive:CLIP tiktok/dashboard/analyse/insights.json'], capture_output=True, text=True)
-        try: info = json.loads(r.stdout or '[]')
-        except ValueError: info = []          # fichier absent → analyse à faire
-        age = time.time() - time.mktime(time.strptime(info[0]['ModTime'][:19], '%Y-%m-%dT%H:%M:%S')) - time.timezone if info else 1e9
-        if age > 20 * 3600:
-            subprocess.run('sudo apt-get install -y -qq tesseract-ocr tesseract-ocr-fra > /dev/null 2>&1', shell=True, timeout=180)
-            subprocess.run([sys.executable, '-m', 'pip', 'install', '-q', 'pillow', 'numpy'], timeout=120)
-            reste = 400 - (time.time() - int(os.environ.get('DEBUT', time.time())))   # le run entier doit tenir en 9 min
-            if reste > 120: subprocess.run([sys.executable, str(Path(__file__).resolve().parent / 'cloud_analyse.py')], timeout=reste)
-except Exception as e: print('analyse :', e)
+# analyse du compte (ce qui marche) et profils des concurrents : robot séparé, une fois par jour (.github/workflows/analyse.yml)
+# — ici elle n'avait jamais le temps de finir (coupée à 200 s) et ralentissait chaque relevé de 3 min 20.
 
-# profils des clippeurs concurrents (yt-dlp), un peu à chaque relevé selon le temps qui reste
-try:
-    reste = 420 - (time.time() - int(os.environ.get('DEBUT', time.time())))
-    if reste > 90: subprocess.run([sys.executable, str(Path(__file__).resolve().parent / 'cloud_profils.py'), str(int(reste - 60))], timeout=reste)
-except Exception as e: print('profils :', e)
