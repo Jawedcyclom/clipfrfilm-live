@@ -39,7 +39,7 @@ def maj(out_json, covers_urls, state_dir):
     d = json.loads(Path(out_json).read_text(encoding='utf-8'))
     now = time.time()
     # seulement les vidéos de nos campagnes : hashtag avec « cyclom » (#cyclomxdjadelshow…)
-    items = {k: v for k, v in d.get('items', {}).items() if 'cyclom' in (v.get('d') or '').lower()}
+    items = d.get('items', {})
     voulu = [k for k, _ in (d.get('top_today') or {}).get('list', [])[:30]] + [k for k, _ in (d.get('rising') or {}).get('list', [])[:30]]
     voulu += sorted((k for k, v in items.items() if now - (v.get('t') or 0) < 2 * 86400), key=lambda k: -items[k].get('t', 0))
     voulu += sorted(items, key=lambda k: -items[k].get('v', 0))[:40]

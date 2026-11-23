@@ -1783,7 +1783,7 @@ async function cleDepuisMdp(mdp) {
   return crypto.subtle.deriveKey({ name: 'PBKDF2', salt: WEB_SEL, iterations: WEB_TOURS, hash: 'SHA-256' }, base, { name: 'AES-GCM', length: 256 }, true, ['decrypt']);
 }
 async function lireWeb(cle) {
-  const r = await fetch(WEB_URL + '?t=' + Math.floor(Date.now() / 60000), { cache: 'no-store' });
+  const r = await fetch(WEB_URL + '?t=' + Date.now(), { cache: 'no-store' });
   if (!r.ok) throw { code: 'reseau' };
   const bin = Uint8Array.from(atob((await r.text()).trim()), c => c.charCodeAt(0));
   let gz; try { gz = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: bin.slice(0, 12) }, cle, bin.slice(12)); } catch (e) { throw { code: 'mdp' }; }
@@ -1812,7 +1812,7 @@ async function chargerWeb() {
 document.addEventListener('submit', async e => {
   if (e.target.id !== 'loginf') return; e.preventDefault();
   const b = e.target.querySelector('button'); b.disabled = true; b.textContent = 'Ouverture…';
-  try { const cle = await cleDepuisMdp($('#mdp').value); await lireWeb(cle);
+  try { const cle = await cleDepuisMdp($('#mdp').value.trim()); await lireWeb(cle);
     try { localStorage.setItem('cs_cle', btoa(String.fromCharCode(...new Uint8Array(await crypto.subtle.exportKey('raw', cle))))); } catch (x) {}
     chargerWeb(); }
   catch (x) { ecranMdp(x?.code === 'mdp' ? 'Mot de passe incorrect.' : 'Impossible de charger les données, vérifie ta connexion.'); }

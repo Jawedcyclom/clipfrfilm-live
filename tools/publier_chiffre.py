@@ -28,10 +28,15 @@ def main():
     if not live: print('dashboard web : pas de relevé'); return
     D = 'gdrive:CLIP tiktok/dashboard/'
     cov = lire('clipfrfilm_covers.json', D + 'clipfrfilm_covers.json') or {}
+    images = {}
+    for fichier in sorted((ST / 'couv').glob('clipfrfilm_couv_*.json')):
+        images.update(json.loads(fichier.read_text(encoding='utf-8'))['c'])
+    images.update(cov.get('c') or {})
+    print(f'{len(images)} couvertures disponibles')
     paquet = {'v': 1, 'live': live,
               'classement': lire('cyclom_classement.json', D + 'cyclom_classement.json'),
               'campagnes': lire('cyclom_campagnes.json', D + 'cyclom_campagnes.json'),
-              'covers': cov.get('c') or {}}
+              'covers': images}
     brut = gzip.compress(json.dumps(paquet, ensure_ascii=False, separators=(',', ':')).encode('utf-8'), 6)
     cle = hashlib.pbkdf2_hmac('sha256', MDP.encode('utf-8'), SEL, TOURS, 32)
     iv = os.urandom(12)
