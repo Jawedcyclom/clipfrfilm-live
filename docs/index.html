@@ -525,6 +525,7 @@ button,a.link,a.ext,.vc,.row,.in,.camp,.cd,.rc,.hb{transition:transform .15s var
    rangées qui défilent sur le côté (App Store), on touche un widget pour l'ouvrir en grand. PC inchangé. ===== */
 .podium-tout,.w-apercu{display:none}
 @media (max-width:959px){
+  .sec-h h2{flex:0 1 auto;min-width:0;overflow-wrap:anywhere} /* titre long (« Essoufflement des campagnes ») : passe à la ligne au lieu de sortir */
   .sec.pliable>.sec-h{cursor:pointer;-webkit-tap-highlight-color:transparent;position:relative;padding-right:22px}
   .sec.pliable>.sec-h::after{content:'';position:absolute;right:4px;top:9px;width:7px;height:7px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(-45deg);transition:transform .2s}
   .sec.pliable.ouvert>.sec-h::after{transform:rotate(-135deg);top:12px}
@@ -556,10 +557,10 @@ button,a.link,a.ext,.vc,.row,.in,.camp,.cd,.rc,.hb{transition:transform .15s var
   .hero>.est b,.hero>.est .num{font:800 20px var(--display)}
   .hero>.obj{order:2;margin-top:4px}
   /* rangées qui défilent sur le côté (App Store) : 3 lignes par colonne, la suivante dépasse pour inviter à glisser */
-  .sec:has(>.segw)>.rows,.sec .rows:has(>a.row){display:grid;grid-auto-flow:column;grid-template-rows:repeat(3,auto);grid-auto-columns:86%;gap:6px 10px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;margin:0 -14px;padding:0 14px;scroll-padding:0 14px}
-  .sec:has(>.segw)>.rows::-webkit-scrollbar,.sec .rows:has(>a.row)::-webkit-scrollbar{display:none}
-  .sec:has(>.segw)>.rows>.row,.sec .rows:has(>a.row)>.row{scroll-snap-align:start;min-width:0}
-  .sec:has(>.segw)>.rows{margin:0 -16px;padding:0 16px;scroll-padding:0 16px}
+  .sec:is(:has(>.segw),.garde)>.rows,.sec .rows:has(>a.row){display:grid;grid-auto-flow:column;grid-template-rows:repeat(3,auto);grid-auto-columns:86%;gap:6px 10px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;margin:0 -14px;padding:0 14px;scroll-padding:0 14px}
+  .sec:is(:has(>.segw),.garde)>.rows::-webkit-scrollbar,.sec .rows:has(>a.row)::-webkit-scrollbar{display:none}
+  .sec:is(:has(>.segw),.garde)>.rows>.row,.sec .rows:has(>a.row)>.row{scroll-snap-align:start;min-width:0}
+  .sec:is(:has(>.segw),.garde)>.rows{margin:0 -16px;padding:0 16px;scroll-padding:0 16px}
   /* classement : le haut + toi, le reste sur demande */
   .podium-tout{display:block;margin-top:8px}
   .course:not(.tout) .pl:nth-child(n+4):not(.moi){display:none}
@@ -681,12 +682,12 @@ button,a.link,a.ext,.vc,.row,.in,.camp,.cd,.rc,.hb{transition:transform .15s var
   .card .ins{background:none;box-shadow:none;border-radius:0}
 
   /* --- Rangées qui défilent sur le côté : liste sans boîtes, filets entre lignes --- */
-  .sec:has(>.segw)>.rows>.row,.sec .rows:has(>a.row)>.row{background:none;border:0;border-radius:0;padding:10px 0;box-shadow:inset 0 -.5px 0 var(--hair)}
-  .sec:has(>.segw)>.rows>.row:nth-child(3n),.sec .rows:has(>a.row)>.row:nth-child(3n){box-shadow:none}
-  .sec:has(>.segw)>.rows{row-gap:0;column-gap:16px}
+  .sec:is(:has(>.segw),.garde)>.rows>.row,.sec .rows:has(>a.row)>.row{background:none;border:0;border-radius:0;padding:10px 0;box-shadow:inset 0 -.5px 0 var(--hair)}
+  .sec:is(:has(>.segw),.garde)>.rows>.row:nth-child(3n),.sec .rows:has(>a.row)>.row:nth-child(3n){box-shadow:none}
+  .sec:is(:has(>.segw),.garde)>.rows{row-gap:0;column-gap:16px}
   .sec .rows:has(>a.row){row-gap:0}
   .row img,.row .ph{width:44px;height:78px;border-radius:10px}
-  .sec:has(>.segw)>.rows .r .muted{display:none}
+  .sec:is(:has(>.segw),.garde)>.rows .r .muted{display:none}
   .row .t b{font-size:17px}
   /* un seul sous-onglet = c'est un titre, pas un bouton */
   .segw.seg2:has(>button:only-child){display:block;background:none;border:0;padding:0;box-shadow:none}
@@ -1159,7 +1160,8 @@ function vDirect(A, C) {
   const rise = A.videos.filter(v => v.gh > 0).sort((a, b) => b.gh - a.gh).slice(0, 5);
   const topJ = A.videos.filter(v => v.gj > 0).sort((a, b) => b.gj - a.gj).slice(0, 5);
   const lst = rise.length ? rise : topJ, vue = (st.dvue === 'postees' && C.duJour.length) || !lst.length ? 'postees' : 'monte';
-  h += `<section class="sec"><div class="segw seg2" role="tablist"><button type="button" role="tab" data-dvue="monte" aria-selected="${vue === 'monte'}" ${lst.length ? '' : 'disabled'}>${rise.length ? 'Ce qui monte' : 'Ce qui rapporte'}</button>${nb ? `<button type="button" role="tab" data-dvue="postees" aria-selected="${vue === 'postees'}">Postées aujourd’hui · ${nb}</button>` : ''}</div>`;
+  h += nb ? `<section class="sec"><div class="segw seg2" role="tablist"><button type="button" role="tab" data-dvue="monte" aria-selected="${vue === 'monte'}" ${lst.length ? '' : 'disabled'}>${rise.length ? 'Ce qui monte' : 'Ce qui rapporte'}</button><button type="button" role="tab" data-dvue="postees" aria-selected="${vue === 'postees'}">Postées aujourd’hui · ${nb}</button></div>`
+    : `<section class="sec garde"><div class="sec-h"><h2>${rise.length ? 'Ce qui monte' : 'Ce qui rapporte'}</h2><small>${rise.length ? 'vues gagnées sur la dernière heure' : "vues gagnées aujourd'hui"}</small></div>`; // une seule liste = un vrai titre, pas un faux bouton
   if (vue === 'monte') h += `<div class="rows">${lst.map(v => `<button class="row" type="button" data-vid="${v.id}">${cover(v)}<div class="t"><b class="num">+${k(rise.length ? v.gh : v.gj)} <small class="muted" style="font:500 12px var(--body)">${rise.length ? 'sur 1 h' : "aujourd'hui"}</small></b><span>${esc(titreVid(v))}</span></div><div class="r num"><b>${k(v.v)}</b><br><span class="muted">${dateVid(v.t)}</span></div></button>`).join('')}</div>`;
   else h += dj.length ? `<div class="grid">${dj.slice(0, 12).map(v => vcard(v, C)).join('')}</div>${dj.length > 12 ? `<button class="more" type="button" data-go="videos" data-per="jour">Voir les ${dj.length} vidéos du jour</button>` : ''}` : `<div class="card muted">Rien posté aujourd’hui pour l’instant${A.videos[0] ? ` : ta dernière vidéo date d’il y a ${Math.floor((C.now / 1000 - A.videos[0].t) / 3600)} h` : ''}.</div>`;
   h += `</section>`;
@@ -1938,7 +1940,7 @@ function replier() {
   let premier = VIEW === 'creneaux'; // Analyse : la 1re section du sous-onglet reste ouverte (sinon la page paraît vide)
   for (const s of main.querySelectorAll('section.sec')) {
     const h = s.querySelector(':scope > .sec-h'), t = h?.querySelector('h2')?.textContent.trim();
-    if (!t || s.classList.contains('login')) continue;
+    if (!t || s.classList.contains('login') || s.classList.contains('garde')) continue;
     if (premier || (VIEW === 'creneaux' && (st.an || 'resume') === 'resume')) { premier = false; continue; } // Résumé : court, tout reste ouvert
     const cle = VIEW + ':' + t, o = OUVERTS.has(cle);
     s.classList.add('pliable'); s.classList.toggle('ouvert', o);
