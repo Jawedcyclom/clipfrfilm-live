@@ -33,7 +33,12 @@ def nettoyer_brut():
     comptes = {p.get('pseudo'): [x for x in (p.get('pseudosComptes') or []) if isinstance(x, str)] for p in z.get('clippeurs', [])}
     out = {'maj': time.strftime('%Y-%m-%dT%H:%M:%S'), 'campagnes': []}
     for c in z.get('campagnes', []):
-        if not c.get('commencee') or c.get('terminee') or not c.get('publiee', True): continue
+        if not c.get('commencee') or not c.get('publiee', True): continue
+        # campagne terminée : gardée 7 jours (le clippeur voit sa place finale « Tu finis 1er », Jawed 24/11), ensuite retirée
+        if c.get('terminee'):
+            try: fin = time.mktime(time.strptime(str(c.get('fin'))[:10], '%Y-%m-%d')) + 86400
+            except Exception: continue
+            if time.time() - fin > 7 * 86400: continue
         a = lire('/api/central/activite/' + urllib.parse.quote(c['id']))
         cl = c.get('classement') or {}
         out['campagnes'].append({'id': c['id'], 'nom': c.get('nom'), 'tag': c.get('hashtagCyclom'), 'fin': c.get('fin'),
