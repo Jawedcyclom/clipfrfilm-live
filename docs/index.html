@@ -3132,6 +3132,16 @@ const AL = (() => {
 })();
 if (location.hostname === '127.0.0.1' || location.hostname === 'localhost') window.__al = AL; // tests locaux seulement
 
+// MISE À JOUR AUTOMATIQUE (Jawed 24/11 : « je vois pas le changement ») : la page regarde si une nouvelle version a été publiée
+// (en-tête ETag / Last-Modified du site) quand on revient dessus et toutes les 5 min, et se recharge toute seule (jamais pendant une fiche ouverte).
+if (!DRIVE && location.protocol === 'https:') {
+  let version = null;
+  const lireVersion = async () => { try { const r = await fetch(location.pathname, { method: 'HEAD', cache: 'no-store' }); return r.headers.get('etag') || r.headers.get('last-modified'); } catch (e) { return null; } };
+  const verifier = async () => { const v = await lireVersion(); if (!v) return; if (!version) { version = v; return; }
+    if (v !== version && $('#sheet').hidden && !document.querySelector('.nv-story') && document.activeElement?.tagName !== 'INPUT') location.reload(); };
+  verifier(); setInterval(verifier, 5 * 60e3);
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') verifier(); });
+}
 if (WEB) chargerWeb(); else if (DRIVE) chargerDrive(); else charger();
 setInterval(() => { if (!DRIVE && document.visibilityState === 'visible' && $('#sheet').hidden) charger(); }, SITE ? 120000 : 600000);
 setInterval(fraicheur, 30000);
