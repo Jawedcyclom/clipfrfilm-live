@@ -1012,6 +1012,106 @@ button,a,[role="button"],.sec.pliable{-webkit-touch-callout:none}
 .cn-leg{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:11.5px;color:var(--muted)}
 .cn-leg i{display:inline-block;width:14px;height:3px;border-radius:2px;margin-right:5px;vertical-align:middle}
 .cn-leg i.v{background:#47ccc0}.cn-leg i.n{background:repeating-linear-gradient(90deg,rgba(255,255,255,.55) 0 4px,transparent 4px 7px)}.cn-leg i.z{height:9px;background:rgba(255,255,255,.12)}
+/* ===== ÉPURE (agent 24/11) : Jawed « trop de trucs, même si tout est utile ». Façon Santé / Bourse / Météo d'iOS :
+   une surface par groupe (filets à l'intérieur), plus de cadres dans les cadres, chiffres seuls, petit texte rare.
+   Échelle d'espacement : 4 / 8 / 12 / 16 / 24. Rayons : 22 surfaces, 14 internes. Téléphone uniquement (< 960 px). ===== */
+.nv-groupe{display:flex;flex-direction:column;gap:10px}
+.note-c{font-size:12.5px;margin:0}
+@media (max-width:959px){
+  .wrap{gap:16px}
+  /* --- navigation de jour : du texte, pas une boîte --- */
+  .daynav{background:none;box-shadow:none;margin:-4px 0 -8px}
+  .daynav .cal{font:700 15px var(--display);color:var(--fg)}
+  .daynav .cal svg{display:none}
+  /* --- chiffre du jour : posé sur le fond, comme le cours en Bourse --- */
+  .hero{background:none!important;box-shadow:none!important;padding:0 2px 4px!important}
+  .hero .lbl{font-size:14px;font-weight:600;color:var(--fg2)}
+  .hero .say{font-size:14.5px;color:var(--fg2)}
+  .jcl{font-size:11.5px;opacity:.8}
+  .hero>.est .muted{font-size:12.5px}
+  .hero>.obj .l>span{font-size:13px;color:var(--fg2)}
+  .hero>.obj .say{font-size:13px!important;color:var(--muted)}
+  .hero>.obj .say b{color:var(--fg2)}
+  /* --- série + créneau + récap : UNE surface, des filets --- */
+  .nv-groupe{gap:0;background:var(--s1);border-radius:var(--r-card);box-shadow:inset 0 0 0 .5px var(--hair);overflow:hidden}
+  .nv-groupe .nv-duo{gap:0}
+  .nv-groupe .nv-w{background:none!important;border:0!important;border-radius:0;padding:14px 16px}
+  .nv-groupe .nv-w+.nv-w{box-shadow:inset .5px 0 0 var(--hair)}
+  .nv-groupe .nv-recap{background:none;border:0;border-radius:0;box-shadow:inset 0 .5px 0 var(--hair);padding:10px 16px;gap:12px}
+  .nv-groupe .nv-anneau{width:34px;height:34px;padding:2px}
+  .nv-groupe .nv-anneau .flamme{width:17px;height:17px}
+  .nv-groupe .nv-recap-t b{font-size:14.5px}
+  .nv-groupe .nv-recap-t small{font-size:12px}
+  .nv-sem i{background:none;border-color:var(--hair)}
+  /* --- course au classement : pas de boîte dans la boîte, gain en simple texte --- */
+  .course.jauge{gap:12px}
+  .jg-vit{background:none;padding:0;border-radius:0;gap:2px;font-size:13px}
+  .jg-gain{background:none!important;padding:0;color:var(--cyclom);font-size:15px}
+  .course.sprint .jg-gain{color:#ff8a3d}
+  .course.sprint{background:var(--s1)!important}
+  .jg-pied{font-size:12px;color:var(--muted)}
+  .jg-l,.jg-s{font-size:12.5px}
+  /* --- chiffres du jour : chiffres seuls, moins hauts --- */
+  .tile{min-height:0;padding:12px 14px}
+  .tile span{font-size:12px}
+  .tile b{font-size:21px}
+  /* --- widgets repliés : titre + aperçu, le sous-titre attend le toucher (sauf l'avancement du plan) --- */
+  .widgets>.sec.pliable:not(.ouvert),.sec.pliable:not(.ouvert){min-height:132px;gap:10px}
+  .sec.pliable:not(.ouvert):not(.plan)>.sec-h small{display:none}
+  .sec.pliable:not(.ouvert)>.sec-h{min-height:44px;justify-content:flex-start}
+  .sec.pliable.plan:not(.ouvert)>.sec-h small{color:var(--cyclom);font-weight:600}
+  .wrap>.sec.pliable:not(.ouvert){min-height:0}
+  /* --- ce qui monte : rang en gris, un seul accent (le gain) --- */
+  .mr-rg{background:rgba(5,11,24,.72);color:#fff;box-shadow:none;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+  .mr{border:0}
+  /* --- historique : les jours en UNE liste groupée à filets (2 colonnes) --- */
+  .jours{gap:0;background:var(--s1);border-radius:var(--r-card);box-shadow:inset 0 0 0 .5px var(--hair);overflow:hidden}
+  .jr{background:none!important;box-shadow:none!important;border-radius:0!important;padding:12px 14px}
+  .jr:nth-child(even){box-shadow:inset .5px 0 0 var(--hair)!important}
+  .jr:nth-child(n+3){box-shadow:inset 0 .5px 0 var(--hair)!important}
+  .jr:nth-child(even):nth-child(n+3){box-shadow:inset 0 .5px 0 var(--hair),inset .5px 0 0 var(--hair)!important}
+  .jr .jd small{color:var(--muted)}
+  /* période (7 j, 14 j…) : texte simple, seule la sélection est remplie */
+  .chips+.chips .chip:not([aria-pressed="true"]){background:none;color:var(--muted)}
+  /* --- campagnes : la liste en UNE surface à filets, statut en simple texte --- */
+  .widgets.camps{gap:0;background:var(--s1);border-radius:var(--r-card);box-shadow:inset 0 0 0 .5px var(--hair);overflow:hidden}
+  .widgets.camps>.camp{background:none!important;box-shadow:none!important;border-radius:0!important;min-height:0}
+  .widgets.camps>.camp:nth-child(even){box-shadow:inset .5px 0 0 var(--hair)!important}
+  .widgets.camps>.camp:nth-child(n+3){box-shadow:inset 0 .5px 0 var(--hair)!important}
+  .widgets.camps>.camp:nth-child(even):nth-child(n+3){box-shadow:inset 0 .5px 0 var(--hair),inset .5px 0 0 var(--hair)!important}
+  .camps .badge{background:none!important;padding:0!important;font-size:12px;font-weight:600;color:var(--cyclom)}
+  .camps .badge.off{color:var(--muted)}
+  .camps .camp-n span{font-size:11.5px}
+  /* --- analyse : ta semaine et ta recette sans cases dans la carte --- */
+  .sem{gap:0;margin:0 -16px}
+  .sm{background:none!important;border-radius:0;padding:10px 16px}
+  .sm:nth-child(even){box-shadow:inset .5px 0 0 var(--hair)}
+  .sm:nth-child(n+3){box-shadow:inset 0 .5px 0 var(--hair)}
+  .sm:nth-child(even):nth-child(n+3){box-shadow:inset 0 .5px 0 var(--hair),inset .5px 0 0 var(--hair)}
+  .sm small{font-size:12px}
+  .recette{gap:0!important}
+  .rc{background:none!important;padding:4px 0!important}
+  .rc+.rc{box-shadow:inset .5px 0 0 var(--hair);padding-left:16px!important}
+  .note,.muted.note{font-size:12px}
+  /* --- tour 2 --- */
+  .daynav .cal svg{display:inline-block;width:15px;height:15px;opacity:.55}
+  /* contrôle segmenté façon iOS : la sélection est une pastille neutre, l'accent reste aux chiffres */
+  .segw button[aria-selected="true"]{background:var(--s3);color:var(--fg)}
+  .chips+.chips .chip[aria-pressed="true"]{background:var(--s3);color:var(--fg)}
+  /* filtres de période (Vidéos) : texte simple hors sélection */
+  .vbar+.chips .chip:not([aria-pressed="true"]){background:none;color:var(--fg2)}
+  /* course sur le Direct : anneau un peu plus petit */
+  .jg-anneau{width:84px;height:84px}
+  .jg-big{font-size:26px}
+  /* un widget ouvert : s'il reste un nombre impair de widgets fermés, le dernier prend la ligne (pas de trou) */
+  .widgets>.sec.pliable:not(.ouvert):nth-last-child(1 of .sec.pliable:not(.ouvert)):nth-child(odd of .sec.pliable:not(.ouvert)){grid-column:1/-1;min-height:0}
+  /* tour 3 : périodes de l'analyse comme celles de l'historique ; barres de part en gris (l'accent = le gain du jour) */
+  .perl .chip:not([aria-pressed="true"]){background:none;color:var(--muted)}
+  .perl .chip[aria-pressed="true"]{background:var(--s3);color:var(--fg)}
+  .camps .bar i{background:rgba(220,232,245,.4)}
+  .w-tx.w-in{-webkit-line-clamp:4;color:var(--fg2)}
+  .w-tx.w-in b{display:inline;font:600 13px var(--body);color:var(--fg);margin:0}
+}
 </style>
 
 <header class="top">
@@ -1211,16 +1311,16 @@ function course(A, C, mode) {
       if (cible && cible.vh != null) {
         const eta = vm > cible.vh ? manqueC / (vm - cible.vh) : Infinity, besoin = isFinite(hRest) ? Math.ceil(manqueC / hRest + cible.vh) : null;
         L2.push(eta <= hRest ? `<span class="up">▲ à ce rythme, tu passes ${ord(placeCible)} dans ≈ ${dur(eta)}</span>`
-          : besoin ? `<span>▲ pour passer ${ord(placeCible)} avant la fin : <b>+${k(besoin)} vues/h</b> (toi +${k(vm)}/h)</span>`
+          : besoin ? `<span>▲ ${ord(placeCible)} avant la fin : <b>+${k(besoin)} vues/h</b> (toi +${k(vm)})</span>`
           : `<span>▲ ${ord(placeCible)} +${k(cible.vh)}/h, toi +${k(vm)}/h : accélère</span>`);
       }
       const rattrape = derriere && derriere.vh != null && derriere.vh > vm && avance > 0 ? avance / (derriere.vh - vm) : Infinity;
       if (rattrape <= hRest) L2.push(`<span class="down">▼ le ${ord(place + 1)} va plus vite : il te rattrape dans ≈ ${dur(rattrape)}</span>`);
-      else if (derriere && avance != null && isFinite(hRest) && derriere.vh > vm) L2.push(`<span>▼ le ${ord(place + 1)} va plus vite, mais ne te rattrapera pas avant la fin</span>`);
+      else if (derriere && avance != null && isFinite(hRest) && derriere.vh > vm) L2.push(`<span>▼ le ${ord(place + 1)} va plus vite, sans te rattraper à temps</span>`);
       else if (derriere && avance != null) L2.push(`<span>▼ ${k(avance)} ${unite} d’avance sur le ${ord(place + 1)}</span>`);
       vit = L2.length ? `<div class="jg-vit">${L2.join('')}</div>` : '';
     }
-    const fin2 = reste == null ? '' : fini ? 'Terminée · résultat officiel après vérification par Cyclom' : `Fin dans <b class="num" data-fin="${x.fin}">${resteTxt(reste)}</b> · place provisoire`;
+    const fin2 = reste == null ? '' : fini ? 'Terminée · officiel après vérif Cyclom' : `Fin dans <b class="num" data-fin="${x.fin}">${resteTxt(reste)}</b> · place provisoire`;
     const mj = new Date((RAW.classement || CLASSEMENT).maj).getTime(), vieux = Date.now() - mj > 3 * 3600e3;
     let h = `<section class="card money course jauge ${sprint ? 'sprint' : ''} ${fini ? 'finie' : ''}">
       <div class="jg-h"><span class="jg-nom">${esc(x.nom)}${x.type === 'clips' ? ' · clips' : ''}</span>${sprint ? '<span class="jg-badge">SPRINT</span>' : fini ? '<span class="jg-badge off">En vérification</span>' : ''}<b class="num jg-prix">${titre}</b></div>
@@ -1230,7 +1330,7 @@ function course(A, C, mode) {
           ? `<span class="jg-l">${fini ? '1er provisoire' : 'Tu es en tête'}</span><b class="num jg-big">${avance != null ? '+' + k(avance) : '—'}</b><span class="jg-s">${avance != null ? `${unite} d’avance sur le 2e` : ''}</span>`
           : `<span class="jg-l">${fini ? 'Il manquait (provisoire)' : 'Il te manque'} pour passer ${ord(placeCible)}</span><b class="num jg-big">${k(manqueC)} ${unite}</b>${gainC > 0 ? `<span class="jg-gain">+${eur(gainC)}</span>` : ''}`}</div>
       </div>${vit}
-      <div class="jg-pied">${fin2 ? `<span>${fin2}</span>` : ''}<span class="${vieux ? 'down' : 'muted'}">${vieux ? 'Classement pas à jour depuis ' + ago(mj).replace('il y a ', '') : 'Vues validées par cyclom.fr · ' + ago(mj)}</span></div>`;
+      <div class="jg-pied">${fin2 ? `<span>${fin2}</span>` : ''}<span class="${vieux ? 'down' : 'muted'}">${vieux ? 'Classement pas à jour depuis ' + ago(mj).replace('il y a ', '') : 'Validé cyclom.fr · ' + ago(mj)}</span></div>`;
     if (mode === 'complet' && g && !fini) h += `<p class="say jg-guide">Pour y arriver : ${guideTxt(g)}</p>`;
     if (mode === 'complet') {
       const top = x.tri.slice(0, Math.max(10, x.prixL.length)), lignes = top.includes(x.moi) ? top : [...top, x.moi];
@@ -1368,42 +1468,42 @@ function vDirect(A, C) {
     <div class="big num">${fmt(C.today)}</div>
     <p class="say">${phrase(A, C)}</p>
     ${C.partiel ? '' : courbeJour(A, C, C.P.day)}
-    <div class="est"><span class="muted">Estimation fin de journée</span><b class="num">${C.est ? '≈ ' + k(C.est) : '—'}</b></div>
+    <div class="est"><span class="muted">Fin de journée</span><b class="num">${C.est ? '≈ ' + k(C.est) : '—'}</b></div>
     ${(() => { const o = objectif(A, C); if (!o || C.partiel) return ''; const r = C.today / o.v, fait = r >= 1;
       const manque = C.est ? o.v - C.est : o.v - C.today, g0 = !fait && manque > 0 ? guide(A, C, manque) : null, g = g0 && g0.n <= 5 ? g0 : null;
       return `<button class="obj ${fait ? 'fait' : ''}" type="button" data-objo aria-label="Régler mon objectif"><span class="l"><span>${fait ? 'Objectif atteint, bien joué' : C.est && C.est >= o.v ? 'Objectif du jour : bien parti' : 'Objectif du jour'} · ${Math.min(999, Math.round(r * 100))} %</span><b class="num">${k(o.v)}</b></span><span class="tr"><i style="width:${Math.min(100, r * 100).toFixed(1)}%"></i></span>
-        ${g ? `<span class="say" style="font-size:14px;max-width:none">Il manquera ≈ <b>${k(manque)}</b> vues → ${guideTxt(g)}</span>` : ''}</button>`; })()}
-    ${C.yTot ? `<div class="est" style="border:0;padding:0;margin:0"><span class="muted">Hier au total</span><span class="num">${k(C.yTot)}</span></div>` : ''}
+        ${g ? `<span class="say" style="font-size:14px;max-width:none">Manque ≈ <b>${k(manque)}</b> → ${guideTxt(g)}</span>` : ''}</button>`; })()}
+    ${C.yTot ? `<div class="est" style="border:0;padding:0;margin:0"><span class="muted">Hier</span><span class="num">${k(C.yTot)}</span></div>` : ''}
   </section>`;
   h += AL.carte(); // « Active tes alertes » (serveur seulement)
   h += NV.duo(A, C); // série + prochain créneau + récap du soir (24/11)
-  h += analyseDirect(A, C);
   h += posteMaintenant(A, C);
   h += course(A, C, 'court');
   const Q = C.Q;
   h += `<div class="tiles">
-    <div class="tile"><span>Sur 1 heure</span><b class="num">${A.heure?.gained != null ? '+' + k(A.heure.gained) : '—'}</b><small class="muted">vues</small></div>
-    <div class="tile"><span>Abonnés</span><b class="num ${A.abonnes_jour > 0 ? 'up' : ''}">${A.abonnes_jour != null ? (A.abonnes_jour >= 0 ? '+' : '') + fmt(A.abonnes_jour) : '—'}</b><small class="muted">${k(A.abonnes)} au total</small></div>
-    ${nb ? `<div class="tile"><span>Postées</span><b class="num">${nb}</b><small class="muted">${(() => { const sr = serie(A, C); return sr >= 2 ? `série : ${sr} jours` : `vidéo${nb > 1 ? 's' : ''} aujourd'hui`; })()}</small></div>`
-      : `<div class="tile"><span>Dernière vidéo</span><b class="num">${A.videos[0] ? Math.floor((C.now / 1000 - A.videos[0].t) / 3600) + '\u00a0h' : '—'}</b><small class="muted">rien posté aujourd'hui</small></div>`}
-    <div class="tile"><span>Likes</span><b class="num">${Q.l != null ? '+' + k(Q.l) : '—'}</b><small class="muted">aujourd'hui</small></div>
-    <div class="tile"><span>Partages</span><b class="num">${Q.s != null ? '+' + k(Q.s) : '—'}</b><small class="muted">aujourd'hui</small></div>
-    ${(() => { const G = gains(A); return G ? `<button class="tile" type="button" data-go="campagnes" style="text-align:left"><span>Gagné</span><b class="num" style="color:var(--gold)">${eur(G.auj)}</b><small class="muted">aujourd'hui</small></button>`
-      : `<div class="tile"><span>Comms</span><b class="num">${Q.c != null ? '+' + k(Q.c) : '—'}</b><small class="muted">aujourd'hui</small></div>`; })()}
+    <div class="tile"><span>Vues · 1 h</span><b class="num">${A.heure?.gained != null ? '+' + k(A.heure.gained) : '—'}</b></div>
+    <div class="tile"><span>Abonnés</span><b class="num ${A.abonnes_jour > 0 ? 'up' : ''}">${A.abonnes_jour != null ? (A.abonnes_jour >= 0 ? '+' : '') + fmt(A.abonnes_jour) : '—'}</b><small class="muted">${k(A.abonnes)} total</small></div>
+    ${nb ? `<div class="tile"><span>Postées</span><b class="num">${nb}</b><small class="muted">${(() => { const sr = serie(A, C); return sr >= 2 ? `série ${sr} j` : ''; })()}</small></div>`
+      : `<div class="tile"><span>Dernière vidéo</span><b class="num">${A.videos[0] ? Math.floor((C.now / 1000 - A.videos[0].t) / 3600) + '\u00a0h' : '—'}</b><small class="muted">rien auj.</small></div>`}
+    <div class="tile"><span>Likes</span><b class="num">${Q.l != null ? '+' + k(Q.l) : '—'}</b></div>
+    <div class="tile"><span>Partages</span><b class="num">${Q.s != null ? '+' + k(Q.s) : '—'}</b></div>
+    ${(() => { const G = gains(A); return G ? `<button class="tile" type="button" data-go="campagnes" style="text-align:left"><span>Gagné</span><b class="num" style="color:var(--gold)">${eur(G.auj)}</b></button>`
+      : `<div class="tile"><span>Comms</span><b class="num">${Q.c != null ? '+' + k(Q.c) : '—'}</b></div>`; })()}
   </div>`;
+  h += analyseDirect(A, C); // ÉPURE 24/11 : rejoint Plan / Inspire / Heure par heure = 4 widgets 2×2
   h += planJour(A, C);
   h += inspiration(A);
-  h += `<section class="sec card chart"><div class="sec-h"><h2>Vues heure par heure</h2><small>touche une barre</small></div>${chartJour(A, C, C.P.day)}${hourTip(A, C, C.P.day)}
+  h += `<section class="sec card chart"><div class="sec-h"><h2>Heure par heure</h2><small>touche une barre</small></div>${chartJour(A, C, C.P.day)}${hourTip(A, C, C.P.day)}
     <div class="legend"><span><i style="background:var(--accent)"></i>Aujourd'hui</span><span><i style="background:#5a5a66"></i>Hier</span></div></section>`;
   // une seule liste avec deux vues : ce qui monte maintenant / postées aujourd'hui (moins de scroll)
   const dj = [...C.duJour].sort((a, b) => b.t - a.t);
   const rise = A.videos.filter(v => v.gh > 0).sort((a, b) => b.gh - a.gh).slice(0, 5);
   const topJ = A.videos.filter(v => v.gj > 0).sort((a, b) => b.gj - a.gj).slice(0, 5);
   const lst = rise.length ? rise : topJ, vue = (st.dvue === 'postees' && C.duJour.length) || !lst.length ? 'postees' : 'monte';
-  h += nb ? `<section class="sec"><div class="segw seg2" role="tablist"><button type="button" role="tab" data-dvue="monte" aria-selected="${vue === 'monte'}" ${lst.length ? '' : 'disabled'}>${rise.length ? 'Ce qui monte' : 'Ce qui rapporte'}</button><button type="button" role="tab" data-dvue="postees" aria-selected="${vue === 'postees'}">Postées aujourd’hui · ${nb}</button></div>`
-    : `<section class="sec garde"><div class="sec-h"><h2>${rise.length ? 'Ce qui monte' : 'Ce qui rapporte'}</h2><small>${rise.length ? 'vues gagnées sur la dernière heure' : "vues gagnées aujourd'hui"}</small></div>`; // une seule liste = un vrai titre, pas un faux bouton
+  h += nb ? `<section class="sec"><div class="segw seg2" role="tablist"><button type="button" role="tab" data-dvue="monte" aria-selected="${vue === 'monte'}" ${lst.length ? '' : 'disabled'}>${rise.length ? 'Ce qui monte · 1 h' : 'Ce qui rapporte · auj.'}</button><button type="button" role="tab" data-dvue="postees" aria-selected="${vue === 'postees'}">Postées aujourd’hui · ${nb}</button></div>`
+    : `<section class="sec garde"><div class="sec-h"><h2>${rise.length ? 'Ce qui monte' : 'Ce qui rapporte'}</h2><small>${rise.length ? 'dernière heure' : "aujourd'hui"}</small></div>`; // une seule liste = un vrai titre, pas un faux bouton
   // Jawed 24/11 : la liste en 2 colonnes donnait des miniatures « par-dessus » → rangée de vignettes façon TikTok (rang, gain, total)
-  if (vue === 'monte') h += `<div class="strip monte-rail">${lst.map((v, i) => `<button class="mr" type="button" data-vid="${v.id}" aria-label="${esc(titreVid(v))}">${cover(v)}<i class="mr-rg">${i + 1}</i><span class="ov"><b class="num">+${k(rise.length ? v.gh : v.gj)}</b><small>${rise.length ? 'sur 1 h' : "aujourd'hui"}</small><span class="mr-tot num">${k(v.v)} au total</span></span></button>`).join('')}</div>`;
+  if (vue === 'monte') h += `<div class="strip monte-rail">${lst.map((v, i) => `<button class="mr" type="button" data-vid="${v.id}" aria-label="${esc(titreVid(v))}">${cover(v)}<i class="mr-rg">${i + 1}</i><span class="ov"><b class="num">+${k(rise.length ? v.gh : v.gj)}</b><span class="mr-tot num">${k(v.v)} au total</span></span></button>`).join('')}</div>`;
   else h += dj.length ? `<div class="grid">${dj.slice(0, 12).map(v => vcard(v, C)).join('')}</div>${dj.length > 12 ? `<button class="more" type="button" data-go="videos" data-per="jour">Voir les ${dj.length} vidéos du jour</button>` : ''}` : `<div class="card muted">Rien posté aujourd’hui pour l’instant${A.videos[0] ? ` : ta dernière vidéo date d’il y a ${Math.floor((C.now / 1000 - A.videos[0].t) / 3600)} h` : ''}.</div>`;
   h += `</section>`;
   return h;
@@ -1430,7 +1530,7 @@ function courbeJour(A, C, D0) {
     <defs><linearGradient id="jg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fe2c55" stop-opacity=".38"/><stop offset="1" stop-color="#fe2c55" stop-opacity="0"/></linearGradient></defs>
     <path d="${path(b)}" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="1.6" stroke-dasharray="4 4" vector-effect="non-scaling-stroke"/>
     <path d="${path(a)} L${X(last).toFixed(1)} ${Ht} L0 ${Ht}Z" fill="url(#jg)"/><path d="${path(a)}" fill="none" stroke="#fe2c55" stroke-width="2.4" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg>
-    <div class="jcl"><span><i></i>${auj ? "Aujourd'hui" : 'Ce jour'}</span><span><i class="h"></i>${auj ? 'Hier' : 'Veille'}, en entier</span><span>0h → 24h</span></div>`;
+    <div class="jcl"><span><i></i>${auj ? "Aujourd'hui" : 'Ce jour'}</span><span><i class="h"></i>${auj ? 'Hier' : 'Veille'} entier</span><span>0–24 h</span></div>`;
 }
 // le public est-il là en ce moment ? (vues gagnées par heure, moyenne des jours passés)
 function heuresFortes(A, C) {
@@ -1481,14 +1581,14 @@ function vJourPasse(A, C, d) {
     <div class="est"><span class="muted">Abonnés en fin de journée</span><b class="num">${q.f != null ? fmt(q.f) : '—'}</b></div>
   </section>
   <div class="tiles">
-    <div class="tile"><span>Abonnés</span><b class="num ${df > 0 ? 'up' : ''}">${df != null ? (df >= 0 ? '+' : '') + fmt(df) : '—'}</b><small class="muted">gagnés</small></div>
-    <div class="tile"><span>Postées</span><b class="num">${nb}</b><small class="muted">vidéo${nb > 1 ? 's' : ''}</small></div>
-    <div class="tile"><span>Par vidéo</span><b class="num">${nb && q.g ? k(q.g / nb) : '—'}</b><small class="muted">vues / postée</small></div>
-    <div class="tile"><span>Likes</span><b class="num">${q.l != null ? '+' + k(q.l) : '—'}</b><small class="muted">ce jour</small></div>
-    <div class="tile"><span>Partages</span><b class="num">${q.s != null ? '+' + k(q.s) : '—'}</b><small class="muted">ce jour</small></div>
-    <div class="tile"><span>Comms</span><b class="num">${q.c != null ? '+' + k(q.c) : '—'}</b><small class="muted">ce jour</small></div>
+    <div class="tile"><span>Abonnés</span><b class="num ${df > 0 ? 'up' : ''}">${df != null ? (df >= 0 ? '+' : '') + fmt(df) : '—'}</b></div>
+    <div class="tile"><span>Postées</span><b class="num">${nb}</b></div>
+    <div class="tile"><span>Vues / vidéo</span><b class="num">${nb && q.g ? k(q.g / nb) : '—'}</b></div>
+    <div class="tile"><span>Likes</span><b class="num">${q.l != null ? '+' + k(q.l) : '—'}</b></div>
+    <div class="tile"><span>Partages</span><b class="num">${q.s != null ? '+' + k(q.s) : '—'}</b></div>
+    <div class="tile"><span>Comms</span><b class="num">${q.c != null ? '+' + k(q.c) : '—'}</b></div>
   </div>`;
-  if (aHeures) h += `<section class="sec card chart"><div class="sec-h"><h2>Vues heure par heure</h2><small>touche une barre</small></div>${chartJour(A, C, d)}${hourTip(A, C, d)}
+  if (aHeures) h += `<section class="sec card chart"><div class="sec-h"><h2>Heure par heure</h2><small>touche une barre</small></div>${chartJour(A, C, d)}${hourTip(A, C, d)}
     <div class="legend"><span><i style="background:var(--accent)"></i>${d === C.yd ? 'Hier' : 'Ce jour'}</span><span><i style="background:#5a5a66"></i>${d === C.yd ? 'Avant-hier' : 'Veille'}</span></div></section>`;
   if (gains.length) h += `<section class="sec"><div class="sec-h"><h2>Ce qui a rapporté ce jour-là</h2><small>vues gagnées dans la journée</small></div>
     <div class="rows">${gains.map(({ v, g }) => `<button class="row" type="button" data-vid="${v.id}">${cover(v)}<div class="t"><b class="num">+${k(g)}</b><span>${esc(titreVid(v))}</span></div><div class="r num"><b>${k(v.v)}</b><br><span class="muted">${dateVid(v.t)}</span></div></button>`).join('')}</div></section>`;
@@ -1643,9 +1743,9 @@ function inspiration(A) {
   const c = infosCampagnes()[0]; if (!c?.cartons?.length) return '';
   const miens = new Set(A.videos.map(v => String(v.id))), L = c.cartons.filter(x => !miens.has(idLien(x.lien))).slice(0, 3);
   if (!L.length) return '';
-  return `<section class="sec"><div class="sec-h"><h2>Inspire-toi</h2><small>ce qui fait le plus de vues sur ${esc(c.nom)}</small></div>
+  return `<section class="sec"><div class="sec-h"><h2>Inspire-toi</h2><small>top vues · ${esc(c.nom)}</small></div>
     <div class="insp">${L.map(x => `<a class="ic2" href="${esc(x.lien)}" target="_blank" rel="noopener">${x.img ? `<img src="${esc(x.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" data-ph="">` : '<div class="ph"></div>'}<span class="ov"><b class="num">${k(x.vues)}</b><small>${x.gain24 ? '+' + k(x.gain24) + ' en 24 h' : 'à regarder'}</small></span></a>`).join('')}</div>
-    <button class="more" type="button" data-go="campagnes">Voir tous les clips qui cartonnent et ce que font les meilleurs</button></section>`;
+    <button class="more" type="button" data-go="campagnes">Tous les cartons et les meilleurs ›</button></section>`;
 }
 // ---------- Plan de la journée : 3 créneaux aux heures fortes du public, cochés tout seuls quand une vidéo est postée ----------
 function planJour(A, C) {
@@ -1659,7 +1759,7 @@ function planJour(A, C) {
   return `<section class="card sec plan"><div class="sec-h"><h2>Plan du jour</h2><small>${nbFait} / ${slots.length} fait${nbFait > 1 ? 's' : ''}</small></div>
     <div class="slots">${slots.map(h => { const ok = fait(h), passe = !ok && C.P.hour > h + 1;
       return `<div class="slot ${ok ? 'ok' : passe ? 'rate' : C.P.hour >= h - 1 ? 'now' : ''}"><span class="ck">${ok ? '✓' : ''}</span><span class="st"><b>${h}h</b><small>${ok ? 'posté' : passe ? 'raté, rattrape au suivant' : C.P.hour >= h - 1 ? 'c’est maintenant' : 'à venir'}</small></span><span class="sd">1 clip${bd ? ' de ' + bd.l : ''}${camp ? ' · ' + esc(camp.nom) : ''}</span></div>`; }).join('')}</div>
-    <p class="muted note">Heures où ton public regarde le plus. Une case se coche toute seule quand une vidéo est postée à moins d’une heure du créneau.</p></section>`;
+    <p class="muted note">Heures fortes de ton public. Coché tout seul si tu postes à ± 1 h.</p></section>`;
 }
 
 // ---------- Vue : Campagnes ----------
@@ -1674,7 +1774,7 @@ function vCampagnes(A, C) {
   const G = gains(A);
   let h = course(A, C, 'complet');
   for (const c of infosCampagnes()) h += blocCartons(c, A) + blocMeilleurs(A, c);
-  h += `<div class="sec-h"><h2>Tes campagnes Cyclom</h2><small>Clips repérés via les hashtags</small></div>`;
+  h += `<div class="sec-h"><h2>Tes campagnes Cyclom</h2><small>via tes hashtags</small></div>`;
   if (!list.length) return h + `<div class="card muted">Aucune vidéo avec un hashtag de campagne (#cyclomx…) pour l'instant.</div>`;
   for (const c of list) {
     const best = [...c.vs].sort((a, b) => b.v - a.v).slice(0, 8);
@@ -1716,7 +1816,7 @@ function vHistorique(A, C) {
   if (innerWidth < 700) {
     h += `<div class="jours">${[...sel].reverse().map(d => { const q = Q[d], p = Q[addJour(d, -1)], dv = p && d !== C.P.day ? pct(q.g, p.g) : null, df = q.f != null && p?.f != null ? q.f - p.f : null;
       return `<button class="jr" type="button" data-day="${d}"><span class="jd"><b>${dayLabel(d)}</b><small>${nbv0[d] || 0} vidéo${(nbv0[d] || 0) > 1 ? 's' : ''}${df != null ? ` · ${df >= 0 ? '+' : ''}${fmt(df)} abonnés` : ''}</small></span><span class="jv"><b class="num">${k(q.g)}</b>${d === C.P.day ? '<small class="muted">en cours</small>' : ''}${dv != null ? `<small class="${dv >= 0 ? 'up' : 'down'}">${pctTxt(dv)}</small>` : ''}</span><span class="chev">›</span></button>`; }).join('')}</div>
-      <p class="muted" style="font-size:12.5px;margin:0">Touche un jour pour voir ses vidéos et ses likes, partages, commentaires. Le jour en cours est partiel. Jours terminés : TikTok Studio ; aujourd'hui : relevé toutes les 5 min.</p>`;
+      <p class="muted note-c">Touche un jour pour le détail · jour en cours partiel · jours finis : TikTok Studio · aujourd'hui : relevé 5 min</p>`;
     return h;
   }
   h += `<div class="tbl-wrap"><table><thead><tr><th>Jour</th><th>Vues</th><th>Abonnés</th><th>Likes</th><th>Partages</th><th>Comms</th><th>Vidéos</th></tr></thead><tbody>`;
@@ -1878,7 +1978,7 @@ function analyseDirect(A, C) {
     observations.unshift({ a: 'data-vid="' + esc(star.id) + '"', c: 'g', t: '<b>' + esc(titreVid(star)) + '</b> apporte ' + k(star.gj) + ' vues, soit ' + Math.round(100 * star.gj / C.today) + ' % du total du jour.' });
   }
   if (!observations.length) return '';
-  return `<section class="sec direct-analyse"><div class="sec-h"><h2>Ce qui explique tes vues</h2><button type="button" class="chip" data-an="resume">Analyse ›</button></div><div class="ins">${observations.map(x => `<button class="in" type="button" ${x.a}><span class="ic ${x.c}"></span><span class="tx">${x.t}</span><span class="chev">›</span></button>`).join('')}</div></section>`;
+  return `<section class="sec direct-analyse"><div class="sec-h"><h2>Pourquoi tes vues</h2><button type="button" class="chip" data-an="resume">Analyse ›</button></div><div class="ins">${observations.map(x => `<button class="in" type="button" ${x.a}><span class="ic ${x.c}"></span><span class="tx">${x.t}</span><span class="chev">›</span></button>`).join('')}</div></section>`;
 }
 function vCreneaux(A, C) {
   const vs = recentes(A, C, st.slotPer), med = median(vs.map(v => v.v)), an = st.an || 'resume';
@@ -1888,20 +1988,20 @@ function vCreneaux(A, C) {
   const peu = n => `<div class="card muted">Pas encore assez de vidéos sur cette période (il en faut au moins ${n}). Choisis une période plus longue.</div>`;
   if (an === 'resume') {
     const { S, D } = lireDiagnostic(A, C, vs, med);
-    h += D.length ? `<section class="sec"><div class="sec-h"><h2>Ton diagnostic</h2><small>sur ${st.slotPer} jours · touche une ligne</small></div><div class="ins">${D.slice(0, 4).map(x => `<button class="in" type="button" ${x.a}><span class="ic ${x.c}"></span><span class="tx">${x.t}</span><span class="chev">›</span></button>`).join('')}</div></section>` : '';
+    h += D.length ? `<section class="sec"><div class="sec-h"><h2>Ton diagnostic</h2><small>${st.slotPer} jours</small></div><div class="ins">${D.slice(0, 4).map(x => `<button class="in" type="button" ${x.a}><span class="ic ${x.c}"></span><span class="tx">${x.t}</span><span class="chev">›</span></button>`).join('')}</div></section>` : '';
     h += taSemaine(A, C) + cartonsSemaine(A, C, med);
     return h;
   }
   if (an === 'contenu') {
     h += per; if (vs.length < 30) return h + peu(30);
     const K = cartons(vs), M = motsQuiMarchent(vs), G = groupes(A, C, vs);
-    if (K) h += `<section class="card sec"><div class="sec-h"><h2>Ce qui fait un carton</h2><small>tes ${K.n} meilleures (plus de ${k(K.seuil)} vues) contre le reste</small></div>
+    if (K) h += `<section class="card sec"><div class="sec-h"><h2>Ce qui fait un carton</h2><small>tes ${K.n} meilleures (+${k(K.seuil)} vues) vs le reste</small></div>
       ${K.lignes.length ? `<div class="cmp">${K.lignes.map(x => `<div class="cmpl"><span class="lb">${x.nom[0].toUpperCase() + x.nom.slice(1)}</span><span class="cmpv"><b>${x.fmtx(x.a)}</b><small>cartons</small></span><span class="cmpv"><span>${x.fmtx(x.b)}</span><small>les autres</small></span><span class="cmpr ${x.r >= 1 ? 'up' : 'down'}">${x.r >= 1 ? fx(x.r) : '÷' + fx(1 / x.r).replace('×', '')}</span></div>`).join('')}</div>`
         : `<div class="muted">Tes cartons ressemblent à tes autres vidéos : c’est surtout le moment et le contenu qui font la différence.</div>`}</section>`;
     if (M && (M.haut.length || M.bas.length)) h += `<section class="card sec"><div class="sec-h"><h2>Les mots qui marchent</h2><small>dans tes titres, 8 vidéos minimum</small></div>
       ${M.haut.length ? `<div class="mots">${M.haut.map(x => `<button class="mot up" type="button" data-q="${esc(x.w)}"><b>${esc(x.w)}</b><span>${fx(x.r)} · ${x.n} vid.</span></button>`).join('')}</div>` : ''}
       ${M.bas.length ? `<div class="muted" style="font-size:13px">Font moins bien :</div><div class="mots">${M.bas.map(x => `<button class="mot down" type="button" data-q="${esc(x.w)}"><b>${esc(x.w)}</b><span>${fx(x.r)} · ${x.n} vid.</span></button>`).join('')}</div>` : ''}
-      <p class="muted note">Comparé à ta vidéo normale (${k(med)} vues). Touche un mot pour voir ses vidéos.</p></section>`;
+      <p class="muted note">vs ta vidéo normale (${k(med)} vues) · touche un mot</p></section>`;
     h += bloc('duree', 'Durée de la vidéo', 'vues habituelles par durée', G.duree, med);
     if (G.son.filter(r => r.n >= MINI).length >= 2) h += bloc('son', 'Son utilisé', '10 vidéos minimum', G.son.filter(r => r.n >= MINI).slice(0, 6), med);
     if (G.camp.length) h += bloc('camp', 'Campagne', 'vues habituelles par campagne', G.camp, med);
@@ -1914,24 +2014,24 @@ function vCreneaux(A, C) {
     const F = heuresFortes(A, C), fortes = F ? [...F].sort((a, b) => a - b) : [];
     h += `<section class="card sec"><div class="sec-h"><h2>Ta recette</h2><small>ta vidéo normale : ${k(med)} vues</small></div>${R ? `<div class="recette">${R}</div>` : '<div class="muted">Aucun moment ne sort nettement du lot sur cette période.</div>'}
       ${fortes.length ? `<div class="say" style="max-width:none;font-size:14px">Ton public regarde le plus vers <b>${fortes.map(x => x + 'h').join(', ')}</b>.</div>` : ''}</section>`;
-    h += bloc('heure', 'Heure de publication', 'vues habituelles d’une vidéo postée à cette heure', G.heure, med);
+    h += bloc('heure', 'Heure de publication', 'vues habituelles par heure de post', G.heure, med);
     h += bloc('jour', 'Jour de publication', 'vues habituelles par jour', G.jour, med);
     h += public_(A, C);
     h += `<button class="more" type="button" id="heatTog">${st.heat ? 'Cacher' : 'Voir'} le détail jour × heure</button>`;
     if (st.heat) h += heatmap(A, C, med);
-    return h + `<p class="muted note">« Vues habituelles » = la médiane : la moitié de tes vidéos font plus, l’autre moitié moins. Une ligne grisée a moins de ${MINI} vidéos.</p>`;
+    return h + `<p class="muted note">« Vues habituelles » = médiane (la moitié fait plus). Ligne grisée : moins de ${MINI} vidéos.</p>`;
   }
   const V = vieVideo(A), E = essoufflement(A, C);
-  if (V) h += `<section class="card sec"><div class="sec-h"><h2>Vie d’une vidéo</h2><small>part des vues faites à chaque âge (${V.n} vidéos)</small></div>
+  if (V) h += `<section class="card sec"><div class="sec-h"><h2>Vie d’une vidéo</h2><small>part des vues par âge · ${V.n} vidéos</small></div>
     <div class="vie">${V.pts.map(x => `<div class="vj ${V.q80 && x.m === V.q80.m ? 'cle' : ''}"><span class="vb"><i style="height:${Math.max(3, x.p * 100).toFixed(0)}%"></i></span><b class="num">${Math.round(x.p * 100)} %</b><small>${JAL_L[x.m]}</small></div>`).join('')}</div>
-    <p class="muted note">${V.q80 ? `80 % des vues sont faites en ${JAL_L[V.q80.m]}. ` : ''}100 % = vues à ${JAL_L[V.ref]}. Les premières heures décident presque tout : réponds aux commentaires dans la première heure.</p></section>`;
-  if (E.length) h += `<section class="card sec"><div class="sec-h"><h2>Essoufflement des campagnes</h2><small>vues à 24 h, cette semaine contre la précédente</small></div>
+    <p class="muted note">${V.q80 ? `80 % des vues sont faites en ${JAL_L[V.q80.m]}. ` : ''}100 % = vues à ${JAL_L[V.ref]}. Réponds aux commentaires dans la 1re heure.</p></section>`;
+  if (E.length) h += `<section class="card sec"><div class="sec-h"><h2>Essoufflement des campagnes</h2><small>vues à 24 h vs semaine d’avant</small></div>
     <div class="rows">${E.map(x => `<button class="row" type="button" data-q="#${esc(x.t)}" style="padding:12px"><div class="t"><b>${esc(x.nom)}</b><span class="muted" style="white-space:normal">${k(x.a)} vues à 24 h cette semaine, ${k(x.b)} la semaine d’avant</span></div><div class="r num"><b class="${x.r >= 1.05 ? 'up' : x.r <= .9 ? 'down' : ''}">${pctTxt((x.r - 1) * 100)}</b><br><span class="muted">${x.r <= .75 ? 'change d’angle' : x.r >= 1.1 ? 'ça monte' : 'stable'}</span></div></button>`).join('')}</div></section>`;
   const vieilles = A.videos.filter(v => { const j = (C.now / 1000 - v.t) / 86400; return j >= 21 && j <= 180 && !v.r; }), medV = median(vieilles.map(v => v.v));
   const rep_ = vieilles.filter(v => medV && v.v >= medV * 4).sort((a, b) => b.v - a.v).slice(0, 5);
-  if (rep_.length) h += `<section class="card sec"><div class="sec-h"><h2>À reposter</h2><small>tes cartons d’il y a 3 semaines et plus</small></div>
+  if (rep_.length) h += `<section class="card sec"><div class="sec-h"><h2>À reposter</h2><small>cartons de 3 semaines et +</small></div>
     <div class="rows">${rep_.map(v => `<button class="row" type="button" data-vid="${v.id}">${cover(v)}<div class="t"><b class="num">${k(v.v)}</b><span>${esc(titreVid(v))}</span><span class="muted" style="font-size:12px">${dateVid(v.t)} · dans ton top ${Math.max(1, Math.ceil(vieilles.filter(x => x.v > v.v).length / vieilles.length * 100))} %</span></div></button>`).join('')}</div>
-    <p class="muted note">Une vidéo qui a déjà explosé a de bonnes chances de repartir : reposte-la avec un nouveau début ou un nouveau titre.</p></section>`;
+    <p class="muted note">Reposte avec un nouveau début ou titre : ça repart souvent.</p></section>`;
   if (!V && !E.length && !rep_.length) h += `<div class="card muted">Pas encore assez d’historique : reviens dans quelques jours.</div>`;
   return h;
 }
@@ -1957,7 +2057,7 @@ function bloc(id, titre, sous, rows, med) {
     return `<button class="hb ${fiable ? '' : 'faible'} ${top.includes(r.i) ? 'best' : ''}" type="button" data-grp="${id}:${r.i}" ${r.n ? '' : 'disabled'}>
       <span class="lb">${r.l}</span><span class="tr"><i style="width:${r.m ? Math.min(100, Math.max(2, r.m / mx * 100)).toFixed(1) : 0}%"></i><em class="med" style="left:${Math.min(100, med / mx * 100).toFixed(1)}%"></em></span>
       <span class="vl"><b class="num">${!fiable ? (r.n ? 'peu' : '—') : k(r.m)}</b><small class="${!fiable || f == null ? 'muted' : f >= 1.15 ? 'up' : f <= .85 ? 'down' : 'muted'}">${fiable && f != null ? f.toLocaleString('fr-FR', { maximumFractionDigits: 1 }) + '× · ' : ''}${r.n} vid.</small></span></button>`; }).join('')}</div>
-    <div class="legend"><span><i style="background:var(--fg2);width:2px;height:10px"></i>ta vidéo normale</span><span>touche une ligne pour voir les vidéos</span></div></section>`;
+    <div class="legend"><span><i style="background:var(--fg2);width:2px;height:10px"></i>ta vidéo normale</span><span>touche une ligne</span></div></section>`;
 }
 function public_(A, C) {
   const Hh = A.horaire || {}, sum = Array(12).fill(0), nb = Array(12).fill(0);
@@ -1965,7 +2065,7 @@ function public_(A, C) {
   const rows = sum.map((s, b) => ({ l: `${b * 2}h – ${b * 2 + 2}h`, m: nb[b] ? s / nb[b] : null, n: nb[b] }));
   if (rows.filter(r => r.n).length < 8) return '';
   const mx = Math.max(1, ...rows.map(r => r.m || 0)), bi = rows.reduce((a, r, i) => (r.m || 0) > (rows[a].m || 0) ? i : a, 0);
-  return `<section class="card sec"><div class="sec-h"><h2>Quand ton public regarde</h2><small>vues gagnées par heure, toutes vidéos</small></div><div class="bars">${rows.map((r, i) => `<div class="hb ${i === bi ? 'best' : ''}"><span class="lb">${r.l}</span><span class="tr"><i style="width:${r.m ? Math.max(2, r.m / mx * 100).toFixed(1) : 0}%;background:var(--cyan)"></i></span><span class="vl"><b class="num">${r.m ? k(r.m) : '—'}</b><small class="muted">par heure</small></span></div>`).join('')}</div></section>`;
+  return `<section class="card sec"><div class="sec-h"><h2>Quand ton public regarde</h2><small>vues/heure, toutes vidéos</small></div><div class="bars">${rows.map((r, i) => `<div class="hb ${i === bi ? 'best' : ''}"><span class="lb">${r.l}</span><span class="tr"><i style="width:${r.m ? Math.max(2, r.m / mx * 100).toFixed(1) : 0}%;background:var(--cyan)"></i></span><span class="vl"><b class="num">${r.m ? k(r.m) : '—'}</b><small class="muted">par heure</small></span></div>`).join('')}</div></section>`;
 }
 function heatmap(A, C, med) {
   const save = st.slotMode; st.slotMode = 'post'; const D = slotsData(A, C); st.slotMode = save;
@@ -2240,15 +2340,15 @@ function taSemaine(A, C) {
   const vues = L.find(x => x.l === 'Vues'), p = vues.b ? pct(vues.a, vues.b) : null;
   return `<section class="card sec"><div class="sec-h"><h2>Ta semaine</h2><small>7 derniers jours ${p != null ? `· vues <b class="${p >= 0 ? 'up' : 'down'}">${pctTxt(p)}</b>` : ''}</small></div>
     <div class="sem">${L.map(x => { const d = x.b ? pct(x.a, x.b) : null; return `<div class="sm"><small>${x.l}</small><b class="num">${x.fm(x.a)}</b><span class="${d == null ? 'muted' : d >= 0 ? 'up' : 'down'}">${d == null ? '—' : pctTxt(d)}</span></div>`; }).join('')}</div>
-    <p class="muted note">Comparé aux 7 jours d’avant (sans aujourd’hui, encore en cours).</p></section>`;
+    <p class="muted note">vs les 7 jours d’avant · sans aujourd’hui</p></section>`;
 }
 function cartonsSemaine(A, C, med) {
   // un « carton » fait plus que ta normale (jamais « 0,4× ta normale » sous ce titre)
   const lim = C.now / 1000 - 7 * 86400, L = A.videos.filter(v => v.t >= lim && v.t <= C.now / 1000 - 3600 && (!med || v.v > med)).sort((a, b) => b.v - a.v).slice(0, 3);
   if (!L.length) return '';
-  return `<section class="card sec"><div class="sec-h"><h2>Tes cartons de la semaine</h2><small>à décliner tant que ça marche</small></div>
+  return `<section class="card sec"><div class="sec-h"><h2>Tes cartons de la semaine</h2></div>
     <div class="insp">${L.map(v => `<button class="ic2" type="button" data-vid="${v.id}">${cover(v)}<span class="ov"><b class="num">${k(v.v)}</b><small>${med ? fx(v.v / med) + ' ta normale' : dateVid(v.t)}</small></span></button>`).join('')}</div>
-    <p class="say" style="max-width:none;font-size:14px">Refais ces moments autrement : autre accroche, autre coupe, ou la suite (partie 2).</p></section>`;
+    <p class="muted note">À décliner : autre accroche, autre coupe, ou partie 2.</p></section>`;
 }
 // petit aperçu d'un widget replié : des miniatures, une mini-courbe ou la 1re info utile (mots séparés, chiffre en gras)
 const mots = el => [...el.querySelectorAll('*')].filter(x => !x.children.length && x.textContent.trim()).map(x => x.textContent.trim());
@@ -2267,6 +2367,7 @@ function apercuWidget(s) {
   if (cmp) { const m = mots(cmp); return `<div class="w-tx">${esc(m[0])}<br><b>${esc(m[1] || '')}</b> ${esc(m[2] || '')} · ${esc(m[3] || '')} ${esc(m[4] || '')}</div>`; } // libellés lus dans la carte (toi/top 10 ou cartons/les autres)
   const hb = [...s.querySelectorAll('.hb')].find(x => x.classList.contains('best')) || s.querySelector('.hb'); // barres : la meilleure ligne
   if (hb) { const m = mots(hb); return `<div class="w-tx">${esc(m[0] || '')}<br><b>${esc(m[1] || '')}</b> ${esc(m.slice(2).join(' '))}</div>`; }
+  const inTx = s.querySelector('.in .tx'); if (inTx) return `<div class="w-tx w-in">${inTx.innerHTML}</div>`; // phrase entière (le titre seul ne disait rien)
   const tx = [...s.querySelectorAll('.in .tx, .say, p, .muted')].find(x => x.textContent.trim());
   return tx ? `<div class="w-tx">${esc(mots(tx).join(' ') || tx.textContent.replace(/\s+/g, ' ').trim())}</div>` : '';
 }
@@ -2809,7 +2910,7 @@ const NV = (() => {
   function duo(A, C) {
     if (A.id === 'tous' && !A.videos.length) return '';
     const s = widgetSerie(A, C), c = widgetCreneau(A, C), h = pz(Date.now()).hour;
-    return `<div class="nv-duo">${c}${s}</div><button class="nv-recap ${h >= 20 ? 'chaud' : ''}" type="button" data-recap><span class="nv-anneau"><span>${FLAMME}</span></span><span class="nv-recap-t"><b>${h >= 20 ? 'Ton récap du soir est prêt' : 'Ton récap du jour'}</b><small>Ta journée en quelques écrans</small></span><span class="chev">›</span></button>`;
+    return `<div class="nv-groupe"><div class="nv-duo">${c}${s}</div><button class="nv-recap ${h >= 20 ? 'chaud' : ''}" type="button" data-recap aria-label="Récap : ta journée en quelques écrans"><span class="nv-anneau"><span>${FLAMME}</span></span><span class="nv-recap-t"><b>${h >= 20 ? 'Ton récap du soir est prêt' : 'Ton récap du jour'}</b><small>en quelques écrans</small></span><span class="chev">›</span></button></div>`;
   }
 
   // ---------- RÉCAP DU SOIR (façon story) ----------
