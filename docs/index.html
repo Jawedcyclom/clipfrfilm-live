@@ -775,6 +775,8 @@ button,a.link,a.ext,.vc,.row,.in,.camp,.cd,.rc,.hb{transition:transform .15s var
   .tile b{font-size:19px}
   .big{font-size:50px}
 }
+.segw>button,.seg>button{transition:color .32s cubic-bezier(.32,.72,0,1) .06s}
+@media (prefers-reduced-motion:reduce){.segw>button,.seg>button{transition:none}}
 /* ===== MOUVEMENT (agent 24/11) : appui iOS, feuille du bas en ressort, repère d'onglet qui glisse, widgets FLIP.
    Uniquement transform / opacity. Le JS correspondant est dans le bloc « MOUVEMENT » du script. ===== */
 :root{--mv-ios:cubic-bezier(.32,.72,0,1)}
@@ -1907,13 +1909,23 @@ async function demander(q) {
 }
 
 // ---------- Rendu principal ----------
+const PAGES = { m: new Map(), src: [] };
 function render() {
   if (!RAW) return;
   renderHead();
   if (!RAW.comptes.length) { $('#main').innerHTML = bandeaux() + `<section class="card hero"><div class="lbl">Bienvenue</div><div style="font:700 20px var(--display)">On récupère tes vidéos…</div><p class="muted" style="margin:0">Le premier relevé prend moins d’une minute. Ensuite tes stats se mettent à jour toutes les 15 minutes, même quand l’appli est fermée.</p></section>`; return; }
-  const A = compteCourant(), C = calc(A);
-  const V = { direct: vDirect, videos: vVideos, campagnes: vCampagnes, historique: vHistorique, creneaux: vCreneaux };
-  $('#main').innerHTML = V[VIEW](A, C);
+  // Jawed 24/11 « que ce soit fluide » : une page déjà vue (mêmes données, mêmes réglages, < 30 s) n'est pas recalculée
+  const src = [RAW, COV, CLASSEMENT, CAMPINFO];
+  if (PAGES.src.some((x, i) => x !== src[i])) { PAGES.m.clear(); PAGES.src = src; }
+  const cle = VIEW + '|' + ACC + '|' + JSON.stringify(st), deja = PAGES.m.get(cle);
+  let html = deja && Date.now() - deja.t < 30000 ? deja.h : null;
+  if (html == null) {
+    const A = compteCourant(), C = calc(A);
+    const V = { direct: vDirect, videos: vVideos, campagnes: vCampagnes, historique: vHistorique, creneaux: vCreneaux };
+    html = V[VIEW](A, C); PAGES.m.delete(cle); PAGES.m.set(cle, { h: html, t: Date.now() });
+    if (PAGES.m.size > 12) PAGES.m.delete(PAGES.m.keys().next().value);
+  }
+  $('#main').innerHTML = html;
   replier();
   document.querySelectorAll('.tab').forEach(t => t.setAttribute('aria-selected', t.dataset.v === VIEW));
 }
@@ -1981,7 +1993,9 @@ function apercuWidget(s) {
   if (rec) return `<div class="w-tx"><b>${esc(rec.querySelector('b')?.textContent || '')}</b><br>${esc(rec.querySelector('small')?.textContent || '')} · ${esc(rec.querySelector('span')?.textContent || '')}</div>`;
   const cmp = s.querySelector('.cmpl');
   if (cmp) { const m = mots(cmp); return `<div class="w-tx">${esc(m[0])}<br><b>${esc(m[1] || '')}</b> toi · ${esc(m[3] || '')} top 10</div>`; }
-  const tx = s.querySelector('.in .tx, .say, .hb, p, .muted');
+  const hb = [...s.querySelectorAll('.hb')].find(x => x.classList.contains('best')) || s.querySelector('.hb'); // barres : la meilleure ligne
+  if (hb) { const m = mots(hb); return `<div class="w-tx">${esc(m[0] || '')}<br><b>${esc(m[1] || '')}</b> ${esc(m.slice(2).join(' '))}</div>`; }
+  const tx = [...s.querySelectorAll('.in .tx, .say, p, .muted')].find(x => x.textContent.trim());
   return tx ? `<div class="w-tx">${esc(mots(tx).join(' ') || tx.textContent.replace(/\s+/g, ' ').trim())}</div>` : '';
 }
 function basculerSection(h) {
@@ -2338,6 +2352,19 @@ const MV = (() => {
     if (!g || !$('#sheet').hidden || (g.k === 'maj' && document.activeElement?.id === 'q')) return;
     queueMicrotask(() => entree(g)); // après le scrollTo de go() : on anime ce qui est vraiment à l'écran
   };
+  // Changement d'onglet (Jawed 24/11 : « corrige le petit blanc ») : le repère et l'icône partent TOUT DE SUITE (animation sur le
+  // compositeur, elle continue pendant le calcul), la page se construit à l'image suivante : plus de gel visible au toucher.
+  const _go = go;
+  go = function (v, haut) {
+    if (reduit() || v === VIEW || !RAW?.comptes?.length) return _go(v, haut);
+    const tabs = $('#tabs'), anc = tabs?.querySelector('.tab[aria-selected="true"]'), n = tabs?.querySelector(`.tab[data-v="${v}"]`);
+    if (anc && n) {
+      const pos = relatif(tabs, anc);
+      tabs.querySelectorAll('.tab').forEach(t => t.setAttribute('aria-selected', String(t === n)));
+      glisser(tabs, pos, n); n.querySelector('svg')?.animate(kf(POP.P, p => ({ transform: `scale(${.78 + .22 * p})` })), { duration: POP.D, easing: 'linear' });
+    }
+    clearTimeout(go.t); requestAnimationFrame(() => { go.t = setTimeout(() => _go(v, haut), 16); });
+  };
   const _doux = rendreDoux;
   rendreDoux = function (avant) { MV.doux = true; try { _doux(avant); } finally { MV.doux = false; } };
 
@@ -2367,9 +2394,13 @@ const MV = (() => {
     const main = $('#main'), grille = s.parentElement.classList.contains('widgets') ? s.parentElement : null;
     const cands = new Set([...(grille ? grille.children : []), ...main.children, s]); cands.delete(grille);
     const A = new Map(); for (const el of cands) A.set(el, el.getBoundingClientRect());
+    const t2 = s.querySelector(':scope>.sec-h h2'), fa = t2 ? parseFloat(getComputedStyle(t2).fontSize) : 0;
     _bascule(h);
     const ouvre = s.classList.contains('ouvert'), vh = innerHeight, vu = r => r.bottom > -vh * .25 && r.top < vh * 1.25;
     for (const [el, a] of A) { const b = el.getBoundingClientRect(); if (el === s || vu(a) || vu(b)) boite(el, a, b, el === s, ouvre); }
+    // le titre change de taille (16 → 22 px) : il grossit / rapetisse avec le même ressort au lieu de sauter
+    const fb = t2 ? parseFloat(getComputedStyle(t2).fontSize) : 0, r = fa && fb ? fa / fb : 1;
+    if (Math.abs(r - 1) > .03) { t2.style.transformOrigin = '0 50%'; flips.push(t2.animate(kf(RS.P, p => ({ transform: `scale(${r + (1 - r) * p})` })), { duration: RS.D, easing: 'linear' })); }
   };
 
   // ---------- 3. Appui façon iOS (léger enfoncement, sans délai visible, sans surbrillance) ----------
