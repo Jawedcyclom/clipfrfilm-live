@@ -1115,11 +1115,12 @@ button,a,[role="button"],.sec.pliable{-webkit-touch-callout:none}
 /* ===== CAMPAGNES (Jawed 24/11 soir) : 1 chiffre + 1 liste façon Réglages iOS ===== */
 .cp-hero{display:flex;flex-direction:column;gap:2px;padding:6px 2px 18px}
 .cp-hero small{color:var(--muted);font:600 13px var(--body);letter-spacing:.04em;text-transform:uppercase}
-.cp-hero b{font:800 clamp(44px,13vw,60px)/1 var(--display);color:var(--gold);letter-spacing:-.02em;margin:4px 0}
+.cp-hero b{font:800 clamp(44px,13vw,60px)/1 var(--display);color:var(--fg);letter-spacing:-.02em;margin:4px 0}
+.cp-argent{margin-top:8px;color:var(--muted);font:500 13px var(--body)}
 .cp-hero span{color:var(--muted);font:500 13px var(--body)}
 .cp-t{font:700 20px var(--display);margin:18px 2px 10px}
 .cp-reste{font-style:normal;color:var(--fg)}
-.cp-fiche{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:0 2px 14px}.cp-fiche b{font:800 34px var(--display);color:var(--gold)}.cp-fiche span{color:var(--muted);font:500 13px var(--body)}
+.cp-fiche{margin:0 2px 12px;color:var(--muted);font:500 13px var(--body)}
 .cp-vide{color:var(--muted);font:500 14px/1.4 var(--body);margin:0 0 6px;padding:14px 16px;border-radius:16px;background:var(--s2,rgba(255,255,255,.05))}
 .cp-liste{border-radius:18px;overflow:hidden;background:var(--s2,rgba(255,255,255,.05))}
 .cp-row{all:unset;box-sizing:border-box;cursor:pointer;width:100%;display:grid;grid-template-columns:44px minmax(0,1fr) auto 14px;align-items:center;gap:12px;padding:13px 14px;-webkit-tap-highlight-color:transparent}
@@ -1130,7 +1131,7 @@ button,a,[role="button"],.sec.pliable{-webkit-touch-callout:none}
 .cp-n{display:flex;flex-direction:column;gap:2px;min-width:0}
 .cp-n b{font:600 15px var(--body);color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cp-n small{color:var(--muted);font:500 12.5px var(--body);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cp-g{font:700 15px var(--display);color:var(--gold)}
+.cp-g{font:700 15px var(--display);color:var(--fg);white-space:nowrap}.cp-g small{font:500 12px var(--body);color:var(--muted)}
 .cp-chev{color:var(--muted);font-size:20px}
 /* le coup d'œil montre déjà le chiffre du jour et l'écart avec hier : la carte du dessous ne les répète pas (téléphone) */
 @media (max-width:959px){.oeil-suite>.lbl,.oeil-suite>.big,.oeil-suite>.say,.oeil-est>.est-fin,.oeil-suite>.est-hier{display:none}
@@ -1189,9 +1190,9 @@ button,a,[role="button"],.sec.pliable{-webkit-touch-callout:none}
   <div class="tabs-in" role="tablist" id="tabs">
     <button class="tab" role="tab" data-v="direct" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ico-in" d="M13 2L4 14h7l-1 8 9-12h-7z" fill="currentColor" fill-opacity=".25" stroke="none"/><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg>Direct</button>
     <button class="tab" role="tab" data-v="videos" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ico-in" d="M7 3h10a4 4 0 014 4v10a4 4 0 01-4 4H7a4 4 0 01-4-4V7a4 4 0 014-4z" fill="currentColor" fill-opacity=".25" stroke="none"/><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M10 8.5v7l6-3.5z" fill="currentColor"/></svg>Vidéos</button>
-    <button class="tab" role="tab" data-v="campagnes" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ico-in" d="M7 4h10v5a5 5 0 01-10 0z" fill="currentColor" fill-opacity=".25" stroke="none"/><path d="M7 4h10v5a5 5 0 01-10 0z"/><path d="M7 6H4.5a2.5 2.5 0 003 3.5M17 6h2.5a2.5 2.5 0 01-3 3.5M12 14v4M8.5 21h7M9.5 18h5"/></svg>Campagnes</button>
     <button class="tab" role="tab" data-v="historique" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ico-in" d="M3 10h18v9a2 2 0 01-2 2H5a2 2 0 01-2-2z" fill="currentColor" fill-opacity=".25" stroke="none"/><rect x="3" y="4" width="18" height="17" rx="2.5"/><path d="M3 10h18M8 2.5v3M16 2.5v3M8 14.5v3M12 13v4.5M16 15.5v2"/></svg>Historique</button>
     <button class="tab" role="tab" data-v="creneaux" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ico-in" d="M12 3a9 9 0 110 18 9 9 0 010-18z" fill="currentColor" fill-opacity=".25" stroke="none"/><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>Analyse</button>
+    <button class="tab" role="tab" data-v="campagnes" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ico-in" d="M7 4h10v5a5 5 0 01-10 0z" fill="currentColor" fill-opacity=".25" stroke="none"/><path d="M7 4h10v5a5 5 0 01-10 0z"/><path d="M7 6H4.5a2.5 2.5 0 003 3.5M17 6h2.5a2.5 2.5 0 01-3 3.5M12 14v4M8.5 21h7M9.5 18h5"/></svg>Campagnes</button>
   </div>
 </nav>
 
@@ -1882,16 +1883,18 @@ function vCampagnes(A, C) {
   const autres = Object.entries(by).map(([t, vs]) => ({ t, nom: known[t]?.nom || t.replace(/^cyclomx/, ''), n: vs.length, vues: vs.reduce((s, v) => s + v.v, 0), last: Math.max(...vs.map(v => v.t)) })).sort((a, b) => b.last - a.last);
   const tot = off.reduce((s, o) => s + o.gain, 0);
   let h = '';
-  // Jawed 24/11 : seulement des chiffres SÛRS → ceux de l'admin cyclom.fr (gagné / versé). Sans eux : aucun montant.
+  // Jawed 24/11 : « un studio TikTok, pas un espace Cyclom » → en grand : tes VUES TikTok sur les campagnes (chiffres cyclom.fr) ;
+  // l'argent = une petite ligne (montant officiel de l'admin cyclom.fr, jamais de « à venir »)
   const SO = monSolde(A), jjmm = t => new Date(t).toLocaleDateString('fr-FR', { timeZone: TZ, day: '2-digit', month: '2-digit' });
-  if (SO && SO.gagne > 0) h += `<section class="cp-hero"><small>Gagné avec Cyclom</small><b class="num">${eur2(SO.gagne)}</b><span>${SO.reste >= 1 ? `${eur2(SO.verse)} versés · <em class="cp-reste">${eur2(SO.reste)} à venir</em>` : `Tout est versé${SO.paye_le ? ' · dernier paiement le ' + jjmm(SO.paye_le) : ''}`}</span></section>`;
+  const vTot = off.reduce((s, o) => s + ((o.vues || o.clips).moi.vues || 0), 0), cTot = off.reduce((s, o) => s + ((o.vues || o.clips).moi.clips || 0), 0);
+  if (off.length) h += `<section class="cp-hero"><small>Tes vues en campagne</small><b class="num">${k(vTot)}</b><span>${fmt(cTot)} clips · ${off.length} campagne${off.length > 1 ? 's' : ''}</span>${SO && SO.gagne > 0 ? `<span class="cp-argent">${eur2(SO.gagne)} gagnés${SO.reste < 1 ? ' · tout versé' : ''}${SO.paye_le ? ' · dernier paiement le ' + jjmm(SO.paye_le) : ''}</span>` : ''}</section>`;
   if (actives.length) {
     h += `<h2 class="cp-t">En cours</h2>` + course(A, C, 'encours');
     for (const c of infosCampagnes()) if (enCours(c.tag) && A.videos.some(v => tags(v.d).includes(c.tag))) h += blocCartons(c, A) + blocMeilleurs(A, c);
-  } else h += `<p class="cp-vide">Aucune campagne en cours. Elle s’affichera ici dès qu’elle démarre sur cyclom.fr.</p>`;
+  }
   const jj = d => d ? d.slice(8, 10) + '/' + d.slice(5, 7) : '';
   const rows = finies.map(o => { const pv = o.vues ? rang(o.vues, o.vues.moi) : 0, pc = o.clips ? rang(o.clips, o.clips.moi) : 0, mv = (o.vues || o.clips).moi.vues || 0;
-    return `<button class="cp-row" type="button" data-camp="${esc(o.id)}"><span class="cp-pl ${pv === 1 ? 'or' : ''}">${pv ? ordP(pv) : '—'}</span><span class="cp-n"><b>${esc(o.nom)}</b><small>fini le ${jj(o.finJ)} · ${k(mv)} vues${pc ? ' · ' + ordP(pc) + ' en clips' : ''}</small></span><b class="cp-g num">${SO?.camp[o.id]?.gain ? eur2(SO.camp[o.id].gain) : ''}</b><span class="cp-chev" aria-hidden="true">›</span></button>`; })
+    return `<button class="cp-row" type="button" data-camp="${esc(o.id)}"><span class="cp-pl ${pv === 1 ? 'or' : ''}">${pv ? ordP(pv) : '—'}</span><span class="cp-n"><b>${esc(o.nom)}</b><small>fini le ${jj(o.finJ)}${pc ? ' · ' + ordP(pc) + ' en clips' : ''}${SO?.camp[o.id]?.gain ? ' · ' + eur2(SO.camp[o.id].gain) : ''}</small></span><b class="cp-g num">${k(mv)}<small> vues</small></b><span class="cp-chev" aria-hidden="true">›</span></button>`; })
     .concat([].map(c => `<button class="cp-row" type="button" data-q="#${esc(c.t)}"><span class="cp-pl off">#</span><span class="cp-n"><b>${esc(c.nom)}</b><small>${c.n} vidéo${c.n > 1 ? 's' : ''} · ${k(c.vues)} vues · sans classement</small></span><b class="cp-g"></b><span class="cp-chev" aria-hidden="true">›</span></button>`));
   if (rows.length) h += `<h2 class="cp-t">${actives.length ? 'Terminées' : 'Tes campagnes'}</h2><div class="cp-liste">${rows.join('')}</div>`;
   if (!h) h = `<div class="card muted">Aucune campagne Cyclom pour l’instant : ta place et tes gains s’afficheront ici.</div>`;
@@ -1902,7 +1905,7 @@ function ficheCampagne(id) {
   const info = infosCampagnes().find(c => c.id === id);
   const so = monSolde(A)?.camp[id];
   ouvrir(`<div class="grab"></div><div class="sheet-h"><h2>${esc(o.nom)}</h2><button class="x" type="button" data-close aria-label="Fermer">×</button></div>
-    ${so?.gain ? `<div class="cp-fiche"><b class="num">${eur2(so.gain)}</b><span>${so.verse >= so.gain - .01 ? 'versés' : so.verse ? eur2(so.verse) + ' versés · ' + eur2(so.gain - so.verse) + ' à venir' : 'à venir'} · chiffres cyclom.fr</span></div>` : ''}
+    ${so?.gain ? `<p class="cp-fiche">${eur2(so.gain)} gagnés · chiffres cyclom.fr</p>` : ''}
     ${course(A, C, 'une:' + id)}${info && A.videos.some(v => tags(v.d).includes(info.tag)) ? blocMeilleurs(A, info) + blocCartons(info, A) : ''}`);
 }
 
