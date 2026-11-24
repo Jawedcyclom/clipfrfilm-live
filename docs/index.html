@@ -517,26 +517,66 @@ button,a.link,a.ext,.vc,.row,.in,.camp,.cd,.rc,.hb{transition:transform .15s var
   .sheet .kv{grid-template-columns:repeat(3,minmax(0,1fr))}
   .sheet .vd{grid-template-columns:150px minmax(0,1fr)}.sheet .vd img,.sheet .vd .ph{width:150px}
 }
-/* ===== TÉLÉPHONE ÉPURÉ (Jawed 24/11) : façon Apple / TikTok, une ligne par section, on touche pour ouvrir ===== */
-.podium-tout{display:none}
+/* ===== TÉLÉPHONE (Jawed 24/11) : façon Apple. Toute la LARGEUR sert : widgets sur 2 colonnes (écran Résumé de l'iPhone),
+   rangées qui défilent sur le côté (App Store), on touche un widget pour l'ouvrir en grand. PC inchangé. ===== */
+.podium-tout,.w-apercu{display:none}
 @media (max-width:959px){
-  .sec.pliable>.sec-h{cursor:pointer;align-items:center;flex-wrap:nowrap;min-height:44px;padding-right:26px;position:relative;-webkit-tap-highlight-color:transparent}
-  .sec.pliable>.sec-h::after{content:'';position:absolute;right:6px;top:50%;width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:translateY(-70%) rotate(45deg);transition:transform .2s}
-  .sec.pliable.ouvert>.sec-h::after{transform:translateY(-30%) rotate(-135deg)}
-  .sec.pliable>.sec-h small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;text-align:right}
-  .sec.pliable:not(.ouvert)>:not(.sec-h){display:none!important}
-  .sec.pliable:not(.ouvert){gap:0}
-  .sec.pliable:not(.ouvert):not(.card){padding:4px 14px;border:1px solid var(--edge);border-radius:16px;background:var(--panel)}
-  .sec.pliable:not(.ouvert).card{padding-top:8px;padding-bottom:8px}
-  /* chiffres du jour : une seule rangée qu'on fait glisser au lieu de 2 lignes de cases */
-  .tiles{display:flex;overflow-x:auto;scrollbar-width:none;scroll-snap-type:x mandatory;margin:0 -16px;padding:0 16px}
-  .tiles::-webkit-scrollbar{display:none}
-  .tiles>.tile{flex:0 0 31%;scroll-snap-align:start}
+  .sec.pliable>.sec-h{cursor:pointer;-webkit-tap-highlight-color:transparent;position:relative;padding-right:22px}
+  .sec.pliable>.sec-h::after{content:'';position:absolute;right:4px;top:9px;width:7px;height:7px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(-45deg);transition:transform .2s}
+  .sec.pliable.ouvert>.sec-h::after{transform:rotate(-135deg);top:12px}
+  .sec.pliable:not(.ouvert)>:not(.sec-h):not(.w-apercu){display:none!important}
+  .sec.pliable:not(.ouvert){gap:8px;padding:12px;border:1px solid var(--edge);border-radius:18px;background:var(--panel);justify-content:space-between}
+  .sec.pliable:not(.ouvert)>.sec-h{flex-direction:column;align-items:flex-start;gap:2px;flex-wrap:nowrap}
+  .sec.pliable:not(.ouvert)>.sec-h h2{font-size:15px}
+  .sec.pliable:not(.ouvert)>.sec-h small{font-size:11.5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .sec.pliable:not(.ouvert)>.sec-h .chip{display:none}
+  .sec.pliable:not(.ouvert)>.w-apercu{display:block}
+  .w-imgs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+  .w-imgs img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:8px;background:var(--panel2)}
+  .w-svg svg{width:100%!important;height:56px!important;display:block}
+  .w-svg text{display:none}
+  .w-tx{font-size:12.5px;line-height:1.3;color:var(--fg2);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  .w-tx b{color:var(--cyclom);font:800 15px var(--display)}
+  /* grille de widgets : 2 colonnes ; ouvert = toute la largeur */
+  .widgets{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;grid-auto-flow:row dense}
+  .widgets>.ouvert,.widgets>:last-child:nth-child(odd){grid-column:1/-1}
+  .widgets>.sec.pliable:not(.ouvert){min-height:150px}
+  /* chiffres du jour : 3 colonnes serrées */
+  .tiles{gap:6px}
+  .tile{padding:8px 9px}
+  /* haut de page : estimation et hier côte à côte (2 colonnes) puis l'objectif */
+  .hero{display:grid;grid-template-columns:1fr 1fr;column-gap:10px}
+  .hero>*{grid-column:1/-1}
+  .hero>.est{grid-column:auto;order:1;display:flex;flex-direction:column;align-items:flex-start;gap:0;padding:10px 12px!important;margin:0!important;border:1px solid var(--edge)!important;border-radius:14px;background:var(--panel)}
+  .hero>.est .muted{font-size:12px}
+  .hero>.est b,.hero>.est .num{font:800 20px var(--display)}
+  .hero>.obj{order:2;margin-top:4px}
+  /* rangées qui défilent sur le côté (App Store) : 3 lignes par colonne, la suivante dépasse pour inviter à glisser */
+  .sec:has(>.segw)>.rows,.sec .rows:has(>a.row){display:grid;grid-auto-flow:column;grid-template-rows:repeat(3,auto);grid-auto-columns:86%;gap:6px 10px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;margin:0 -14px;padding:0 14px;scroll-padding:0 14px}
+  .sec:has(>.segw)>.rows::-webkit-scrollbar,.sec .rows:has(>a.row)::-webkit-scrollbar{display:none}
+  .sec:has(>.segw)>.rows>.row,.sec .rows:has(>a.row)>.row{scroll-snap-align:start;min-width:0}
+  .sec:has(>.segw)>.rows{margin:0 -16px;padding:0 16px;scroll-padding:0 16px}
   /* classement : le haut + toi, le reste sur demande */
   .podium-tout{display:block;margin-top:8px}
   .course:not(.tout) .pl:nth-child(n+4):not(.moi){display:none}
-  /* campagnes : la carte = nom + 3 chiffres, les miniatures sont dans la liste des vidéos */
+  /* historique : les jours en grille de 2 (date + vues + évolution), deux fois moins long */
+  .jours{display:grid;grid-template-columns:1fr 1fr;gap:8px;border:0;background:none;border-radius:0;overflow:visible}
+  .jr{display:grid;grid-template-columns:1fr auto;grid-template-areas:"d v" "s s";gap:2px 6px;padding:10px 12px;min-height:0;border:1px solid var(--edge)!important;border-radius:14px;background:var(--panel)}
+  .jr .jd{display:contents}
+  .jr .jd b{grid-area:d;font-size:14px;white-space:nowrap}
+  .jr .jd small{grid-area:s;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .jr .jv{grid-area:v}
+  .jr .jv b{font-size:15px}
+  .jr .chev{display:none}
+  .widgets>:last-child:nth-child(odd){min-height:0!important}
+  /* campagnes : widgets 2 colonnes (nom, vues, aujourd'hui) */
   .camp .strip,.camp .sumbar{display:none}
+  .camps .camp{padding:12px;gap:8px;justify-content:space-between}
+  .camps .camp-h{flex-direction:column;align-items:flex-start;gap:4px}
+  .camps .camp-h b{font-size:15px}
+  .camps .camp-n{grid-template-columns:1fr 1fr;gap:4px}
+  .camps .camp-n>div:first-child{display:none}
+  .camps .camp-n b{font-size:16px}
 }
 </style>
 
@@ -1643,15 +1683,42 @@ function render() {
 const OUVERTS = new Set((() => { try { return JSON.parse(localStorage.getItem('cs_ouverts') || '[]'); } catch (e) { return []; } })());
 function replier() {
   if (!matchMedia('(max-width:959px)').matches) return;
+  const main = $('#main');
   let premier = VIEW === 'creneaux'; // Analyse : la 1re section du sous-onglet reste ouverte (sinon la page paraît vide)
-  for (const s of $('#main').querySelectorAll('section.sec')) {
+  for (const s of main.querySelectorAll('section.sec')) {
     const h = s.querySelector(':scope > .sec-h'), t = h?.querySelector('h2')?.textContent.trim();
     if (!t || s.classList.contains('login')) continue;
     if (premier) { premier = false; continue; }
     const cle = VIEW + ':' + t, o = OUVERTS.has(cle);
     s.classList.add('pliable'); s.classList.toggle('ouvert', o);
     h.dataset.plier = cle; h.setAttribute('role', 'button'); h.tabIndex = 0; h.setAttribute('aria-expanded', String(o));
+    const ap = apercuWidget(s); if (ap) h.insertAdjacentHTML('afterend', `<div class="w-apercu" aria-hidden="true">${ap}</div>`);
   }
+  // Apple (écran Résumé) : les sections repliées qui se suivent et les cartes de campagne = widgets sur 2 colonnes
+  const groupe = el => el && el.parentElement === main && (el.classList.contains('pliable') || el.classList.contains('camp'));
+  for (const el of [...main.children]) {
+    if (!groupe(el) || el.parentElement !== main) continue;
+    const g = [el]; let n = el.nextElementSibling; while (groupe(n) && n.classList.contains('camp') === el.classList.contains('camp')) { g.push(n); n = n.nextElementSibling; }
+    if (g.length < 2) continue;
+    const w = document.createElement('div'); w.className = 'widgets' + (el.classList.contains('camp') ? ' camps' : '');
+    el.before(w); w.append(...g);
+  }
+}
+// petit aperçu d'un widget replié : des miniatures, une mini-courbe ou la 1re info utile (mots séparés, chiffre en gras)
+const mots = el => [...el.querySelectorAll('*')].filter(x => !x.children.length && x.textContent.trim()).map(x => x.textContent.trim());
+function apercuWidget(s) {
+  const imgs = [...s.querySelectorAll('img')].slice(0, 3);
+  if (imgs.length >= 2) return `<div class="w-imgs">${imgs.map(i => `<img src="${esc(i.getAttribute('src'))}" alt="" loading="lazy" referrerpolicy="no-referrer">`).join('')}</div>`;
+  const svg = s.querySelector('svg');
+  if (svg && s.classList.contains('chart')) return `<div class="w-svg">${svg.outerHTML.replace(/\sid="[^"]*"/g, '').replace('<svg', '<svg preserveAspectRatio="none"')}</div>`;
+  const now = s.querySelector('.slot.now, .slot:not(.ok)');
+  if (now) return `<div class="w-tx"><b>${esc(now.querySelector('.st b')?.textContent || '')}</b> ${esc(now.querySelector('.sd')?.textContent || '')}</div>`;
+  const rec = s.querySelector('.rec');
+  if (rec) return `<div class="w-tx"><b>${esc(rec.querySelector('b')?.textContent || '')}</b><br>${esc(rec.querySelector('small')?.textContent || '')} · ${esc(rec.querySelector('span')?.textContent || '')}</div>`;
+  const cmp = s.querySelector('.cmpl');
+  if (cmp) { const m = mots(cmp); return `<div class="w-tx">${esc(m[0])}<br><b>${esc(m[1] || '')}</b> toi · ${esc(m[3] || '')} top 10</div>`; }
+  const tx = s.querySelector('.in .tx, .say, .hb, p, .muted');
+  return tx ? `<div class="w-tx">${esc(mots(tx).join(' ') || tx.textContent.replace(/\s+/g, ' ').trim())}</div>` : '';
 }
 function basculerSection(h) {
   const s = h.parentElement, o = s.classList.toggle('ouvert'), cle = h.dataset.plier;
