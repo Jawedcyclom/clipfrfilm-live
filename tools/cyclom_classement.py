@@ -41,7 +41,7 @@ def nettoyer_brut():
             if time.time() - fin > 7 * 86400: continue
         a = lire('/api/central/activite/' + urllib.parse.quote(c['id']))
         cl = c.get('classement') or {}
-        out['campagnes'].append({'id': c['id'], 'nom': c.get('nom'), 'tag': c.get('hashtagCyclom'), 'fin': c.get('fin'),
+        out['campagnes'].append({'id': c['id'], 'nom': c.get('nom'), 'tag': c.get('hashtagCyclom'), 'fin': c.get('fin'), 'terminee': bool(c.get('terminee')),
             'prix': {'vues': cl.get('vues') or [], 'posts': cl.get('posts') or [], 'bonus': cl.get('bonus') or 0},
             'inscrits': [[i.get('pseudo'), i.get('rangVues') or 0, i.get('rangPosts') or 0, i.get('vues') or 0, i.get('clips') or 0,
                           i.get('meilleur') or 0, i.get('gain') or 0, '|'.join(comptes.get(i.get('pseudo')) or [i.get('pseudo')])]
@@ -87,7 +87,7 @@ def mettre_en_forme(brut):
             ligne = {'pseudo': pseudo, 'comptes': list(cle), 'rv': rv or None, 'rp': rp or None, 'vues': vues, 'clips': clips, 'meilleur': meilleur, 'gain': gain}
             if cle not in par_personne or vues > par_personne[cle]['vues']: par_personne[cle] = ligne
         lignes = sorted(par_personne.values(), key=lambda x: (-x['vues'], -x['clips']))
-        camps.append({k: c[k] for k in ('id', 'nom', 'tag', 'fin', 'prix')} | {'lignes': lignes})
+        camps.append({k: c[k] for k in ('id', 'nom', 'tag', 'fin', 'terminee', 'prix')} | {'lignes': lignes})
     return {'maj': brut['maj'], 'source': 'cyclom.fr', 'campagnes': camps}
 
 
