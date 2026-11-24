@@ -824,6 +824,89 @@ button,a,[role="button"],.sec.pliable{-webkit-touch-callout:none}
   .sec.pliable>.sec-h::after{transition:none}
   .chips,.accts,.rows,.insp{scroll-behavior:auto}
 }
+/* ===== NOUVEAUTÉS (Jawed 24/11) : série, prochain créneau, récap du soir, alerte, tirer pour actualiser ===== */
+.nv-duo{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.nv-duo>:only-child{grid-column:1/-1}
+.nv-w{display:flex;flex-direction:column;align-items:flex-start;gap:5px;text-align:left;padding:14px;border-radius:22px;background:var(--panel);border:1px solid var(--edge);color:var(--fg);min-width:0;position:relative;overflow:hidden;font:inherit}
+.nv-lbl{font:600 12.5px var(--body);color:var(--muted)}
+.nv-big{display:flex;align-items:center;gap:6px;line-height:1}
+.nv-big b{font:800 34px var(--display);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.nv-big small{font:600 13px var(--body);color:var(--fg2);align-self:flex-end;margin-bottom:4px}
+.nv-sub{font-size:12.5px;color:var(--fg2);line-height:1.3}
+.nv-cd.live{border-color:rgba(71,204,192,.55);background:linear-gradient(160deg,rgba(71,204,192,.16),rgba(71,204,192,.03))}
+.nv-cd.live .nv-lbl{color:var(--cyclom)}
+.nv-pouls{width:10px;height:10px;border-radius:50%;background:var(--cyclom);box-shadow:0 0 0 0 rgba(71,204,192,.6);animation:nv-pouls 1.6s infinite}
+@keyframes nv-pouls{70%{box-shadow:0 0 0 10px rgba(71,204,192,0)}100%{box-shadow:0 0 0 0 rgba(71,204,192,0)}}
+.flamme{width:30px;height:30px;color:#5b6577;flex:none}
+.nv-serie.ok .flamme,.nv-fs.ok .flamme,.nv-chip.ok .flamme{color:#ff8a3d;filter:drop-shadow(0 2px 10px rgba(255,120,40,.45))}
+.nv-serie.danger .flamme,.nv-fs.danger .flamme,.nv-chip.danger .flamme{color:#ffb547;animation:nv-flamme 1.4s ease-in-out infinite}
+@keyframes nv-flamme{50%{transform:scale(1.08) rotate(-3deg);opacity:.75}}
+.nv-serie.danger{border-color:rgba(255,181,71,.45)}
+.nv-serie.danger .nv-sub{color:#ffb547;font-weight:600}
+.nv-sem{display:flex;gap:4px;margin:2px 0;flex-wrap:nowrap}
+.nv-sem i{width:18px;height:18px;border-radius:6px;display:grid;place-items:center;font:700 9.5px var(--body);font-style:normal;color:var(--muted);background:var(--panel2);border:1px solid var(--edge)}
+.nv-sem i.on{background:#ff8a3d;border-color:#ff8a3d;color:#1b0b00}
+.nv-sem i.auj:not(.on){border-color:#ffb547;color:#ffb547}
+.nv-sem i.fut{opacity:.35}
+@media (max-width:380px){.nv-sem i{width:15px;height:15px;font-size:8.5px;border-radius:5px}.nv-big b{font-size:30px}}
+.acct.nv-chip{display:inline-flex;align-items:center;gap:4px;font:800 14px var(--display);font-variant-numeric:tabular-nums;padding-left:10px;padding-right:12px}
+.acct.nv-chip .flamme{width:18px;height:18px}
+.nv-recap{display:flex;align-items:center;gap:12px;width:100%;padding:10px 14px 10px 10px;border-radius:22px;background:var(--panel);border:1px solid var(--edge);text-align:left;color:var(--fg);font:inherit}
+.nv-anneau{width:46px;height:46px;border-radius:50%;padding:2.5px;background:conic-gradient(#47CCC0,#6FE3D6,#ff8a3d,#fe2c55,#47CCC0);flex:none}
+.nv-recap:not(.chaud) .nv-anneau{background:rgba(255,255,255,.16)}
+.nv-anneau>span{display:grid;place-items:center;width:100%;height:100%;border-radius:50%;background:#0b1626}
+.nv-anneau .flamme{width:22px;height:22px;color:#ff8a3d}
+.nv-recap-t{display:flex;flex-direction:column;flex:1;min-width:0}.nv-recap-t b{font:700 15px var(--display)}.nv-recap-t small{color:var(--muted);font-size:12.5px}
+.nv-recap .chev{color:var(--muted);font-size:20px}
+/* fiche série */
+.nv-fs{display:flex;align-items:center;gap:10px;justify-content:center;margin:6px 0}
+.nv-fs .flamme{width:56px;height:56px}.nv-fs b{font:800 56px var(--display);letter-spacing:-.03em}.nv-fs span{font:600 15px var(--body);color:var(--fg2)}
+.nv-obj{display:flex;flex-direction:column;gap:6px;padding:14px;border-radius:16px;background:var(--panel2);border:1px solid var(--edge)}
+.nv-obj-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:14px}
+.nv-obj .tr{height:8px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden}.nv-obj .tr i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#ff8a3d,#ffb547)}
+.nv-cal-h{display:flex;justify-content:space-between;font-size:13px;margin-top:6px}
+.nv-cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.nv-cal i{aspect-ratio:1;border-radius:8px;background:var(--panel2);border:1px solid var(--edge)}
+.nv-cal i.on{background:#ff8a3d;border-color:#ff8a3d}.nv-cal i.auj{outline:2px solid var(--cyclom);outline-offset:1px}.nv-cal i.fut{opacity:.3}
+/* récap façon story */
+.nv-story{position:fixed;inset:0;z-index:200;background:#050B18;color:#fff;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none;opacity:0;transform:scale(.96);transition:opacity .3s cubic-bezier(.32,.72,0,1),transform .38s cubic-bezier(.32,.72,0,1)}
+.nv-story.in{opacity:1;transform:none}.nv-story.out{opacity:0;transform:translateY(40px) scale(.97)}
+.nv-barres{position:absolute;top:calc(10px + env(safe-area-inset-top,0px));left:12px;right:12px;display:flex;gap:4px;z-index:3;max-width:560px;margin:0 auto}
+.nv-barres i{flex:1;height:3px;border-radius:3px;background:rgba(255,255,255,.28);overflow:hidden}.nv-barres b{display:block;height:100%;background:#fff;transform-origin:left;transform:scaleX(0)}
+.nv-x{position:absolute;top:calc(22px + env(safe-area-inset-top,0px));right:10px;z-index:4;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.12);color:#fff;font-size:26px;line-height:1;border:0;cursor:pointer}
+.nv-ecran{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:10px;padding:80px max(28px,calc(50% - 260px)) 60px;opacity:0;pointer-events:none}
+.nv-ecran.on{opacity:1}
+.nv-ecran>*{opacity:0;transform:translateY(18px)}
+.nv-ecran.on>*{animation:nv-monte .55s cubic-bezier(.32,.72,0,1) forwards}
+.nv-ecran.on>*:nth-child(2){animation-delay:.07s}.nv-ecran.on>*:nth-child(3){animation-delay:.14s}.nv-ecran.on>*:nth-child(4){animation-delay:.21s}.nv-ecran.on>*:nth-child(5){animation-delay:.28s}
+@keyframes nv-monte{to{opacity:1;transform:none}}
+.nv-ecran small{font:700 14px var(--body);color:rgba(255,255,255,.7)}
+.nv-ecran .nv-n{font:800 clamp(56px,19vw,110px)/1 var(--display);letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+.nv-ecran>span{font:600 18px var(--body);color:rgba(255,255,255,.85)}
+.nv-ecran p{font-size:17px;line-height:1.45;color:rgba(255,255,255,.8);margin:8px 0 0;max-width:30ch}
+.nv-ecran em{font-style:normal;color:#6FE3D6;font-weight:700}
+.nv-a{background:radial-gradient(120% 70% at 20% 10%,rgba(71,204,192,.45),transparent 60%),#050B18}
+.nv-b{background:radial-gradient(120% 70% at 80% 0%,rgba(254,44,85,.35),transparent 60%),#050B18}
+.nv-c{background:radial-gradient(120% 70% at 10% 90%,rgba(111,227,214,.35),transparent 60%),#050B18}
+.nv-d{background:radial-gradient(120% 80% at 50% 30%,rgba(255,138,61,.4),transparent 62%),#050B18}
+.nv-e{background:radial-gradient(120% 70% at 90% 20%,rgba(255,200,70,.35),transparent 60%),#050B18}
+.nv-f{background:radial-gradient(120% 70% at 30% 20%,rgba(71,204,192,.35),transparent 60%),radial-gradient(90% 60% at 90% 100%,rgba(254,44,85,.25),transparent 60%),#050B18}
+.nv-cov{width:min(40vw,170px);aspect-ratio:9/16;border-radius:18px;overflow:hidden;position:relative;background:#111a2c;box-shadow:0 20px 50px rgba(0,0,0,.5)}
+.nv-cov img,.nv-cov .ph{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.nv-trio{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;width:100%}.nv-trio div{display:flex;flex-direction:column;min-width:0}.nv-trio b{font:800 clamp(26px,8.5vw,44px) var(--display);letter-spacing:-.02em}.nv-trio span{color:rgba(255,255,255,.7);font-size:14px}
+.nv-ecran .nv-fs{justify-content:flex-start}.nv-ecran .nv-fs .flamme{width:90px;height:90px}.nv-ecran .nv-fs b{font-size:clamp(64px,22vw,120px)}
+/* alerte */
+.nv-alerte{position:fixed;left:12px;right:12px;top:calc(10px + env(safe-area-inset-top,0px));z-index:150;display:flex;gap:12px;align-items:center;padding:10px 14px 10px 10px;border-radius:20px;text-align:left;color:#fff;border:1px solid rgba(71,204,192,.5);background:rgba(10,22,38,.88);backdrop-filter:blur(18px) saturate(160%);-webkit-backdrop-filter:blur(18px) saturate(160%);box-shadow:0 16px 40px rgba(0,0,0,.5);transform:translateY(-160%);transition:transform .5s cubic-bezier(.32,.72,0,1);max-width:520px;margin:0 auto;font:inherit}
+.nv-alerte.in{transform:none}
+.nv-alerte img,.nv-alerte .ph{width:44px;height:58px;border-radius:10px;object-fit:cover;flex:none;font-size:0;overflow:hidden}
+.nv-alerte span{display:flex;flex-direction:column;gap:2px}.nv-alerte b{font:800 15px var(--display);color:#6FE3D6}.nv-alerte small{font-size:13px;line-height:1.3;color:rgba(255,255,255,.85)}
+/* tirer pour actualiser */
+.nv-ptr{position:fixed;left:50%;top:calc(var(--toph,105px) - 30px);z-index:40;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:var(--panel);border:1px solid var(--edge);color:var(--muted);opacity:0;transform:translate(-50%,0);pointer-events:none;transition:opacity .2s}
+.nv-ptr svg{width:20px;height:20px}.nv-ptr.pret{color:var(--cyclom)}
+.nv-ptr.tourne{opacity:1!important;transition:transform .3s cubic-bezier(.32,.72,0,1)}.nv-ptr.tourne svg{animation:nv-rot .8s linear infinite;color:var(--cyclom)}
+@keyframes nv-rot{to{transform:rotate(360deg)}}
+@media (min-width:960px){.nv-ptr{display:none}}
+@media (prefers-reduced-motion:reduce){.nv-pouls,.flamme{animation:none!important}.nv-ecran.on>*{animation:none;opacity:1;transform:none}.nv-story,.nv-alerte{transition:none}}
 </style>
 
 <header class="top">
@@ -1107,9 +1190,10 @@ function renderHead() {
   fraicheur();
   const sl = $('.side-logo'); if (sl && !sl.innerHTML) sl.innerHTML = $('.logo').outerHTML;
   const L = RAW.comptes;
-  let h = '';
+  let h = ''; const A0 = (() => { try { return compteCourant(); } catch (e) { return null; } })();
   if (L.length > 1) h += `<button class="acct" type="button" data-acc="tous" aria-pressed="${ACC === 'tous'}"><span class="av all">∑</span>Vue générale · ${L.length} comptes</button>`;
   for (const a of L) h += `<button class="acct" type="button" data-acc="${esc(a.id)}" aria-pressed="${ACC === a.id || L.length === 1}"><span class="av">${esc((a.user || '?')[0].toUpperCase())}</span>@${esc(a.user)}</button>`;
+  if (A0?.videos?.length) { const S = NV.infosSerie(A0, calc(A0)); if (S.n) h += `<button class="acct nv-chip ${S.auj ? 'ok' : S.n ? 'danger' : ''}" type="button" data-serie aria-label="Ta série : ${S.n} jours">${NV.FLAMME}${S.n}</button>`; }
   if (WEB) h += `<a class="acct" href="https://jawedcyclom.github.io/cyclom-studio/apercu/" style="text-decoration:none">Aperçu multi-comptes ↗</a>`;
   if (!DRIVE && !WEB) h += `<button class="acct add" type="button" id="addAcc">+ Ajouter un compte</button>`;
   $('#accts').innerHTML = h;
@@ -1137,6 +1221,7 @@ function vDirect(A, C) {
         ${g ? `<span class="say" style="font-size:14px;max-width:none">Il manquera ≈ <b>${k(manque)}</b> vues → ${guideTxt(g)}</span>` : ''}</button>`; })()}
     ${C.yTot ? `<div class="est" style="border:0;padding:0;margin:0"><span class="muted">Hier au total</span><span class="num">${k(C.yTot)}</span></div>` : ''}
   </section>`;
+  h += NV.duo(A, C); // série + prochain créneau + récap du soir (24/11)
   h += analyseDirect(A, C);
   h += posteMaintenant(A, C);
   h += course(A, C, 'court');
@@ -2474,6 +2559,190 @@ const MV = (() => {
 
   return { reduit };
 })();
+
+// ===== NOUVEAUTÉS (Jawed 24/11) : série, prochain créneau, récap du soir, alerte « ta vidéo décolle », tirer pour actualiser =====
+const NV = (() => {
+  const reduit = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const FLAMME = '<svg class="flamme" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5c.6 3.2-1.2 5-2.7 6.6C7.7 10.8 6.5 12.4 6.5 15a5.5 5.5 0 0 0 11 0c0-2.3-1-4-2-5.3-.3 1.4-1 2.4-2 2.9.4-3.6-.2-7.2-1.5-10.1z" fill="currentColor"/><path d="M12 21a3 3 0 0 1-3-3c0-1.7 1.3-2.6 2.2-3.8.2 1 .8 1.6 1.6 1.9.1-.9.6-1.7 1.2-2.3.6.9 1 1.9 1 3A3 3 0 0 1 12 21z" fill="#fff" opacity=".55"/></svg>';
+
+  // ---------- SÉRIE ----------
+  function infosSerie(A, C) {
+    const jours = new Set(A.videos.map(v => pz(v.t * 1000).day)), n = serie(A, C), auj = jours.has(C.P.day);
+    let rec = 0, cur = 0; for (const d of [...jours].sort()) { cur = jours.has(addJour(d, -1)) ? cur + 1 : 1; if (cur > rec) rec = cur; }
+    const wd = pz(C.now).wd, lundi = addJour(C.P.day, -wd);
+    const sem = Array.from({ length: 7 }, (_, i) => { const d = addJour(lundi, i); return { d, l: 'LMMJVSD'[i], ok: jours.has(d), auj: d === C.P.day, futur: d > C.P.day }; });
+    const nbSem = d0 => A.videos.filter(v => { const d = pz(v.t * 1000).day; return d >= d0 && d <= addJour(d0, 6); }).length;
+    const passees = [1, 2, 3].map(w => nbSem(addJour(lundi, -7 * w))).filter(x => x > 0);
+    const obj = passees.length ? Math.max(7, Math.ceil(median(passees) * 1.05)) : 14, fait = nbSem(lundi);
+    return { n, auj, rec, sem, obj, fait };
+  }
+  function widgetSerie(A, C) {
+    const S = infosSerie(A, C);
+    return `<button class="nv-w nv-serie ${S.auj ? 'ok' : S.n ? 'danger' : ''}" type="button" data-serie>
+      <span class="nv-lbl">Ta série</span>
+      <span class="nv-big">${FLAMME}<b class="num">${S.n}</b><small>${S.n > 1 ? 'jours' : 'jour'}</small></span>
+      <span class="nv-sem">${S.sem.map(x => `<i class="${x.ok ? 'on' : ''} ${x.auj ? 'auj' : ''} ${x.futur ? 'fut' : ''}">${x.l}</i>`).join('')}</span>
+      <span class="nv-sub">${S.auj ? 'Gardée aujourd’hui' : S.n ? 'Poste aujourd’hui pour la garder' : 'Poste une vidéo pour la lancer'}</span></button>`;
+  }
+  function ficheSerie() {
+    const A = compteCourant(), C = calc(A), S = infosSerie(A, C), p = Math.min(100, S.fait / S.obj * 100);
+    const jours = new Set(A.videos.map(v => pz(v.t * 1000).day)), wd = pz(C.now).wd, debut = addJour(C.P.day, -wd - 21);
+    const cal = Array.from({ length: 28 }, (_, i) => { const d = addJour(debut, i); return `<i class="${jours.has(d) ? 'on' : ''} ${d === C.P.day ? 'auj' : ''} ${d > C.P.day ? 'fut' : ''}" title="${dayLabel(d)}"></i>`; }).join('');
+    ouvrir(`<div class="grab"></div><div class="sheet-h"><h2>Ta série</h2><button class="x" type="button" data-close aria-label="Fermer">×</button></div>
+      <div class="nv-fs ${S.auj ? 'ok' : S.n ? 'danger' : ''}">${FLAMME}<b class="num">${S.n}</b><span>${S.n > 1 ? 'jours d’affilée' : S.n ? 'jour' : 'pas de série en cours'}</span></div>
+      <p class="say" style="max-width:none">${S.auj ? 'Tu as posté aujourd’hui : ta série continue demain.' : S.n ? `<b>Poste avant minuit</b> pour passer à ${S.n + 1} jours. Sinon la série repart de zéro.` : 'Poste aujourd’hui pour démarrer une série.'} Ton record : <b>${S.rec} jour${S.rec > 1 ? 's' : ''}</b>.</p>
+      <div class="nv-obj"><div class="nv-obj-h"><span>Objectif de la semaine</span><b class="num">${S.fait} / ${S.obj} vidéos</b></div><span class="tr"><i style="width:${p.toFixed(1)}%"></i></span>
+        <small class="muted">${S.fait >= S.obj ? 'Objectif atteint, bien joué.' : `Encore ${S.obj - S.fait} cette semaine (ton rythme habituel + 5 %).`}</small></div>
+      <div class="nv-cal-h"><span>4 dernières semaines</span><span class="muted">L M M J V S D</span></div><div class="nv-cal">${cal}</div>`);
+  }
+
+  // ---------- PROCHAIN CRÉNEAU (compte à rebours) ----------
+  function prochain(A, C) {
+    const F = heuresFortes(A, C); if (!F) return null;
+    const H = [...F].filter(h => h >= 8).sort((a, b) => a - b); if (!H.length) return null;
+    const maint = new Date(), h0 = pz(Date.now()).hour, mn = maint.getMinutes();
+    const dern = A.videos[0], depuis = dern ? (Date.now() / 1000 - dern.t) / 3600 : 99;
+    if (F.has(h0) && h0 >= 8 && depuis >= 1.5) return { h: h0, maintenant: true };
+    const hs = H.find(h => h > h0), dem = hs == null;
+    const cible = Date.now() + (((dem ? H[0] + 24 : hs) - h0) * 60 - mn) * 60000 - maint.getSeconds() * 1000;
+    return { h: dem ? H[0] : hs, at: cible, demain: dem };
+  }
+  const reste = ms => { const m = Math.max(0, Math.round((ms - Date.now()) / 60000)); return m < 60 ? `dans ${m} min` : `dans ${Math.floor(m / 60)} h ${String(m % 60).padStart(2, '0')}`; };
+  function widgetCreneau(A, C) {
+    const P = prochain(A, C); if (!P) return '';
+    return `<div class="nv-w nv-cd ${P.maintenant ? 'live' : ''}">
+      <span class="nv-lbl">${P.maintenant ? 'C’est le moment' : 'Prochain créneau'}</span>
+      <span class="nv-big"><b class="num">${P.h}h</b>${P.maintenant ? '<i class="nv-pouls"></i>' : ''}</span>
+      <span class="nv-sub" ${P.at ? `data-cd="${P.at}" data-dem="${P.demain ? 1 : 0}"` : ''}>${P.maintenant ? 'Ton public est là : poste maintenant' : (P.demain ? 'demain, ' : '') + reste(P.at)}</span></div>`;
+  }
+  setInterval(() => document.querySelectorAll('[data-cd]').forEach(e => { const t = +e.dataset.cd; if (t - Date.now() <= 0) { if ($('#sheet').hidden) render(); return; } e.textContent = (e.dataset.dem === '1' ? 'demain, ' : '') + reste(t); }), 20000);
+  function duo(A, C) {
+    if (A.id === 'tous' && !A.videos.length) return '';
+    const s = widgetSerie(A, C), c = widgetCreneau(A, C), h = pz(Date.now()).hour;
+    return `<div class="nv-duo">${c}${s}</div><button class="nv-recap ${h >= 20 ? 'chaud' : ''}" type="button" data-recap><span class="nv-anneau"><span>${FLAMME}</span></span><span class="nv-recap-t"><b>${h >= 20 ? 'Ton récap du soir est prêt' : 'Ton récap du jour'}</b><small>Ta journée en quelques écrans</small></span><span class="chev">›</span></button>`;
+  }
+
+  // ---------- RÉCAP DU SOIR (façon story) ----------
+  let R = null;
+  function ecrans(A, C) {
+    const L = [], hier = C.yTot, p = hier ? pct(C.today, hier) : null;
+    L.push({ c: 'a', h: `<small>Ta journée</small><b class="nv-n num" data-to="${C.today}">${fmt(C.today)}</b><span>vues aujourd’hui</span>${hier ? `<p>${p >= 0 ? 'Déjà <em>plus qu’hier</em>' : `Hier : ${k(hier)} au total`}${p != null ? ` (${pctTxt(p)})` : ''}</p>` : ''}` });
+    const best = A.videos.filter(v => v.gj > 0).sort((a, b) => b.gj - a.gj)[0];
+    if (best) L.push({ c: 'b', h: `<small>Ta vidéo du jour</small><div class="nv-cov">${cover(best)}</div><b class="nv-n num">+${k(best.gj)}</b><span>vues aujourd’hui, ${k(best.v)} au total</span><p>${esc(titreVid(best))}</p>` });
+    const Q = C.Q || {};
+    L.push({ c: 'c', h: `<small>Ton public</small><div class="nv-trio"><div><b class="num">${A.abonnes_jour != null ? (A.abonnes_jour >= 0 ? '+' : '') + fmt(A.abonnes_jour) : '—'}</b><span>abonnés</span></div><div><b class="num">${Q.l != null ? '+' + k(Q.l) : '—'}</b><span>likes</span></div><div><b class="num">${Q.s != null ? '+' + k(Q.s) : '—'}</b><span>partages</span></div></div><p>${C.duJour.length} vidéo${C.duJour.length > 1 ? 's' : ''} postée${C.duJour.length > 1 ? 's' : ''} aujourd’hui</p>` });
+    const S = infosSerie(A, C);
+    L.push({ c: 'd', h: `<small>Ta série</small><div class="nv-fs ${S.auj ? 'ok' : 'danger'}">${FLAMME}<b class="num">${S.n}</b></div><span>${S.n > 1 ? 'jours d’affilée' : 'jour'}</span><p>${S.auj ? 'Gardée aujourd’hui.' : '<em>Poste avant minuit</em> pour la garder.'} Semaine : ${S.fait} / ${S.obj} vidéos.</p>` });
+    const X = courses(A)[0];
+    if (X) { const pl = X.tri.indexOf(X.moi) + 1, pr = X.prixL[pl - 1], dev = X.tri[pl - 2];
+      L.push({ c: 'e', h: `<small>${esc(X.nom)}</small><b class="nv-n num">${pl === 1 ? '1er' : pl + 'e'}</b><span>au classement${pr ? ', ' + eur(pr) : ''}</span><p>${pl > 1 && dev ? `Il te manque ${k((dev.vues || 0) - (X.moi.vues || 0))} vues pour passer ${pl - 1 === 1 ? '1er' : (pl - 1) + 'e'}.` : 'Garde ta place : continue à poster.'}</p>` }); }
+    const F = heuresFortes(A, C), H = F ? [...F].filter(h => h >= 8).sort((a, b) => a - b).slice(0, 3) : [];
+    L.push({ c: 'f', h: `<small>Demain</small><b class="nv-n">${H.length ? H.map(h => h + 'h').join(' ') : 'Poste tôt'}</b><span>${H.length ? 'les heures où ton public est là' : ''}</span>${best ? `<p>Décline ta vidéo du jour : même moment, autre accroche, ou la partie 2.</p>` : ''}` });
+    return L;
+  }
+  function recap() {
+    if (!RAW?.comptes?.length || R) return;
+    const A = compteCourant(), C = calc(A), L = ecrans(A, C);
+    const el = document.createElement('div'); el.className = 'nv-story'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'Récap du jour');
+    el.innerHTML = `<div class="nv-barres">${L.map(() => '<i><b></b></i>').join('')}</div><button class="nv-x" type="button" aria-label="Fermer">×</button>${L.map((x, i) => `<section class="nv-ecran nv-${x.c}" data-i="${i}">${x.h}</section>`).join('')}`;
+    document.body.appendChild(el); document.body.style.overflow = 'hidden';
+    R = { el, i: -1, n: L.length, t0: 0, ecoule: 0, pause: false, raf: 0, D: 5600 };
+    requestAnimationFrame(() => el.classList.add('in')); aller(0); R.raf = requestAnimationFrame(boucle);
+    try { navigator.vibrate?.(10); } catch (e) {}
+  }
+  function aller(i) {
+    if (!R) return; if (i < 0) i = 0; if (i >= R.n) return fermerRecap();
+    R.i = i; R.t0 = performance.now(); R.ecoule = 0;
+    R.el.querySelectorAll('.nv-ecran').forEach((s, j) => s.classList.toggle('on', j === i));
+    R.el.querySelectorAll('.nv-barres b').forEach((b, j) => { b.style.transform = `scaleX(${j < i ? 1 : 0})`; });
+    const n = R.el.querySelector(`.nv-ecran[data-i="${i}"] [data-to]`);
+    if (n && !reduit()) { const to = +n.dataset.to, t0 = performance.now(); const pas = t => { const p = Math.min(1, (t - t0) / 900), e = 1 - Math.pow(1 - p, 3); n.textContent = fmt(Math.round(to * e)); if (p < 1 && R) requestAnimationFrame(pas); }; requestAnimationFrame(pas); }
+  }
+  function boucle() {
+    if (!R) return;
+    const t = performance.now(); if (R.pause) R.t0 = t - R.ecoule; else R.ecoule = t - R.t0;
+    const p = Math.min(1, R.ecoule / R.D), b = R.el.querySelectorAll('.nv-barres b')[R.i]; if (b) b.style.transform = `scaleX(${p})`;
+    if (p >= 1) aller(R.i + 1);
+    if (R) R.raf = requestAnimationFrame(boucle);
+  }
+  function fermerRecap() {
+    if (!R) return; const el = R.el; cancelAnimationFrame(R.raf); R = null;
+    el.classList.remove('in'); el.classList.add('out'); document.body.style.overflow = '';
+    setTimeout(() => el.remove(), reduit() ? 0 : 320);
+  }
+  // toucher : à gauche = précédent, à droite = suivant, appui long = pause, glisser vers le bas = fermer
+  let T = null;
+  document.addEventListener('pointerdown', e => { if (!R || !e.target.closest('.nv-story')) return; T = { x: e.clientX, y: e.clientY, t: performance.now() }; R.pause = true; }, true);
+  document.addEventListener('pointerup', e => {
+    if (!R || !T) return; const dx = e.clientX - T.x, dy = e.clientY - T.y, long = performance.now() - T.t > 350; R.pause = false;
+    const t = T; T = null;
+    if (e.target.closest('.nv-x')) return fermerRecap();
+    if (dy > 90 && Math.abs(dx) < 80) return fermerRecap();
+    if (!long && Math.abs(dx) < 30 && Math.abs(dy) < 30) aller(R.i + (t.x < innerWidth * .33 ? -1 : 1));
+    else if (Math.abs(dx) > 60) aller(R.i + (dx < 0 ? 1 : -1));
+  }, true);
+  document.addEventListener('keydown', e => { if (!R) return; if (e.key === 'Escape') { e.stopPropagation(); fermerRecap(); } if (e.key === 'ArrowRight') aller(R.i + 1); if (e.key === 'ArrowLeft') aller(R.i - 1); }, true);
+  document.addEventListener('click', e => {
+    if (e.target.closest('.nv-story')) { e.stopPropagation(); return; }
+    if (e.target.closest('[data-serie]')) { e.stopPropagation(); return ficheSerie(); }
+    if (e.target.closest('[data-recap]')) { e.stopPropagation(); return recap(); }
+    const a = e.target.closest('.nv-alerte'); if (a) { e.stopPropagation(); a.remove(); if (a.dataset.vid) ficheVideo(a.dataset.vid); }
+  }, true);
+
+  // ---------- ALERTE « TA VIDÉO DÉCOLLE » (dans la page ; téléphone fermé = appli ntfy via le relevé cloud) ----------
+  const DEJA = new Set((() => { try { return JSON.parse(localStorage.getItem('cs_alertes') || '[]'); } catch (e) { return []; } })());
+  function decolle(A) {
+    const now = Date.now() / 1000, J = ['1', '3', '6'];
+    for (const v of A.videos.slice(0, 40)) {
+      const age = (now - v.t) / 3600; if (age < 1 || age > 6 || v.r || DEJA.has(String(v.id))) continue;
+      const m = J.filter(x => +x <= age && v.ms?.[x] != null).pop(); if (!m) continue;
+      const val = v.ms[m], autres = A.videos.filter(x => x !== v && x.ms?.[m]).map(x => x.ms[m]); if (autres.length < 15 || val < 1000) continue;
+      const top = Math.max(1, Math.round(100 * autres.filter(a => a > val).length / autres.length)); if (top > 10) continue;
+      return { v, m, val, top };
+    }
+    return null;
+  }
+  function alerte(D) {
+    const el = document.createElement('button'); el.type = 'button'; el.className = 'nv-alerte'; el.dataset.vid = D.v.id;
+    el.innerHTML = `${cover(D.v)}<span><b>Ta vidéo décolle</b><small>Top ${D.top} % de tes vidéos à ${D.m} h (${k(D.val)} vues). Décline ce moment maintenant.</small></span>`;
+    document.body.appendChild(el); requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('in')));
+    try { navigator.vibrate?.([12, 60, 12]); } catch (e) {}
+    try { if (window.Notification?.permission === 'granted' && document.visibilityState !== 'visible') new Notification('Ta vidéo décolle', { body: `Top ${D.top} % à ${D.m} h. Décline-la maintenant.` }); } catch (e) {}
+    setTimeout(() => { el.classList.remove('in'); setTimeout(() => el.remove(), 500); }, 9000);
+  }
+  function verifier() {
+    if (!RAW?.comptes?.length || R || document.querySelector('.nv-alerte')) return;
+    const D = decolle(compteCourant()); if (!D) return;
+    DEJA.add(String(D.v.id)); try { localStorage.setItem('cs_alertes', JSON.stringify([...DEJA].slice(-200))); } catch (e) {}
+    alerte(D);
+  }
+
+  // ---------- TIRER POUR ACTUALISER ----------
+  const ind = document.createElement('div'); ind.className = 'nv-ptr'; ind.setAttribute('aria-hidden', 'true');
+  ind.innerHTML = '<svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.34-5.66" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M20 4v5h-5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  document.body.appendChild(ind);
+  let P = null, occupe = false;
+  const actualiser = async () => { try { if (WEB) await chargerWeb(); else if (DRIVE) render(); else await charger(); } catch (e) {} };
+  document.addEventListener('touchstart', e => { if (occupe || scrollY > 2 || R || !$('#sheet').hidden || e.touches.length > 1 || e.target.closest('.nv-story,input,textarea,.rows,.chips,.segw,.nv-sem')) return; P = { y: e.touches[0].clientY, x: e.touches[0].clientX, d: 0 }; }, { passive: true });
+  document.addEventListener('touchmove', e => {
+    if (!P) return; const dy = e.touches[0].clientY - P.y, dx = e.touches[0].clientX - P.x;
+    if (dy < 0 || Math.abs(dx) > dy || scrollY > 2) { ind.style.transform = ''; ind.style.opacity = 0; P = null; return; }
+    P.d = Math.min(110, dy * .5); ind.style.opacity = Math.min(1, P.d / 60); ind.style.transform = `translate(-50%, ${P.d}px) rotate(${P.d * 4}deg)`; ind.classList.toggle('pret', P.d >= 70);
+  }, { passive: true });
+  document.addEventListener('touchend', async () => {
+    if (!P) return; const pret = P.d >= 70; P = null; ind.classList.remove('pret');
+    if (!pret) { ind.style.transform = ''; ind.style.opacity = 0; return; }
+    occupe = true; ind.classList.add('tourne'); ind.style.transform = 'translate(-50%, 70px)'; try { navigator.vibrate?.(8); } catch (e) {}
+    const t0 = Date.now(); await actualiser(); await new Promise(r => setTimeout(r, Math.max(0, 700 - (Date.now() - t0))));
+    ind.classList.remove('tourne'); ind.style.transform = ''; ind.style.opacity = 0; occupe = false;
+  });
+
+  // ---------- crochets ----------
+  const _r = render; render = function () { _r(); setTimeout(verifier, 900); };
+  if (/[?&]recap=1/.test(location.search)) { const essai = () => RAW?.comptes?.length ? recap() : setTimeout(essai, 500); setTimeout(essai, 800); }
+  return { duo, infosSerie, FLAMME, recap, alerte };
+})();
+if (location.hostname === '127.0.0.1') window.__nv = { NV, compteCourant }; // tests locaux seulement
 
 if (WEB) chargerWeb(); else if (DRIVE) chargerDrive(); else charger();
 setInterval(() => { if (!DRIVE && document.visibilityState === 'visible' && $('#sheet').hidden) charger(); }, SITE ? 120000 : 600000);

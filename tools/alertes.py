@@ -13,7 +13,7 @@ import json, os, statistics as S, subprocess, sys, time, urllib.parse, urllib.re
 from pathlib import Path
 
 TOPIC = os.environ.get('NTFY_TOPIC', '').strip()
-LIEN = os.environ.get('DASHBOARD_URL', 'https://claude.ai/artifact/AsJqn1GqFWdKQqqz4X3vY6')
+LIEN = os.environ.get('DASHBOARD_URL') or 'https://jawedcyclom.github.io/cyclom-studio/'
 ST = Path('state')
 MEM_DRIVE = 'gdrive:CLIP tiktok/dashboard/state/alertes.json'
 JAL = ['1', '3', '6', '12', '24']
@@ -78,12 +78,23 @@ def calculer(live, cl, mem, now):
     dern = max((it.get('t', 0) for it in items.values()), default=0)
     if h_now in fortes and now - dern > 3 * 3600:
         out.append((f"poste:{now // (4 * 3600)}", '⏰ C’est le moment de poster', f"Ton public est le plus actif en ce moment. Dernière vidéo il y a {int((now - dern) / 3600)} h.", 'alarm_clock'))
+    # série (24/11) : une série d'au moins 2 jours en cours et rien posté aujourd'hui → rappel entre 20 h et 23 h, une fois par jour
+    jour = lambda t: time.strftime('%Y%m%d', time.localtime(t))
+    veille = lambda d: jour(time.mktime(time.strptime(d, '%Y%m%d')) - 43200)
+    jours, auj = {jour(it['t']) for it in items.values() if it.get('t')}, jour(now)
+    n, d = 0, veille(auj)
+    while d in jours and n < 999: n, d = n + 1, veille(d)
+    if auj not in jours and n >= 2 and 20 <= h_now < 23:
+        out.append((f"serie:{auj}", '🔥 Ta série est en danger', f"{n} jours d’affilée : poste une vidéo avant minuit pour la garder.", 'fire'))
+    # récap du soir (24/11) : à 22 h, ouvre directement le récap façon story
+    if h_now == 22:
+        out.append((f"recap:{auj}", '🌙 Ton récap du soir est prêt', "Ta journée en quelques écrans : vues, vidéo du jour, série, classement et tes heures pour demain.", 'crescent_moon'))
     return out
 
 
 def envoyer(titre, texte, tag):
     # titre et options dans l'adresse (encodées) : les en-têtes HTTP n'acceptent pas les emojis
-    q = urllib.parse.urlencode({'title': titre, 'tags': tag, 'click': LIEN, 'priority': '4' if tag in ('rocket', 'checkered_flag') else '3'})
+    q = urllib.parse.urlencode({'title': titre, 'tags': tag, 'click': LIEN + ('?recap=1' if tag == 'crescent_moon' else ''), 'priority': '4' if tag in ('rocket', 'checkered_flag') else '3'})
     urllib.request.urlopen(urllib.request.Request(f'https://ntfy.sh/{TOPIC}?{q}', data=texte.encode('utf-8'), method='POST'), timeout=20).read()
 
 

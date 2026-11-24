@@ -53,6 +53,7 @@ jobs:
         env:
           TZ: Europe/Paris
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+          DASHBOARD_URL: https://jawedcyclom.github.io/cyclom-studio/
       - name: Publier les statistiques chiffrées
         continue-on-error: true
         run: python tools/publier_chiffre.py
