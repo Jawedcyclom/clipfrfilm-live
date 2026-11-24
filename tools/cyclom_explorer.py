@@ -42,7 +42,8 @@ def schema(o, chemin, S):
 
 def est_moi(x):
     if not isinstance(x, dict): return False
-    noms = [x.get('pseudo'), *(x.get('pseudosComptes') or []), *(x.get('comptes') or [])]
+    L = lambda v: v if isinstance(v, list) else []
+    noms = [x.get('pseudo'), *L(x.get('pseudosComptes')), *L(x.get('comptes'))]
     return any(isinstance(n, str) and n.lower() in MOI for n in noms)
 
 
