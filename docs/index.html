@@ -1112,6 +1112,28 @@ button,a,[role="button"],.sec.pliable{-webkit-touch-callout:none}
   .w-tx.w-in{-webkit-line-clamp:4;color:var(--fg2)}
   .w-tx.w-in b{display:inline;font:600 13px var(--body);color:var(--fg);margin:0}
 }
+/* ===== CAMPAGNES (Jawed 24/11 soir) : 1 chiffre + 1 liste façon Réglages iOS ===== */
+.cp-hero{display:flex;flex-direction:column;gap:2px;padding:6px 2px 18px}
+.cp-hero small{color:var(--muted);font:600 13px var(--body);letter-spacing:.04em;text-transform:uppercase}
+.cp-hero b{font:800 clamp(44px,13vw,60px)/1 var(--display);color:var(--gold);letter-spacing:-.02em;margin:4px 0}
+.cp-hero span{color:var(--muted);font:500 13px var(--body)}
+.cp-t{font:700 20px var(--display);margin:18px 2px 10px}
+.cp-vide{color:var(--muted);font:500 14px/1.4 var(--body);margin:0 0 6px;padding:14px 16px;border-radius:16px;background:var(--s2,rgba(255,255,255,.05))}
+.cp-liste{border-radius:18px;overflow:hidden;background:var(--s2,rgba(255,255,255,.05))}
+.cp-row{all:unset;box-sizing:border-box;cursor:pointer;width:100%;display:grid;grid-template-columns:44px minmax(0,1fr) auto 14px;align-items:center;gap:12px;padding:13px 14px;-webkit-tap-highlight-color:transparent}
+.cp-row+.cp-row{box-shadow:inset 0 1px 0 rgba(255,255,255,.07)}
+.cp-row:active{background:rgba(255,255,255,.05)}
+.cp-pl{display:grid;place-items:center;width:44px;height:44px;border-radius:13px;background:rgba(255,255,255,.07);font:800 16px var(--display);color:var(--fg)}
+.cp-pl.or{background:var(--cyclom-soft);color:var(--cyclom)}.cp-pl.off{color:var(--muted)}
+.cp-n{display:flex;flex-direction:column;gap:2px;min-width:0}
+.cp-n b{font:600 15px var(--body);color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cp-n small{color:var(--muted);font:500 12.5px var(--body);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cp-g{font:700 15px var(--display);color:var(--gold)}
+.cp-chev{color:var(--muted);font-size:20px}
+/* le coup d'œil montre déjà le chiffre du jour et l'écart avec hier : la carte du dessous ne les répète pas (téléphone) */
+@media (max-width:959px){.oeil-suite>.lbl,.oeil-suite>.big,.oeil-suite>.say,.oeil-est>.est-fin,.oeil-suite>.est-hier{display:none}
+  /* la série est dans le coup d'œil (un toucher ouvre sa fiche) : le créneau prend toute la largeur */
+  .nv-duo>.nv-serie{display:none}.nv-duo{grid-template-columns:1fr!important}}
 /* ===== COUP D'ŒIL (Jawed 24/11) : à l'ouverture du Direct, 3 chiffres plein écran (vues du jour, place, série), on glisse vers le haut pour le détail. Téléphone seulement. ===== */
 .oeil{display:none}
 @media (max-width:959px){
@@ -1121,6 +1143,7 @@ button,a,[role="button"],.sec.pliable{-webkit-touch-callout:none}
   .oeil-big b{font:800 clamp(56px,19vw,84px)/.95 var(--display);letter-spacing:-.03em;color:var(--fg)}
   .oeil-big span{color:var(--muted);font:600 18px var(--body)}
   .oeil-d{margin:-10px 0 0;font:600 15px var(--body);color:var(--muted)}
+  .oeil-d .oeil-h{color:var(--muted)}
   .oeil-d.up{color:var(--cyclom)}.oeil-d.down{color:var(--accent)}
   .oeil-duo{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   .oeil-t{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;gap:2px;padding:16px;border-radius:22px;background:var(--s2,rgba(255,255,255,.05));min-height:128px;-webkit-tap-highlight-color:transparent}
@@ -1236,7 +1259,14 @@ const savePref = () => { try { localStorage.setItem('cs_pref', JSON.stringify(PR
 const eur = n => n == null || isNaN(n) ? '—' : nb_(n.toLocaleString('fr-FR', { maximumFractionDigits: n < 100 ? 2 : 0, minimumFractionDigits: n < 100 ? 2 : 0 })) + '\u00a0€';
 const estCamp = t => t.startsWith('cyclomx') || (RAW.campagnes || []).some(c => c.tag === t);
 // tarif d'une campagne en € pour 1000 vues : celui réglé par le clippeur, sinon celui donné par l'agence
-const tarif = t => (RAW.campagnes || []).find(c => c.tag === t && c.en_cours)?.cpm ?? null;
+const tarif = t => enCours(t) ? (RAW.campagnes || []).find(c => c.tag === t)?.cpm ?? null : null;
+// ---------- Campagne EN COURS (Jawed 24/11 : « Djadel Show c'est fini, t'es pas à jour ») : seul cyclom.fr décide (classement + infos
+// campagnes : terminee / date de fin), plus JAMAIS une liste écrite en dur. Sur le serveur Cyclom, son statut officiel compte aussi.
+const finCamp = c => c.terminee ? 0 : c.fin ? new Date(c.fin + 'T23:59:00').getTime() : 0;
+const campOfficielles = () => [...((RAW.classement || CLASSEMENT)?.campagnes || []), ...infosCampagnes()];
+function campActive() { const now = Date.now(); return campOfficielles().find(c => finCamp(c) > now) || (SITE ? (RAW.campagnes || []).find(c => c.en_cours) : null) || null; }
+function enCours(tag) { const now = Date.now(); return campOfficielles().some(c => c.tag === tag && finCamp(c) > now) || (SITE && (RAW.campagnes || []).some(c => c.tag === tag && c.en_cours)); }
+const ordP = n => n === 1 ? '1er' : n + 'e';
 function gains(A) {
   let auj = 0, tot = 0, ok = false;
   for (const v of A.videos) { const t = tags(v.d).find(x => tarif(x) != null); if (!t) continue; ok = true; const r = tarif(t) / 1000; auj += (v.gj || 0) * r; tot += v.v * r; }
@@ -1280,13 +1310,14 @@ function courses(A) {
   for (const c of src.campagnes) {
     const L = c.lignes || [], m = L.find(l => (l.comptes || [l.pseudo]).some(x => moi.has(String(x).toLowerCase())));
     if (!m) continue;
-    const fin = c.fin ? new Date(c.fin + 'T23:59:00').getTime() : null;
+    // terminée chez cyclom.fr = terminée ici, même si la date de fin n'est pas encore passée
+    const fin = c.terminee ? Math.min(Date.now() - 1, c.fin ? new Date(c.fin + 'T23:59:00').getTime() : Infinity) : c.fin ? new Date(c.fin + 'T23:59:00').getTime() : null;
     // ordre OFFICIEL de cyclom.fr (rangVues / rangPosts), rien n'est recalculé ici ; sans place = en fin de liste
     // place = ordre des vues validées par cyclom.fr (l'ordre « rang » de cyclom.fr n'est pas toujours trié : 9e < 10e)
     const officiel = cle => [...L].filter(l => (cle === 'rv' ? l.vues : l.clips) > 0 || l === m)
       .sort((a, b) => cle === 'rv' ? b.vues - a.vues || b.clips - a.clips : b.clips - a.clips || b.vues - a.vues);
-    out.push({ ...c, type: 'vues', cle: 'rv', prixL: c.prix?.vues || [], moi: m, fin, tri: officiel('rv') });
-    if ((c.prix?.posts || []).length) out.push({ ...c, type: 'clips', cle: 'rp', prixL: c.prix.posts, moi: m, fin, tri: officiel('rp') });
+    out.push({ ...c, finJ: c.fin, type: 'vues', cle: 'rv', prixL: c.prix?.vues || [], moi: m, fin, tri: officiel('rv') });
+    if ((c.prix?.posts || []).length) out.push({ ...c, finJ: c.fin, type: 'clips', cle: 'rp', prixL: c.prix.posts, moi: m, fin, tri: officiel('rp') });
   }
   return out;
 }
@@ -1295,8 +1326,9 @@ setInterval(() => document.querySelectorAll('[data-fin]').forEach(e => { e.textC
 function course(A, C, mode) {
   let L = courses(A); if (!L.length) return '';
   // Direct (Jawed 24/11) : seulement les campagnes EN COURS ; s'il n'y en a aucune, la dernière terminée (classement des vues). Tout le reste = onglet Campagnes.
-  if (mode === 'court') { const now = Date.now(), enCours = L.filter(x => !x.fin || x.fin > now);
-    L = enCours.length ? enCours : [L.filter(x => x.type === 'vues').sort((a, b) => (b.fin || 0) - (a.fin || 0))[0]].filter(Boolean); }
+  // Jawed 24/11 soir : une campagne finie n'a plus rien à faire dans le Direct (elle est dans Campagnes)
+  if (mode === 'court' || mode === 'encours') { const now = Date.now(); L = L.filter(x => x.fin && x.fin > now); if (!L.length) return ''; }
+  else if (String(mode).startsWith('une:')) { L = L.filter(x => x.id === mode.slice(4)); if (!L.length) return ''; }
   else L = [...L].sort((a, b) => ((b.fin || 9e15) > Date.now()) - ((a.fin || 9e15) > Date.now()) || (b.fin || 9e15) - (a.fin || 9e15)); // Campagnes : en cours d'abord, puis les plus récentes
   return L.map(x => {
     const val = r => x.type === 'clips' ? r.clips : r.vues, unite = x.type === 'clips' ? 'clips' : 'vues';
@@ -1356,8 +1388,8 @@ function course(A, C, mode) {
           : `<span class="jg-l">${fini ? 'Il manquait (provisoire)' : 'Il te manque'} pour passer ${ord(placeCible)}</span><b class="num jg-big">${k(manqueC)} ${unite}</b>${gainC > 0 ? `<span class="jg-gain">+${eur(gainC)}</span>` : ''}`}</div>
       </div>${vit}
       <div class="jg-pied">${fin2 ? `<span>${fin2}</span>` : ''}<span class="${vieux ? 'down' : 'muted'}">${vieux ? 'Classement pas à jour depuis ' + ago(mj).replace('il y a ', '') : 'Relevé cyclom.fr · ' + ago(mj)}</span></div>`;
-    if (mode === 'complet' && g && !fini) h += `<p class="say jg-guide">Pour y arriver : ${guideTxt(g)}</p>`;
-    if (mode === 'complet') {
+    if (mode !== 'court' && g && !fini) h += `<p class="say jg-guide">Pour y arriver : ${guideTxt(g)}</p>`;
+    if (mode !== 'court') {
       const top = x.tri.slice(0, Math.max(10, x.prixL.length)), lignes = top.includes(x.moi) ? top : [...top, x.moi];
       h += `<div class="podium">${lignes.map(r => { const p = x.tri.indexOf(r) + 1; return `<div class="pl ${r === x.moi ? 'moi' : ''}"><span class="pr">${p}</span><span class="pp">${r === x.moi ? 'Toi' : 'Clippeur ' + p}</span><span class="pv num">${k(val(r))}</span><span class="pg num">${prix(p) ? eur(prix(p)) : ''}</span></div>`; }).join('')}</div>${lignes.length > 4 ? '<button class="more podium-tout" type="button" data-podium>Voir tout le classement</button>' : ''}`;
     }
@@ -1484,23 +1516,25 @@ function coupOeil(A, C) {
   const d = !C.partiel && C.ySame != null ? C.today - C.ySame : null, p = pct(C.today, C.ySame);
   const delta = d == null || p == null ? '' : Math.abs(p) < 3 ? '<p class="oeil-d">Même rythme qu’hier à cette heure</p>'
     : `<p class="oeil-d ${d > 0 ? 'up' : 'down'}">${d > 0 ? '▲ +' : '▼ −'}${k(Math.abs(d))} vs hier à cette heure</p>`;
+  const hier = C.yTot ? `<span class="oeil-h">hier ${k(C.yTot)}</span>` : '';
   // place : campagne en cours, sinon la dernière terminée (même choix que la jauge du Direct)
-  let X = null; try { const CS = courses(A).filter(x => x.type === 'vues'); X = CS.find(x => !x.fin || x.fin > Date.now()) || CS[0] || null; } catch (e) {}
+  let X = null; try { X = courses(A).filter(x => x.type === 'vues').find(x => x.fin && x.fin > Date.now()) || null; } catch (e) {} // jamais une campagne finie
   const TROPHEE = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v4a5 5 0 0 1-10 0V4z" fill="currentColor" opacity=".9"/><path d="M7 6H4.5a2.5 2.5 0 0 0 2.6 3.5M17 6h2.5a2.5 2.5 0 0 1-2.6 3.5M12 13v4M8.5 20h7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
   let tP;
   if (X) { const pl = X.tri.indexOf(X.moi) + 1, fini = X.fin && X.fin <= Date.now(), sp = !fini && X.fin && X.fin - Date.now() < 48 * 3600e3;
-    tP = `<button class="oeil-t place ${sp ? 'sprint' : ''}" type="button" data-go="campagnes" aria-label="Ta place provisoire sur ${esc(X.nom)} : ${pl}"><span class="oeil-ic">${TROPHEE}</span><b class="num">${pl > 0 ? (pl === 1 ? '1er' : pl + 'e') : '—'}</b><small>${fini ? 'Terminée' : sp ? 'Sprint final' : 'Provisoire'} · ${esc(X.nom)}</small></button>`; }
-  else tP = `<button class="oeil-t place" type="button" data-go="campagnes"><span class="oeil-ic">${TROPHEE}</span><b>—</b><small>Aucune campagne en cours</small></button>`;
+    tP = `<button class="oeil-t place ${sp ? 'sprint' : ''}" type="button" data-go="campagnes" aria-label="Ta place provisoire sur ${esc(X.nom)} : ${pl}"><span class="oeil-ic">${TROPHEE}</span><b class="num">${pl > 0 ? ordP(pl) : '—'}</b><small>${sp ? 'Sprint · ' : ''}${esc(X.nom)}</small></button>`; }
+  else tP = `<div class="oeil-t"><span class="oeil-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18l5-6 4 3 7-9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><b class="num">${C.est && !C.partiel ? '≈ ' + k(C.est) : '—'}</b><small>vues prévues ce soir</small></div>`;
   let tS = '';
   try { const S = NV.infosSerie(A, C);
-    tS = `<button class="oeil-t feu ${S.auj ? 'ok' : 'danger'}" type="button" data-serie aria-label="Ta série : ${S.n} jours"><span class="oeil-ic">${NV.FLAMME}</span><b class="num">${S.n} j</b><small>${S.auj ? 'Série gardée aujourd’hui' : S.n ? 'Poste avant minuit pour la garder' : 'Poste une vidéo pour la lancer'}</small></button>`; }
+    tS = `<button class="oeil-t feu ${S.auj ? 'ok' : 'danger'}" type="button" data-serie aria-label="Ta série : ${S.n} jours"><span class="oeil-ic">${NV.FLAMME}</span><b class="num">${S.n} j</b><small>${S.auj ? 'série gardée' : S.n ? 'poste avant minuit' : 'poste pour la lancer'}</small></button>`; }
   catch (e) { tS = `<button class="oeil-t feu" type="button" data-serie><b class="num">${serie(A, C)} j</b><small>Série</small></button>`; }
   return `<section class="oeil" aria-label="Coup d’œil"><p class="oeil-j">${jour}${C.partiel ? ' · relevé partiel' : ''}</p>
-    <div class="oeil-big"><b class="num">${fmt(C.today)}</b><span>vues</span></div>${delta}
+    <div class="oeil-big"><b class="num">${fmt(C.today)}</b><span>vues</span></div>${delta ? delta.replace('</p>', (hier ? ' · ' + hier : '') + '</p>') : hier ? `<p class="oeil-d">${hier}</p>` : ''}
     <div class="oeil-duo">${tP}${tS}</div>
     <button class="oeil-go" type="button" data-oeil-go aria-label="Voir le détail"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Glisse pour le détail</button></section><div id="detail-direct"></div>`;
 }
-document.addEventListener('click', e => { if (e.target.closest('[data-oeil-go]')) { e.stopPropagation(); document.getElementById('detail-direct')?.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' }); } }, true);
+document.addEventListener('click', e => { const cp = e.target.closest('[data-camp]'); if (cp) { e.stopPropagation(); return ficheCampagne(cp.dataset.camp); }
+  if (e.target.closest('[data-oeil-go]')) { e.stopPropagation(); document.getElementById('detail-direct')?.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' }); } }, true);
 
 // ---------- Vue : Direct ----------
 function vDirect(A, C) {
@@ -1513,21 +1547,21 @@ function vDirect(A, C) {
   h += coupOeil(A, C);
   h += navJour(C.P.day, A, C, 'djour');
 
-  h += `<section class="card hero">
+  h += `<section class="card hero oeil-suite ${courses(A).some(x => x.type === 'vues' && x.fin && x.fin > Date.now()) ? '' : 'oeil-est'}">
     <div class="lbl" style="display:flex;justify-content:space-between;align-items:center;gap:8px">${C.partiel ? 'Vues depuis ' + new Date(C.partiel).toLocaleTimeString('fr-FR', { timeZone: TZ, hour: '2-digit', minute: '2-digit' }).replace(':', 'h') : "Vues aujourd'hui"}</div>
     <div class="big num">${fmt(C.today)}</div>
     <p class="say">${phrase(A, C)}</p>
     ${C.partiel ? '' : courbeJour(A, C, C.P.day)}
-    <div class="est"><span class="muted">Fin de journée</span><b class="num">${C.est ? '≈ ' + k(C.est) : '—'}</b></div>
+    <div class="est est-fin"><span class="muted">Fin de journée</span><b class="num">${C.est ? '≈ ' + k(C.est) : '—'}</b></div>
     ${(() => { const o = objectif(A, C); if (!o || C.partiel) return ''; const r = C.today / o.v, fait = r >= 1;
       const manque = C.est ? o.v - C.est : o.v - C.today, g0 = !fait && manque > 0 ? guide(A, C, manque) : null, g = g0 && g0.n <= 5 ? g0 : null;
       return `<button class="obj ${fait ? 'fait' : ''}" type="button" data-objo aria-label="Régler mon objectif"><span class="l"><span>${fait ? 'Objectif atteint, bien joué' : C.est && C.est >= o.v ? 'Objectif du jour : bien parti' : 'Objectif du jour'} · ${Math.min(999, Math.round(r * 100))} %</span><b class="num">${k(o.v)}</b></span><span class="tr"><i style="width:${Math.min(100, r * 100).toFixed(1)}%"></i></span>
         ${g ? `<span class="say" style="font-size:14px;max-width:none">Manque ≈ <b>${k(manque)}</b> → ${guideTxt(g)}</span>` : ''}</button>`; })()}
-    ${C.yTot ? `<div class="est" style="border:0;padding:0;margin:0"><span class="muted">Hier</span><span class="num">${k(C.yTot)}</span></div>` : ''}
+    ${C.yTot ? `<div class="est est-hier" style="border:0;padding:0;margin:0"><span class="muted">Hier</span><span class="num">${k(C.yTot)}</span></div>` : ''}
   </section>`;
   h += AL.carte(); // « Active tes alertes » (serveur seulement)
   h += NV.duo(A, C); // série + prochain créneau + récap du soir (24/11)
-  h += posteMaintenant(A, C);
+  // « C'est le moment de poster » : déjà dans le widget créneau juste au-dessus (doublon retiré 24/11)
   h += course(A, C, 'court');
   const Q = C.Q;
   h += `<div class="tiles">
@@ -1592,7 +1626,7 @@ function heuresFortes(A, C) {
 function posteMaintenant(A, C) {
   if (A.id === 'tous' && !A.videos.length) return '';
   const F = heuresFortes(A, C), now = C.now / 1000, dern = A.videos[0], depuis = dern ? (now - dern.t) / 3600 : 99;
-  const camp = (RAW.campagnes || []).find(c => c.en_cours);
+  const camp = campActive();
   if (!F || !F.has(C.P.hour) || depuis < 1.5) return '';
   let fin = C.P.hour; while (F.has((fin + 1) % 24) && fin - C.P.hour < 6) fin++;
   return `<section class="poste">
@@ -1790,7 +1824,7 @@ function blocCartons(c, A) {
 
 // ---------- Inspire-toi : les clips des autres qui font le plus de vues sur la campagne en cours (accueil) ----------
 function inspiration(A) {
-  const c = infosCampagnes()[0]; if (!c?.cartons?.length) return '';
+  const c = infosCampagnes().find(x => enCours(x.tag)); if (!c?.cartons?.length) return ''; // seulement une campagne EN COURS
   const miens = new Set(A.videos.map(v => String(v.id))), L = c.cartons.filter(x => !miens.has(idLien(x.lien))).slice(0, 3);
   if (!L.length) return '';
   return `<section class="sec"><div class="sec-h"><h2>Inspire-toi</h2><small>top vues · ${esc(c.nom)}</small></div>
@@ -1800,7 +1834,7 @@ function inspiration(A) {
 // ---------- Plan de la journée : 3 créneaux aux heures fortes du public, cochés tout seuls quand une vidéo est postée ----------
 function planJour(A, C) {
   const F = heuresFortes(A, C); if (!F) return '';
-  const camp = (RAW.campagnes || []).find(c => c.en_cours), D = parDuree(A, C), bd = D.rows.filter(r => r.n >= 5 && r.m).sort((a, b) => b.m - a.m)[0];
+  const camp = campActive(), D = parDuree(A, C), bd = D.rows.filter(r => r.n >= 5 && r.m).sort((a, b) => b.m - a.m)[0];
   const fortes = [...F].sort((a, b) => a - b), choix = [];
   for (const h of fortes) if (h >= 8 && !choix.some(x => Math.abs(x - h) < 2)) choix.push(h);
   const slots = choix.slice(0, 3); if (!slots.length) return '';
@@ -1812,31 +1846,40 @@ function planJour(A, C) {
     <p class="muted note">Heures fortes de ton public. Coché tout seul si tu postes à ± 1 h.</p></section>`;
 }
 
-// ---------- Vue : Campagnes ----------
+// ---------- Vue : Campagnes (refaite le 24/11 soir, Jawed : « trop de cases, trop de texte pour les mêmes infos ») ----------
+// 1 chiffre (gagné), la campagne EN COURS en grand s'il y en a une, puis UNE liste : 1 ligne par campagne, le détail s'ouvre en fenêtre.
+function lignesCampagnes(A) {
+  const par = new Map();
+  for (const x of courses(A)) { const o = par.get(x.id) || { id: x.id, nom: x.nom, tag: x.tag, fin: x.fin, finJ: x.finJ, gain: x.moi.gain || 0 }; o[x.type] = x; par.set(x.id, o); }
+  return [...par.values()];
+}
 function vCampagnes(A, C) {
-  const known = Object.fromEntries((RAW.campagnes || []).map(c => [c.tag, c]));
-  const by = {};
-  for (const v of A.videos) for (const t of new Set(tags(v.d))) if (t.startsWith('cyclomx') || known[t]) (by[t] = by[t] || []).push(v);
-  const list = Object.entries(by).map(([t, vs]) => ({ t, vs, info: known[t] || { nom: t.replace(/^cyclomx/, ''), en_cours: false },
-    vues: vs.reduce((s, v) => s + v.v, 0), auj: vs.reduce((s, v) => s + (v.gj || 0), 0), last: Math.max(...vs.map(v => v.t)) }))
-    .sort((a, b) => (b.info.en_cours - a.info.en_cours) || b.auj - a.auj || b.vues - a.vues);
-  const tot = A.videos.reduce((s, v) => s + v.v, 0) || 1;
-  const G = gains(A);
-  let h = course(A, C, 'complet');
-  for (const c of infosCampagnes()) if (A.videos.some(v => tags(v.d).includes(c.tag))) h += blocCartons(c, A) + blocMeilleurs(A, c);
-  h += `<div class="sec-h"><h2>Tes campagnes Cyclom</h2><small>via tes hashtags</small></div>`;
-  if (!list.length) return h + `<div class="card muted">Aucune vidéo avec un hashtag de campagne (#cyclomx…) pour l'instant.</div>`;
-  for (const c of list) {
-    const best = [...c.vs].sort((a, b) => b.v - a.v).slice(0, 8);
-    h += `<button class="card camp" type="button" data-q="#${c.t}">
-      <div class="camp-h"><b>${esc(c.info.nom)}</b><span class="badge ${c.info.en_cours ? '' : 'off'}">${c.info.en_cours ? 'En cours' : known[c.t] ? 'Terminée' : 'Statut inconnu'}</span></div>
-      <div class="camp-n"><div><span>Vidéos</span><b class="num">${fmt(c.vs.length)}</b></div><div><span>Vues</span><b class="num">${k(c.vues)}</b></div><div><span>Aujourd'hui</span><b class="num ${c.auj > 0 ? 'up' : ''}">${c.auj ? '+' + k(c.auj) : '—'}</b></div></div>
-      <div class="bar" title="Part de tes vues"><i style="width:${Math.max(2, c.vues / tot * 100).toFixed(1)}%"></i></div>
-      <div class="sumbar"><span>${(c.vues / tot * 100).toLocaleString('fr-FR', { maximumFractionDigits: 1 })} % de tes vues · moyenne ${k(c.vues / c.vs.length)} par vidéo</span><span class="muted">#${esc(c.t)}</span></div>
-      <div class="strip">${best.map(v => cover(v)).join('')}</div></button>`;
-  }
-  if (!courses(A).length) h += `<p class="muted" style="font-size:12.5px;margin:0">Bientôt ici : ta place au classement de chaque campagne et combien de vues il te manque pour passer devant le suivant.</p>`;
+  const now = Date.now(), off = lignesCampagnes(A);
+  const actives = off.filter(o => o.fin && o.fin > now), finies = off.filter(o => !(o.fin && o.fin > now)).sort((a, b) => String(b.finJ).localeCompare(String(a.finJ)));
+  // campagnes sans classement Cyclom : seulement retrouvées par tes hashtags
+  const tagsOff = new Set(off.map(o => o.tag)), known = Object.fromEntries((RAW.campagnes || []).map(c => [c.tag, c])), by = {};
+  for (const v of A.videos) for (const t of new Set(tags(v.d))) if (!tagsOff.has(t) && (t.startsWith('cyclomx') || known[t])) (by[t] = by[t] || []).push(v);
+  const autres = Object.entries(by).map(([t, vs]) => ({ t, nom: known[t]?.nom || t.replace(/^cyclomx/, ''), n: vs.length, vues: vs.reduce((s, v) => s + v.v, 0), last: Math.max(...vs.map(v => v.t)) })).sort((a, b) => b.last - a.last);
+  const tot = off.reduce((s, o) => s + o.gain, 0);
+  let h = '';
+  if (tot) h += `<section class="cp-hero"><small>Gagné avec Cyclom</small><b class="num">${eur(tot)}</b><span>${off.length} campagne${off.length > 1 ? 's' : ''} · montants à confirmer par Cyclom</span></section>`;
+  if (actives.length) {
+    h += `<h2 class="cp-t">En cours</h2>` + course(A, C, 'encours');
+    for (const c of infosCampagnes()) if (enCours(c.tag) && A.videos.some(v => tags(v.d).includes(c.tag))) h += blocCartons(c, A) + blocMeilleurs(A, c);
+  } else if (off.length || autres.length) h += `<p class="cp-vide">Aucune campagne en cours. Elle s’affichera ici dès qu’elle démarre sur cyclom.fr.</p>`;
+  const jj = d => d ? d.slice(8, 10) + '/' + d.slice(5, 7) : '';
+  const rows = finies.map(o => { const pv = o.vues ? o.vues.tri.indexOf(o.vues.moi) + 1 : 0, pc = o.clips ? o.clips.tri.indexOf(o.clips.moi) + 1 : 0, mv = (o.vues || o.clips).moi.vues || 0;
+    return `<button class="cp-row" type="button" data-camp="${esc(o.id)}"><span class="cp-pl ${pv === 1 ? 'or' : ''}">${pv ? ordP(pv) : '—'}</span><span class="cp-n"><b>${esc(o.nom)}</b><small>fini le ${jj(o.finJ)} · ${k(mv)} vues${pc ? ' · ' + ordP(pc) + ' en clips' : ''}</small></span><b class="cp-g num">${o.gain ? eur(o.gain) : ''}</b><span class="cp-chev" aria-hidden="true">›</span></button>`; })
+    .concat(autres.map(c => `<button class="cp-row" type="button" data-q="#${esc(c.t)}"><span class="cp-pl off">#</span><span class="cp-n"><b>${esc(c.nom)}</b><small>${c.n} vidéo${c.n > 1 ? 's' : ''} · ${k(c.vues)} vues · sans classement</small></span><b class="cp-g"></b><span class="cp-chev" aria-hidden="true">›</span></button>`));
+  if (rows.length) h += `<h2 class="cp-t">${actives.length ? 'Terminées' : 'Tes campagnes'}</h2><div class="cp-liste">${rows.join('')}</div>`;
+  if (!h) h = `<div class="card muted">Aucune campagne Cyclom pour l’instant : ta place et tes gains s’afficheront ici.</div>`;
   return h;
+}
+function ficheCampagne(id) {
+  const A = compteCourant(), C = calc(A), o = lignesCampagnes(A).find(x => x.id === id); if (!o) return;
+  const info = infosCampagnes().find(c => c.id === id);
+  ouvrir(`<div class="grab"></div><div class="sheet-h"><h2>${esc(o.nom)}</h2><button class="x" type="button" data-close aria-label="Fermer">×</button></div>
+    ${course(A, C, 'une:' + id)}${info && A.videos.some(v => tags(v.d).includes(info.tag)) ? blocMeilleurs(A, info) + blocCartons(info, A) : ''}`);
 }
 
 // ---------- Vue : Historique ----------
@@ -1988,7 +2031,7 @@ function essoufflement(A, C) {
   const now = C.now / 1000, out = [];
   const tagsC = [...new Set(A.videos.flatMap(v => tags(v.d)).filter(estCamp))];
   for (const t of tagsC) {
-    const info = (RAW.campagnes || []).find(c => c.tag === t); if (info && !info.en_cours) continue; // campagne finie : inutile de changer d'angle
+    const info = (RAW.campagnes || []).find(c => c.tag === t); if (info && !enCours(t)) continue; // campagne finie : inutile de changer d'angle
     const vs = A.videos.filter(v => tags(v.d).includes(t) && v.ms?.['24'] > 0);
     const s1 = vs.filter(v => now - v.t >= 86400 && now - v.t < 8 * 86400).map(v => v.ms['24']), s2 = vs.filter(v => now - v.t >= 8 * 86400 && now - v.t < 15 * 86400).map(v => v.ms['24']);
     if (s1.length < 6 || s2.length < 6) continue;
@@ -2540,7 +2583,7 @@ function convertir(d) {
     Q[kk] = { g: x.g || 0, f: x.f ?? Q[kk]?.f, l: x.l0 != null ? x.l - x.l0 : Q[kk]?.l, c: x.c0 != null ? x.c - x.c0 : Q[kk]?.c, s: x.s0 != null ? x.s - x.s0 : Q[kk]?.s }; }
   const H = {}; for (const [kk, x] of Object.entries(d.hourly || {})) H[kk] = x.g || 0;
   return { maj: d.updated, moi: { nom: 'Jawed', admin: true }, assistant: { restant: 30, max: 30 },
-    campagnes: [{ tag: 'cyclomxdjadelshow', nom: 'Djadel Show', en_cours: true }, { tag: 'cyclomxdeja', nom: 'Ilyes Djadel — Déjà' }, { tag: 'cyclomxmdr', nom: 'MDR' }, { tag: 'cyclomxredouane', nom: 'Redouane Bougheraba' }, { tag: 'cyclomxkraken', nom: 'Kraken' }],
+    campagnes: [{ tag: 'cyclomxdjadelshow', nom: 'Djadel Show' }, { tag: 'cyclomxdeja', nom: 'Ilyes Djadel — Déjà' }, { tag: 'cyclomxmdr', nom: 'MDR' }, { tag: 'cyclomxredouane', nom: 'Redouane Bougheraba' }, { tag: 'cyclomxkraken', nom: 'Kraken' }],
     comptes: [{ id: 'clipfrfilm', user: 'clipfrfilm', abonnes: d.followers, likes: d.hearts, nb_videos: d.tracked, vues_total: d.total,
       jour: d.today, heure: d.hour, abonnes_jour: d.followers_day, horaire: H, quotidien: Q, videos }] };
 }
@@ -2979,7 +3022,7 @@ const NV = (() => {
     const S = infosSerie(A, C);
     L.push({ c: 'd', h: `<small>Ta série</small><div class="nv-fs ${S.auj ? 'ok' : 'danger'}">${FLAMME}<b class="num">${S.n}</b></div><span>${S.n > 1 ? 'jours d’affilée' : 'jour'}</span><p>${S.auj ? 'Gardée aujourd’hui.' : `<em>Poste avant minuit</em> pour la ${S.n ? 'garder' : 'lancer'}.`} Semaine : ${S.fait} / ${S.obj} vidéos.</p>` });
     // classement : campagne en cours d'abord ; même calcul que le Direct (+1 vue pour passer DEVANT, pas à égalité)
-    const CS = courses(A).filter(x => x.type === 'vues'), X = CS.find(x => !x.fin || x.fin > Date.now()) || CS[0];
+    const CS = courses(A).filter(x => x.type === 'vues'), X = CS.find(x => x.fin && x.fin > Date.now());
     if (X) { const pl = X.tri.indexOf(X.moi) + 1, pr = X.prixL[pl - 1], dev = X.tri[pl - 2], fini = X.fin && X.fin <= Date.now();
       L.push({ c: 'e', h: `<small>${esc(X.nom)}</small><b class="nv-n num">${pl === 1 ? '1er' : pl + 'e'}</b><span>place provisoire${pr ? ', ' + eur(pr) : ''}</span><p>${fini ? 'Campagne terminée, résultats après vérification.' : pl > 1 && dev ? `Il te manque ${k((dev.vues || 0) - (X.moi.vues || 0) + 1)} vues pour passer ${pl - 1 === 1 ? '1er' : (pl - 1) + 'e'}.` : 'Garde ta place : continue à poster.'}</p>` }); }
     // les 3 heures les plus FORTES (pas les 3 plus tôt), rangées dans l'ordre de la journée
