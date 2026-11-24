@@ -1157,7 +1157,11 @@ function courses(A) {
 const resteTxt = ms => { const m = Math.max(0, Math.round(ms / 60000)), j = Math.floor(m / 1440), h = Math.floor(m % 1440 / 60), mn = m % 60; return j ? `${j} j ${h} h` : h ? `${h} h ${String(mn).padStart(2, '0')}` : `${mn} min`; };
 setInterval(() => document.querySelectorAll('[data-fin]').forEach(e => { e.textContent = resteTxt(+e.dataset.fin - Date.now()); }), 30000);
 function course(A, C, mode) {
-  const L = courses(A); if (!L.length) return '';
+  let L = courses(A); if (!L.length) return '';
+  // Direct (Jawed 24/11) : seulement les campagnes EN COURS ; s'il n'y en a aucune, la dernière terminée (classement des vues). Tout le reste = onglet Campagnes.
+  if (mode === 'court') { const now = Date.now(), enCours = L.filter(x => !x.fin || x.fin > now);
+    L = enCours.length ? enCours : [L.filter(x => x.type === 'vues').sort((a, b) => (b.fin || 0) - (a.fin || 0))[0]].filter(Boolean); }
+  else L = [...L].sort((a, b) => ((b.fin || 9e15) > Date.now()) - ((a.fin || 9e15) > Date.now()) || (b.fin || 9e15) - (a.fin || 9e15)); // Campagnes : en cours d'abord, puis les plus récentes
   return L.map(x => {
     const val = r => x.type === 'clips' ? r.clips : r.vues, unite = x.type === 'clips' ? 'clips' : 'vues';
     const i = x.tri.indexOf(x.moi), place = i + 1, devant = x.tri[i - 1], derriere = x.tri[i + 1], dixieme = x.tri[x.prixL.length - 1];
