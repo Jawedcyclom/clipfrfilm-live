@@ -1337,7 +1337,8 @@ function course(A, C, mode) {
     const manque = devant ? val(devant) - val(x.moi) + 1 : 0, avance = derriere ? val(x.moi) - val(derriere) : null;
     const g = x.type === 'clips' || !manque ? null : guide(A, C, manque);
     // prix provisoire officiel (gain calculé par cyclom.fr), sinon le prix de la place
-    const titre = place <= x.prixL.length ? `${place}${place === 1 ? 'er' : 'e'} · ${eur(prix(place))}` : `${place}e · hors des prix`;
+    const finiT = x.fin && x.fin <= Date.now(); // campagne finie : pas de montant (pas sûr de ce qui a été payé)
+    const titre = finiT ? ordP(place) : place <= x.prixL.length ? `${place}${place === 1 ? 'er' : 'e'} · ${eur(prix(place))}` : `${place}e · hors des prix`;
     let t;
     if (place === 1) t = `Tu es devant tout le monde.${avance != null ? ` Le 2e est à <b>${k(avance)} ${unite}</b> derrière toi : continue à poster pour garder ta place.` : ''}`;
     else if (place > x.prixL.length && dixieme) t = `Il te manque <b>${k(val(dixieme) - val(x.moi) + 1)} ${unite}</b> pour entrer dans les prix et gagner <b>${eur(prix(x.prixL.length))}</b>.`;
@@ -1377,7 +1378,7 @@ function course(A, C, mode) {
       else if (derriere && avance != null) L2.push(`<span>▼ ${k(avance)} ${unite} d’avance sur le ${ord(place + 1)}</span>`);
       vit = L2.length ? `<div class="jg-vit">${L2.join('')}</div>` : '';
     }
-    const fin2 = reste == null ? '' : fini ? 'Classement relevé à la fin · montant à confirmer' : `Fin dans <b class="num" data-fin="${x.fin}">${resteTxt(reste)}</b> · place provisoire`;
+    const fin2 = reste == null ? '' : fini ? 'Classement relevé à la fin' : `Fin dans <b class="num" data-fin="${x.fin}">${resteTxt(reste)}</b> · place provisoire`;
     const mj = new Date((RAW.classement || CLASSEMENT).maj).getTime(), vieux = Date.now() - mj > 3 * 3600e3;
     let h = `<section class="card money course jauge ${sprint ? 'sprint' : ''} ${fini ? 'finie' : ''}">
       <div class="jg-h"><span class="jg-nom">${esc(x.nom)}${x.type === 'clips' ? ' · clips' : ''}</span>${sprint ? '<span class="jg-badge">SPRINT</span>' : fini ? '<span class="jg-badge off">Terminée</span>' : ''}<b class="num jg-prix">${titre}</b></div>
@@ -1385,13 +1386,13 @@ function course(A, C, mode) {
         <svg class="jg-anneau ${anim ? 'anim' : ''}" viewBox="0 0 80 80" aria-hidden="true" style="--p:${P.toFixed(1)};--o:${(P * (1 - pc)).toFixed(1)}"><circle cx="40" cy="40" r="${R}" class="jg-fond"/><circle cx="40" cy="40" r="${R}" class="jg-arc" stroke-dasharray="${P.toFixed(1)}" stroke-dashoffset="${(P * (1 - pc)).toFixed(1)}" transform="rotate(-90 40 40)"/><text x="40" y="40" class="jg-pl">${ord(place)}</text><text x="40" y="55" class="jg-pc">${place === 1 ? 'en tête' : Math.round(pc * 100) + ' %'}</text></svg>
         <div class="jg-txt">${place === 1
           ? `<span class="jg-l">${fini ? '1er provisoire' : 'Tu es en tête'}</span><b class="num jg-big">${avance != null ? '+' + k(avance) : '—'}</b><span class="jg-s">${avance != null ? `${unite} d’avance sur le 2e` : ''}</span>`
-          : `<span class="jg-l">${fini ? 'Il manquait (provisoire)' : 'Il te manque'} pour passer ${ord(placeCible)}</span><b class="num jg-big">${k(manqueC)} ${unite}</b>${gainC > 0 ? `<span class="jg-gain">+${eur(gainC)}</span>` : ''}`}</div>
+          : `<span class="jg-l">${fini ? 'Il manquait (provisoire)' : 'Il te manque'} pour passer ${ord(placeCible)}</span><b class="num jg-big">${k(manqueC)} ${unite}</b>${gainC > 0 && !fini ? `<span class="jg-gain">+${eur(gainC)}</span>` : ''}`}</div>
       </div>${vit}
       <div class="jg-pied">${fin2 ? `<span>${fin2}</span>` : ''}<span class="${vieux ? 'down' : 'muted'}">${vieux ? 'Classement pas à jour depuis ' + ago(mj).replace('il y a ', '') : 'Relevé cyclom.fr · ' + ago(mj)}</span></div>`;
     if (mode !== 'court' && g && !fini) h += `<p class="say jg-guide">Pour y arriver : ${guideTxt(g)}</p>`;
     if (mode !== 'court') {
       const top = x.tri.slice(0, Math.max(10, x.prixL.length)), lignes = top.includes(x.moi) ? top : [...top, x.moi];
-      h += `<div class="podium">${lignes.map(r => { const p = x.tri.indexOf(r) + 1; return `<div class="pl ${r === x.moi ? 'moi' : ''}"><span class="pr">${p}</span><span class="pp">${r === x.moi ? 'Toi' : 'Clippeur ' + p}</span><span class="pv num">${k(val(r))}</span><span class="pg num">${prix(p) ? eur(prix(p)) : ''}</span></div>`; }).join('')}</div>${lignes.length > 4 ? '<button class="more podium-tout" type="button" data-podium>Voir tout le classement</button>' : ''}`;
+      h += `<div class="podium">${lignes.map(r => { const p = x.tri.indexOf(r) + 1; return `<div class="pl ${r === x.moi ? 'moi' : ''}"><span class="pr">${p}</span><span class="pp">${r === x.moi ? 'Toi' : 'Clippeur ' + p}</span><span class="pv num">${k(val(r))}</span><span class="pg num">${prix(p) && !fini ? eur(prix(p)) : ''}</span></div>`; }).join('')}</div>${lignes.length > 4 ? '<button class="more podium-tout" type="button" data-podium>Voir tout le classement</button>' : ''}`;
     }
     return h + `</section>`;
   }).join('');
@@ -1862,16 +1863,17 @@ function vCampagnes(A, C) {
   const autres = Object.entries(by).map(([t, vs]) => ({ t, nom: known[t]?.nom || t.replace(/^cyclomx/, ''), n: vs.length, vues: vs.reduce((s, v) => s + v.v, 0), last: Math.max(...vs.map(v => v.t)) })).sort((a, b) => b.last - a.last);
   const tot = off.reduce((s, o) => s + o.gain, 0);
   let h = '';
-  if (tot) h += `<section class="cp-hero"><small>Gagné avec Cyclom</small><b class="num">${eur(tot)}</b><span>${off.length} campagne${off.length > 1 ? 's' : ''} · montants à confirmer par Cyclom</span></section>`;
+  // Jawed 24/11 : « c'est faux, j'ai gagné beaucoup plus » → AUCUN total ni montant tant que Cyclom ne donne pas l'historique complet
+  if (false) h += `<section class="cp-hero"><small>Gagné avec Cyclom</small><b class="num">${eur(tot)}</b><span>${off.length} campagne${off.length > 1 ? 's' : ''} · montants à confirmer par Cyclom</span></section>`;
   if (actives.length) {
     h += `<h2 class="cp-t">En cours</h2>` + course(A, C, 'encours');
     for (const c of infosCampagnes()) if (enCours(c.tag) && A.videos.some(v => tags(v.d).includes(c.tag))) h += blocCartons(c, A) + blocMeilleurs(A, c);
-  } else if (off.length || autres.length) h += `<p class="cp-vide">Aucune campagne en cours. Elle s’affichera ici dès qu’elle démarre sur cyclom.fr.</p>`;
+  } else h += `<p class="cp-vide">Aucune campagne en cours. Elle s’affichera ici dès qu’elle démarre sur cyclom.fr.</p>`;
   const jj = d => d ? d.slice(8, 10) + '/' + d.slice(5, 7) : '';
   const rows = finies.map(o => { const pv = o.vues ? o.vues.tri.indexOf(o.vues.moi) + 1 : 0, pc = o.clips ? o.clips.tri.indexOf(o.clips.moi) + 1 : 0, mv = (o.vues || o.clips).moi.vues || 0;
-    return `<button class="cp-row" type="button" data-camp="${esc(o.id)}"><span class="cp-pl ${pv === 1 ? 'or' : ''}">${pv ? ordP(pv) : '—'}</span><span class="cp-n"><b>${esc(o.nom)}</b><small>fini le ${jj(o.finJ)} · ${k(mv)} vues${pc ? ' · ' + ordP(pc) + ' en clips' : ''}</small></span><b class="cp-g num">${o.gain ? eur(o.gain) : ''}</b><span class="cp-chev" aria-hidden="true">›</span></button>`; })
-    .concat(autres.map(c => `<button class="cp-row" type="button" data-q="#${esc(c.t)}"><span class="cp-pl off">#</span><span class="cp-n"><b>${esc(c.nom)}</b><small>${c.n} vidéo${c.n > 1 ? 's' : ''} · ${k(c.vues)} vues · sans classement</small></span><b class="cp-g"></b><span class="cp-chev" aria-hidden="true">›</span></button>`));
-  if (rows.length) h += `<h2 class="cp-t">${actives.length ? 'Terminées' : 'Tes campagnes'}</h2><div class="cp-liste">${rows.join('')}</div>`;
+    return `<button class="cp-row" type="button" data-camp="${esc(o.id)}"><span class="cp-pl ${pv === 1 ? 'or' : ''}">${pv ? ordP(pv) : '—'}</span><span class="cp-n"><b>${esc(o.nom)}</b><small>fini le ${jj(o.finJ)} · ${k(mv)} vues${pc ? ' · ' + ordP(pc) + ' en clips' : ''}</small></span><b class="cp-g"></b><span class="cp-chev" aria-hidden="true">›</span></button>`; })
+    .concat([].map(c => `<button class="cp-row" type="button" data-q="#${esc(c.t)}"><span class="cp-pl off">#</span><span class="cp-n"><b>${esc(c.nom)}</b><small>${c.n} vidéo${c.n > 1 ? 's' : ''} · ${k(c.vues)} vues · sans classement</small></span><b class="cp-g"></b><span class="cp-chev" aria-hidden="true">›</span></button>`));
+  if (rows.length) h += `<h2 class="cp-t">${actives.length ? 'Terminées' : 'Classements Cyclom'}</h2><div class="cp-liste">${rows.join('')}</div>`;
   if (!h) h = `<div class="card muted">Aucune campagne Cyclom pour l’instant : ta place et tes gains s’afficheront ici.</div>`;
   return h;
 }
