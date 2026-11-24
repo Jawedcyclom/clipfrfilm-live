@@ -1001,6 +1001,17 @@ button,a,[role="button"],.sec.pliable{-webkit-touch-callout:none}
 /* ===== CORRECTIF 24/11 : la petite barre « Ce qui monte | Postées » n'est jamais collante ni décalée
    (l'animation la passait en position relative et la règle « top » des sous-onglets la poussait de 109 px sur les vidéos) ===== */
 .segw.seg2{top:auto!important;bottom:auto!important}
+/* ===== PASTILLE DE PLACE + COURBE CONTRE LA NORMALE (Jawed 24/11) ===== */
+.acct.nv-place{display:inline-flex;align-items:center;gap:5px;padding-left:10px;padding-right:12px;font:800 14px var(--display);font-variant-numeric:tabular-nums;color:var(--cyclom)}
+.acct.nv-place svg{width:16px;height:16px}
+.acct.nv-place.sprint{color:#ffb547;box-shadow:inset 0 0 0 1px rgba(255,138,61,.45)}
+.cn{display:flex;flex-direction:column;gap:6px}
+.cn-h{display:flex;justify-content:space-between;align-items:baseline;gap:4px 10px;flex-wrap:wrap;font-size:13px}
+.cn-h .muted{font-size:12.5px}
+.cn svg{width:100%;height:auto;display:block}
+.cn-leg{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:11.5px;color:var(--muted)}
+.cn-leg i{display:inline-block;width:14px;height:3px;border-radius:2px;margin-right:5px;vertical-align:middle}
+.cn-leg i.v{background:#47ccc0}.cn-leg i.n{background:repeating-linear-gradient(90deg,rgba(255,255,255,.55) 0 4px,transparent 4px 7px)}.cn-leg i.z{height:9px;background:rgba(255,255,255,.12)}
 </style>
 
 <header class="top">
@@ -1209,15 +1220,15 @@ function course(A, C, mode) {
       else if (derriere && avance != null) L2.push(`<span>▼ ${k(avance)} ${unite} d’avance sur le ${ord(place + 1)}</span>`);
       vit = L2.length ? `<div class="jg-vit">${L2.join('')}</div>` : '';
     }
-    const fin2 = reste == null ? '' : fini ? 'Campagne terminée' : `Fin dans <b class="num" data-fin="${x.fin}">${resteTxt(reste)}</b>`;
+    const fin2 = reste == null ? '' : fini ? 'Terminée · résultat officiel après vérification par Cyclom' : `Fin dans <b class="num" data-fin="${x.fin}">${resteTxt(reste)}</b> · place provisoire`;
     const mj = new Date((RAW.classement || CLASSEMENT).maj).getTime(), vieux = Date.now() - mj > 3 * 3600e3;
     let h = `<section class="card money course jauge ${sprint ? 'sprint' : ''} ${fini ? 'finie' : ''}">
-      <div class="jg-h"><span class="jg-nom">${esc(x.nom)}${x.type === 'clips' ? ' · clips' : ''}</span>${sprint ? '<span class="jg-badge">SPRINT</span>' : fini ? '<span class="jg-badge off">Terminée</span>' : ''}<b class="num jg-prix">${titre}</b></div>
+      <div class="jg-h"><span class="jg-nom">${esc(x.nom)}${x.type === 'clips' ? ' · clips' : ''}</span>${sprint ? '<span class="jg-badge">SPRINT</span>' : fini ? '<span class="jg-badge off">En vérification</span>' : ''}<b class="num jg-prix">${titre}</b></div>
       <div class="jg-corps">
         <svg class="jg-anneau ${anim ? 'anim' : ''}" viewBox="0 0 80 80" aria-hidden="true" style="--p:${P.toFixed(1)};--o:${(P * (1 - pc)).toFixed(1)}"><circle cx="40" cy="40" r="${R}" class="jg-fond"/><circle cx="40" cy="40" r="${R}" class="jg-arc" stroke-dasharray="${P.toFixed(1)}" stroke-dashoffset="${(P * (1 - pc)).toFixed(1)}" transform="rotate(-90 40 40)"/><text x="40" y="40" class="jg-pl">${ord(place)}</text><text x="40" y="55" class="jg-pc">${place === 1 ? 'en tête' : Math.round(pc * 100) + ' %'}</text></svg>
         <div class="jg-txt">${place === 1
-          ? `<span class="jg-l">${fini ? 'Tu finis 1er' : 'Tu es en tête'}</span><b class="num jg-big">${avance != null ? '+' + k(avance) : '—'}</b><span class="jg-s">${avance != null ? `${unite} d’avance sur le 2e` : ''}</span>`
-          : `<span class="jg-l">${fini ? 'Il manquait' : 'Il te manque'} pour passer ${ord(placeCible)}</span><b class="num jg-big">${k(manqueC)} ${unite}</b>${gainC > 0 ? `<span class="jg-gain">+${eur(gainC)}</span>` : ''}`}</div>
+          ? `<span class="jg-l">${fini ? '1er provisoire' : 'Tu es en tête'}</span><b class="num jg-big">${avance != null ? '+' + k(avance) : '—'}</b><span class="jg-s">${avance != null ? `${unite} d’avance sur le 2e` : ''}</span>`
+          : `<span class="jg-l">${fini ? 'Il manquait (provisoire)' : 'Il te manque'} pour passer ${ord(placeCible)}</span><b class="num jg-big">${k(manqueC)} ${unite}</b>${gainC > 0 ? `<span class="jg-gain">+${eur(gainC)}</span>` : ''}`}</div>
       </div>${vit}
       <div class="jg-pied">${fin2 ? `<span>${fin2}</span>` : ''}<span class="${vieux ? 'down' : 'muted'}">${vieux ? 'Classement pas à jour depuis ' + ago(mj).replace('il y a ', '') : 'Vues validées par cyclom.fr · ' + ago(mj)}</span></div>`;
     if (mode === 'complet' && g && !fini) h += `<p class="say jg-guide">Pour y arriver : ${guideTxt(g)}</p>`;
@@ -1334,6 +1345,9 @@ function renderHead() {
   if (L.length > 1) h += `<button class="acct" type="button" data-acc="tous" aria-pressed="${ACC === 'tous'}"><span class="av all">∑</span>Vue générale · ${L.length} comptes</button>`;
   for (const a of L) h += `<button class="acct" type="button" data-acc="${esc(a.id)}" aria-pressed="${ACC === a.id || L.length === 1}"><span class="av">${esc((a.user || '?')[0].toUpperCase())}</span>@${esc(a.user)}</button>`;
   if (A0?.videos?.length) { const S = NV.infosSerie(A0, calc(A0)); if (S.n) h += `<button class="acct nv-chip ${S.auj ? 'ok' : S.n ? 'danger' : ''}" type="button" data-serie aria-label="Ta série : ${S.n} jours">${NV.FLAMME}${S.n}</button>`; }
+  try { const X = A0 ? courses(A0).filter(x => x.type === 'vues' && x.fin && x.fin > Date.now()).sort((a, b) => a.fin - b.fin)[0] : null;
+    if (X) { const pl = X.tri.indexOf(X.moi) + 1, sp = X.fin - Date.now() < 48 * 3600e3;
+      h += `<button class="acct nv-place ${sp ? 'sprint' : ''}" type="button" data-go="campagnes" aria-label="Ta place provisoire sur ${esc(X.nom)} : ${pl}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v4a5 5 0 0 1-10 0V4z" fill="currentColor" opacity=".9"/><path d="M7 6H4.5a2.5 2.5 0 0 0 2.6 3.5M17 6h2.5a2.5 2.5 0 0 1-2.6 3.5M12 13v4M8.5 20h7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>${pl === 1 ? '1er' : pl + 'e'}</button>`; } } catch (e) {}
   if (WEB) h += `<a class="acct" href="https://jawedcyclom.github.io/cyclom-studio/apercu/" style="text-decoration:none">Aperçu multi-comptes ↗</a>`;
   if (!DRIVE && !WEB) h += `<button class="acct add" type="button" id="addAcc">+ Ajouter un compte</button>`;
   $('#accts').innerHTML = h;
@@ -2008,6 +2022,7 @@ function ficheVideo(id) {
     <div><span>Commentaires</span><b class="num">${fmt(v.c)}</b></div><div><span>Enregistrements</span><b class="num">${v.sv != null ? fmt(v.sv) : '—'} <small class="muted">${v.sv != null && v.v ? (v.sv / v.v * 100).toLocaleString('fr-FR', { maximumFractionDigits: 2 }) + ' %' : ''}</small></b></div>
     <div><span>Dernière heure</span><b class="num">${v.gh ? '+' + fmt(v.gh) : '—'}</b></div><div><span>Aujourd'hui</span><b class="num">${v.gj ? '+' + fmt(v.gj) : '—'}</b></div></div>
   ${v.mu ? `<div class="muted" style="font-size:13px">Son : <span style="color:var(--fg)">${esc(v.mu)}</span></div>` : ''}`;
+  if (v.ms) h += courbeNormale(v, A);
   if (v.ms) h += `<div><div class="muted" style="font-size:12.5px;margin-bottom:6px">Vues après la publication</div><div class="ms">${['1','3','6','12','24','48','72','168'].filter(m => +m <= 24 || v.ms[m] != null).map(m => `<div><span>${m === '168' ? '7 j' : m + ' h'}</span><b class="num">${v.ms[m] != null ? k(v.ms[m]) : '—'}</b></div>`).join('')}</div></div>`;
   if (v.vd && Object.keys(v.vd).length > 1) { const ds = Object.keys(v.vd).sort(); const g = ds.slice(1).map((d, i) => Math.max(0, v.vd[d] - v.vd[ds[i]]));
     h += `<div class="chart"><div class="muted" style="font-size:12.5px;margin-bottom:6px">Vues gagnées par jour</div>${barres(ds.slice(1), g, true)}</div>`; }
@@ -2018,6 +2033,32 @@ function ficheVideo(id) {
     <div class="navv"><button type="button" data-nav="-1" ${ix > 0 ? '' : 'disabled'}>‹ Précédente</button><button type="button" data-copy="${url}">Copier le lien</button><button type="button" data-nav="1" ${ix >= 0 && ix < CTX.length - 1 ? '' : 'disabled'}>Suivante ›</button></div>
     ${ix >= 0 && CTX.length > 1 ? `<div class="quota">${ix + 1} / ${CTX.length} · ${matchMedia('(hover:hover)').matches ? 'flèches ← → du clavier' : 'glisse à gauche ou à droite'}</div>` : ''}`;
   ouvrir(h, String(v.id));
+}
+// Courbe d'une vidéo contre « ta vidéo normale » au même âge (médiane + zone où se trouve la moitié de tes vidéos). Échelle log :
+// un carton à 600 k et une vidéo à 1 k restent lisibles. Rien d'estimé : seulement les jalons relevés (1 h, 3 h, 6 h, 12 h, 24 h, 48 h, 72 h, 7 j).
+function courbeNormale(v, A) {
+  const J = ['1', '3', '6', '12', '24', '48', '72', '168'], N = {};
+  for (const m of J) { const L = A.videos.filter(x => x !== v && !x.r && x.ms?.[m] != null).map(x => x.ms[m]).sort((a, b) => a - b);
+    if (L.length >= 15) N[m] = { q1: L[Math.floor(L.length * .25)], med: L[Math.floor(L.length * .5)], q3: L[Math.floor(L.length * .75)] }; }
+  const pts = J.filter(m => v.ms?.[m] != null && N[m]); if (pts.length < 2) return '';
+  const der = pts[pts.length - 1], axe = J.filter(m => N[m] && +m <= Math.max(24, +der));
+  const W = CW(true), Ht = 150, pl = 8, pr = 52, pt = 12, pb = 20, lg = x => Math.log10(Math.max(1, x));
+  const vals = [...axe.flatMap(m => [N[m].q1, N[m].q3]), ...pts.map(m => v.ms[m])], lo = lg(Math.min(...vals)), hi = lg(Math.max(...vals));
+  const X = m => pl + (W - pl - pr) * (axe.indexOf(m) / Math.max(1, axe.length - 1)), Y = x => pt + (Ht - pt - pb) * (1 - (lg(x) - lo) / Math.max(.01, hi - lo));
+  const bande = axe.map(m => `${X(m).toFixed(1)},${Y(N[m].q3).toFixed(1)}`).join(' ') + ' ' + [...axe].reverse().map(m => `${X(m).toFixed(1)},${Y(N[m].q1).toFixed(1)}`).join(' ');
+  const med = axe.map((m, i) => (i ? 'L' : 'M') + X(m).toFixed(1) + ' ' + Y(N[m].med).toFixed(1)).join(' ');
+  const vid = pts.filter(m => axe.includes(m)).map((m, i) => (i ? 'L' : 'M') + X(m).toFixed(1) + ' ' + Y(v.ms[m]).toFixed(1)).join(' ');
+  const r = v.ms[der] / N[der].med, lab = m => m === '168' ? '7 j' : m + ' h';
+  const verdict = r >= 1.15 ? `<b class="up">${fx(r)} ta vidéo normale</b> à ${lab(der)}` : r <= .85 ? `<b class="down">${fx(r)} ta vidéo normale</b> à ${lab(der)}` : `<b>comme ta vidéo normale</b> à ${lab(der)}`;
+  return `<div class="cn"><div class="cn-h"><span class="muted">Comparée à tes autres vidéos au même âge</span><span>${verdict}</span></div>
+    <svg viewBox="0 0 ${W} ${Ht}" role="img" aria-label="Vues de la vidéo comparées à ta vidéo normale">
+      <polygon points="${bande}" fill="rgba(255,255,255,.07)"/><path d="${med}" fill="none" stroke="rgba(255,255,255,.45)" stroke-width="1.5" stroke-dasharray="4 4"/>
+      <path d="${vid}" fill="none" stroke="#47ccc0" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+      ${pts.filter(m => axe.includes(m)).map(m => `<circle cx="${X(m).toFixed(1)}" cy="${Y(v.ms[m]).toFixed(1)}" r="${m === der ? 4 : 2.5}" fill="${m === der ? '#6FE3D6' : '#47ccc0'}"/>`).join('')}
+      <text x="${(X(der) + 8).toFixed(1)}" y="${(Y(v.ms[der]) + 4).toFixed(1)}" font-size="11" font-weight="700" fill="#fff">${k(v.ms[der])}</text>
+      <text x="${(X(axe[axe.length - 1]) + 8).toFixed(1)}" y="${(Y(N[axe[axe.length - 1]].med) + 4).toFixed(1)}" font-size="10" fill="#8a96a8">${k(N[axe[axe.length - 1]].med)}</text>
+      ${axe.map(m => `<text x="${X(m).toFixed(1)}" y="${Ht - 5}" text-anchor="middle" font-size="9.5" fill="#7f7f8b">${lab(m)}</text>`).join('')}
+    </svg><div class="cn-leg"><span><i class="v"></i>Cette vidéo</span><span><i class="n"></i>Ta vidéo normale</span><span><i class="z"></i>La moitié de tes vidéos</span></div></div>`;
 }
 function courbe(pts) {
   const W = CW(true), Ht = 130, pl = 36, pb = 18, pt = 8;
@@ -2789,7 +2830,7 @@ const NV = (() => {
     // classement : campagne en cours d'abord ; même calcul que le Direct (+1 vue pour passer DEVANT, pas à égalité)
     const CS = courses(A).filter(x => x.type === 'vues'), X = CS.find(x => !x.fin || x.fin > Date.now()) || CS[0];
     if (X) { const pl = X.tri.indexOf(X.moi) + 1, pr = X.prixL[pl - 1], dev = X.tri[pl - 2], fini = X.fin && X.fin <= Date.now();
-      L.push({ c: 'e', h: `<small>${esc(X.nom)}</small><b class="nv-n num">${pl === 1 ? '1er' : pl + 'e'}</b><span>au classement${pr ? ', ' + eur(pr) : ''}</span><p>${fini ? 'Campagne terminée, résultats après vérification.' : pl > 1 && dev ? `Il te manque ${k((dev.vues || 0) - (X.moi.vues || 0) + 1)} vues pour passer ${pl - 1 === 1 ? '1er' : (pl - 1) + 'e'}.` : 'Garde ta place : continue à poster.'}</p>` }); }
+      L.push({ c: 'e', h: `<small>${esc(X.nom)}</small><b class="nv-n num">${pl === 1 ? '1er' : pl + 'e'}</b><span>place provisoire${pr ? ', ' + eur(pr) : ''}</span><p>${fini ? 'Campagne terminée, résultats après vérification.' : pl > 1 && dev ? `Il te manque ${k((dev.vues || 0) - (X.moi.vues || 0) + 1)} vues pour passer ${pl - 1 === 1 ? '1er' : (pl - 1) + 'e'}.` : 'Garde ta place : continue à poster.'}</p>` }); }
     // les 3 heures les plus FORTES (pas les 3 plus tôt), rangées dans l'ordre de la journée
     const F = heuresFortes(A, C), H = F ? [...F].filter(h => h >= 8).slice(0, 3).sort((a, b) => a - b) : [];
     L.push({ c: 'f', h: `<small>${vieux ? 'Aujourd’hui' : 'Demain'}</small><b class="nv-n">${H.length ? H.map(h => h + 'h').join(' ') : 'Poste tôt'}</b><span>${H.length ? 'les heures où ton public est là' : ''}</span>${best ? `<p>Décline ta vidéo du jour : même moment, autre accroche, ou la partie 2.</p>` : ''}` });
