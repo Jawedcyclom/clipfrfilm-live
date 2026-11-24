@@ -116,7 +116,10 @@ def main():
         if essai: print('ALERTE', titre, '|', texte); continue
         try: envoyer(titre, texte, tag); deja.add(cle)
         except Exception as e: print('alerte non envoyée :', type(e).__name__)
-    mem['envoyees'] = sorted(deja)[-500:]
+    # garder les 500 PLUS RÉCENTES (ordre d'envoi), pas les 500 dernières par ordre alphabétique : sinon, passé 500,
+    # « decolle:… » / « bloquee:… » étaient effacées aussitôt et l'alerte repartait à chaque relevé (toutes les 5 min)
+    anciennes = [c for c in mem.get('envoyees', []) if c in deja]
+    mem['envoyees'] = (anciennes + [c for c in deja if c not in set(anciennes)])[-500:]
     (ST / 'alertes.json').write_text(json.dumps(mem), encoding='utf-8')
     if not essai: subprocess.run(['rclone', 'copyto', str(ST / 'alertes.json'), MEM_DRIVE], capture_output=True)
     print(f'alertes : {len(nouvelles)} nouvelle(s)')
