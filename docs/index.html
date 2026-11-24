@@ -1118,6 +1118,8 @@ button,a,[role="button"],.sec.pliable{-webkit-touch-callout:none}
 .cp-hero b{font:800 clamp(44px,13vw,60px)/1 var(--display);color:var(--gold);letter-spacing:-.02em;margin:4px 0}
 .cp-hero span{color:var(--muted);font:500 13px var(--body)}
 .cp-t{font:700 20px var(--display);margin:18px 2px 10px}
+.cp-reste{font-style:normal;color:var(--fg)}
+.cp-fiche{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:0 2px 14px}.cp-fiche b{font:800 34px var(--display);color:var(--gold)}.cp-fiche span{color:var(--muted);font:500 13px var(--body)}
 .cp-vide{color:var(--muted);font:500 14px/1.4 var(--body);margin:0 0 6px;padding:14px 16px;border-radius:16px;background:var(--s2,rgba(255,255,255,.05))}
 .cp-liste{border-radius:18px;overflow:hidden;background:var(--s2,rgba(255,255,255,.05))}
 .cp-row{all:unset;box-sizing:border-box;cursor:pointer;width:100%;display:grid;grid-template-columns:44px minmax(0,1fr) auto 14px;align-items:center;gap:12px;padding:13px 14px;-webkit-tap-highlight-color:transparent}
@@ -1256,6 +1258,8 @@ document.addEventListener('error', e => { const i = e.target; if (i.tagName !== 
 // ---------- Préférences du clippeur (gardées sur son téléphone) ----------
 const PREF = (() => { try { return JSON.parse(localStorage.getItem('cs_pref') || '{}'); } catch (e) { return {}; } })();
 const savePref = () => { try { localStorage.setItem('cs_pref', JSON.stringify(PREF)); } catch (e) {} };
+// montants officiels Cyclom : toujours au centime près (pas d'arrondi sur l'argent du clippeur)
+const eur2 = n => n == null || isNaN(n) ? '—' : n.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
 const eur = n => n == null || isNaN(n) ? '—' : nb_(n.toLocaleString('fr-FR', { maximumFractionDigits: n < 100 ? 2 : 0, minimumFractionDigits: n < 100 ? 2 : 0 })) + '\u00a0€';
 const estCamp = t => t.startsWith('cyclomx') || (RAW.campagnes || []).some(c => c.tag === t);
 // tarif d'une campagne en € pour 1000 vues : celui réglé par le clippeur, sinon celui donné par l'agence
@@ -1264,8 +1268,20 @@ const tarif = t => enCours(t) ? (RAW.campagnes || []).find(c => c.tag === t)?.cp
 // campagnes : terminee / date de fin), plus JAMAIS une liste écrite en dur. Sur le serveur Cyclom, son statut officiel compte aussi.
 const finCamp = c => c.terminee ? 0 : c.fin ? new Date(c.fin + 'T23:59:00').getTime() : 0;
 const campOfficielles = () => [...((RAW.classement || CLASSEMENT)?.campagnes || []), ...infosCampagnes()];
-function campActive() { const now = Date.now(); return campOfficielles().find(c => finCamp(c) > now) || (SITE ? (RAW.campagnes || []).find(c => c.en_cours) : null) || null; }
-function enCours(tag) { const now = Date.now(); return campOfficielles().some(c => c.tag === tag && finCamp(c) > now) || (SITE && (RAW.campagnes || []).some(c => c.tag === tag && c.en_cours)); }
+function campActive() { const now = Date.now(); return campOfficielles().find(c => finCamp(c) > now) || null; }
+function enCours(tag) { const now = Date.now(); return campOfficielles().some(c => c.tag === tag && finCamp(c) > now); }
+// ses sous chez Cyclom (chiffres OFFICIELS de l'admin cyclom.fr : gagné, versé, dernier versement, par campagne), pour le compte affiché.
+// Une personne = tous ses comptes réunis ; marche pour n'importe quel clippeur (le serveur ne lui envoie que le sien).
+function monSolde(A) {
+  const L = (RAW.classement || CLASSEMENT)?.soldes; if (!L?.length) return null;
+  const moi = mesComptesTT(A), M = L.filter(x => (x.comptes || []).some(c => moi.has(String(c).toLowerCase())));
+  if (!M.length) return null;
+  const o = { gagne: 0, verse: 0, paye_le: null, camp: {} };
+  for (const x of M) { o.gagne += x.gagne || 0; o.verse += x.verse || 0; if (x.paye_le && (!o.paye_le || x.paye_le > o.paye_le)) o.paye_le = x.paye_le;
+    for (const [id, c] of Object.entries(x.campagnes || {})) { const d = o.camp[id] = o.camp[id] || { gain: 0, verse: 0 }; d.gain += c.gain || 0; d.verse += c.verse || 0; } }
+  o.reste = Math.max(0, Math.round((o.gagne - o.verse) * 100) / 100);
+  return o;
+}
 const ordP = n => n === 1 ? '1er' : n + 'e';
 function gains(A) {
   let auj = 0, tot = 0, ok = false;
@@ -1385,8 +1401,8 @@ function course(A, C, mode) {
       <div class="jg-corps">
         <svg class="jg-anneau ${anim ? 'anim' : ''}" viewBox="0 0 80 80" aria-hidden="true" style="--p:${P.toFixed(1)};--o:${(P * (1 - pc)).toFixed(1)}"><circle cx="40" cy="40" r="${R}" class="jg-fond"/><circle cx="40" cy="40" r="${R}" class="jg-arc" stroke-dasharray="${P.toFixed(1)}" stroke-dashoffset="${(P * (1 - pc)).toFixed(1)}" transform="rotate(-90 40 40)"/><text x="40" y="40" class="jg-pl">${ord(place)}</text><text x="40" y="55" class="jg-pc">${place === 1 ? 'en tête' : Math.round(pc * 100) + ' %'}</text></svg>
         <div class="jg-txt">${place === 1
-          ? `<span class="jg-l">${fini ? '1er provisoire' : 'Tu es en tête'}</span><b class="num jg-big">${avance != null ? '+' + k(avance) : '—'}</b><span class="jg-s">${avance != null ? `${unite} d’avance sur le 2e` : ''}</span>`
-          : `<span class="jg-l">${fini ? 'Il manquait (provisoire)' : 'Il te manque'} pour passer ${ord(placeCible)}</span><b class="num jg-big">${k(manqueC)} ${unite}</b>${gainC > 0 && !fini ? `<span class="jg-gain">+${eur(gainC)}</span>` : ''}`}</div>
+          ? `<span class="jg-l">${fini ? 'Place finale' : 'Tu es en tête'}</span><b class="num jg-big">${avance != null ? '+' + k(avance) : '—'}</b><span class="jg-s">${avance != null ? `${unite} d’avance sur le 2e` : ''}</span>`
+          : `<span class="jg-l">${fini ? 'Il manquait' : 'Il te manque'} pour passer ${ord(placeCible)}</span><b class="num jg-big">${k(manqueC)} ${unite}</b>${gainC > 0 && !fini ? `<span class="jg-gain">+${eur(gainC)}</span>` : ''}`}</div>
       </div>${vit}
       <div class="jg-pied">${fin2 ? `<span>${fin2}</span>` : ''}<span class="${vieux ? 'down' : 'muted'}">${vieux ? 'Classement pas à jour depuis ' + ago(mj).replace('il y a ', '') : 'Relevé cyclom.fr · ' + ago(mj)}</span></div>`;
     if (mode !== 'court' && g && !fini) h += `<p class="say jg-guide">Pour y arriver : ${guideTxt(g)}</p>`;
@@ -1863,24 +1879,27 @@ function vCampagnes(A, C) {
   const autres = Object.entries(by).map(([t, vs]) => ({ t, nom: known[t]?.nom || t.replace(/^cyclomx/, ''), n: vs.length, vues: vs.reduce((s, v) => s + v.v, 0), last: Math.max(...vs.map(v => v.t)) })).sort((a, b) => b.last - a.last);
   const tot = off.reduce((s, o) => s + o.gain, 0);
   let h = '';
-  // Jawed 24/11 : « c'est faux, j'ai gagné beaucoup plus » → AUCUN total ni montant tant que Cyclom ne donne pas l'historique complet
-  if (false) h += `<section class="cp-hero"><small>Gagné avec Cyclom</small><b class="num">${eur(tot)}</b><span>${off.length} campagne${off.length > 1 ? 's' : ''} · montants à confirmer par Cyclom</span></section>`;
+  // Jawed 24/11 : seulement des chiffres SÛRS → ceux de l'admin cyclom.fr (gagné / versé). Sans eux : aucun montant.
+  const SO = monSolde(A), jjmm = t => new Date(t).toLocaleDateString('fr-FR', { timeZone: TZ, day: '2-digit', month: '2-digit' });
+  if (SO && SO.gagne > 0) h += `<section class="cp-hero"><small>Gagné avec Cyclom</small><b class="num">${eur2(SO.gagne)}</b><span>${SO.reste >= 1 ? `${eur2(SO.verse)} versés · <em class="cp-reste">${eur2(SO.reste)} à venir</em>` : `Tout est versé${SO.paye_le ? ' · dernier paiement le ' + jjmm(SO.paye_le) : ''}`}</span></section>`;
   if (actives.length) {
     h += `<h2 class="cp-t">En cours</h2>` + course(A, C, 'encours');
     for (const c of infosCampagnes()) if (enCours(c.tag) && A.videos.some(v => tags(v.d).includes(c.tag))) h += blocCartons(c, A) + blocMeilleurs(A, c);
   } else h += `<p class="cp-vide">Aucune campagne en cours. Elle s’affichera ici dès qu’elle démarre sur cyclom.fr.</p>`;
   const jj = d => d ? d.slice(8, 10) + '/' + d.slice(5, 7) : '';
   const rows = finies.map(o => { const pv = o.vues ? o.vues.tri.indexOf(o.vues.moi) + 1 : 0, pc = o.clips ? o.clips.tri.indexOf(o.clips.moi) + 1 : 0, mv = (o.vues || o.clips).moi.vues || 0;
-    return `<button class="cp-row" type="button" data-camp="${esc(o.id)}"><span class="cp-pl ${pv === 1 ? 'or' : ''}">${pv ? ordP(pv) : '—'}</span><span class="cp-n"><b>${esc(o.nom)}</b><small>fini le ${jj(o.finJ)} · ${k(mv)} vues${pc ? ' · ' + ordP(pc) + ' en clips' : ''}</small></span><b class="cp-g"></b><span class="cp-chev" aria-hidden="true">›</span></button>`; })
+    return `<button class="cp-row" type="button" data-camp="${esc(o.id)}"><span class="cp-pl ${pv === 1 ? 'or' : ''}">${pv ? ordP(pv) : '—'}</span><span class="cp-n"><b>${esc(o.nom)}</b><small>fini le ${jj(o.finJ)} · ${k(mv)} vues${pc ? ' · ' + ordP(pc) + ' en clips' : ''}</small></span><b class="cp-g num">${SO?.camp[o.id]?.gain ? eur2(SO.camp[o.id].gain) : ''}</b><span class="cp-chev" aria-hidden="true">›</span></button>`; })
     .concat([].map(c => `<button class="cp-row" type="button" data-q="#${esc(c.t)}"><span class="cp-pl off">#</span><span class="cp-n"><b>${esc(c.nom)}</b><small>${c.n} vidéo${c.n > 1 ? 's' : ''} · ${k(c.vues)} vues · sans classement</small></span><b class="cp-g"></b><span class="cp-chev" aria-hidden="true">›</span></button>`));
-  if (rows.length) h += `<h2 class="cp-t">${actives.length ? 'Terminées' : 'Classements Cyclom'}</h2><div class="cp-liste">${rows.join('')}</div>`;
+  if (rows.length) h += `<h2 class="cp-t">${actives.length ? 'Terminées' : 'Tes campagnes'}</h2><div class="cp-liste">${rows.join('')}</div>`;
   if (!h) h = `<div class="card muted">Aucune campagne Cyclom pour l’instant : ta place et tes gains s’afficheront ici.</div>`;
   return h;
 }
 function ficheCampagne(id) {
   const A = compteCourant(), C = calc(A), o = lignesCampagnes(A).find(x => x.id === id); if (!o) return;
   const info = infosCampagnes().find(c => c.id === id);
+  const so = monSolde(A)?.camp[id];
   ouvrir(`<div class="grab"></div><div class="sheet-h"><h2>${esc(o.nom)}</h2><button class="x" type="button" data-close aria-label="Fermer">×</button></div>
+    ${so?.gain ? `<div class="cp-fiche"><b class="num">${eur2(so.gain)}</b><span>${so.verse >= so.gain - .01 ? 'versés' : so.verse ? eur2(so.verse) + ' versés · ' + eur2(so.gain - so.verse) + ' à venir' : 'à venir'} · chiffres cyclom.fr</span></div>` : ''}
     ${course(A, C, 'une:' + id)}${info && A.videos.some(v => tags(v.d).includes(info.tag)) ? blocMeilleurs(A, info) + blocCartons(info, A) : ''}`);
 }
 

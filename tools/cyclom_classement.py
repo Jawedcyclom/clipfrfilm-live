@@ -34,11 +34,7 @@ def nettoyer_brut():
     out = {'maj': time.strftime('%Y-%m-%dT%H:%M:%S'), 'campagnes': []}
     for c in z.get('campagnes', []):
         if not c.get('commencee') or not c.get('publiee', True): continue
-        # campagne terminée : gardée 7 jours (le clippeur voit sa place finale « Tu finis 1er », Jawed 24/11), ensuite retirée
-        if c.get('terminee'):
-            try: fin = time.mktime(time.strptime(str(c.get('fin'))[:10], '%Y-%m-%d')) + 86400
-            except Exception: continue
-            if time.time() - fin > 7 * 86400: continue
+        # campagnes terminées : TOUTES gardées (historique du clippeur, Jawed 24/11) ; la page n'en montre aucune dans le Direct
         a = lire('/api/central/activite/' + urllib.parse.quote(c['id']))
         cl = c.get('classement') or {}
         out['campagnes'].append({'id': c['id'], 'nom': c.get('nom'), 'tag': c.get('hashtagCyclom'), 'fin': c.get('fin'), 'terminee': bool(c.get('terminee')),
@@ -46,6 +42,32 @@ def nettoyer_brut():
             'inscrits': [[i.get('pseudo'), i.get('rangVues') or 0, i.get('rangPosts') or 0, i.get('vues') or 0, i.get('clips') or 0,
                           i.get('meilleur') or 0, i.get('gain') or 0, '|'.join(comptes.get(i.get('pseudo')) or [i.get('pseudo')])]
                          for i in a.get('inscrits', []) if i.get('statut') == 'actif' and i.get('pseudo')]})
+    out['soldes'] = soldes(z.get('clippeurs', []))
+    return out
+
+
+def soldes(clippeurs):
+    """Ce que Cyclom a calculé et versé à chaque clippeur (une personne = tous ses comptes réunis).
+    Seulement des NOMBRES officiels (gagné, versé, date du dernier versement, par campagne) : jamais RIB, téléphone, email, nom."""
+    par = {}
+    for p in clippeurs:
+        comptes = [x for x in (p.get('pseudosComptes') or []) if isinstance(x, str)] or [p.get('pseudo')]
+        cle = tuple(sorted({str(x).lower() for x in comptes if x}))
+        if not cle: continue
+        s = par.setdefault(cle, {'comptes': list(cle), 'gagne': 0.0, 'verse': 0.0, 'paye_le': None, 'campagnes': {}})
+        num = lambda v: float(v) if isinstance(v, (int, float)) else 0.0
+        s['gagne'] += num(p.get('duCumule', p.get('du'))); s['verse'] += num(p.get('verse'))
+        if p.get('payeLe') and (not s['paye_le'] or p['payeLe'] > s['paye_le']): s['paye_le'] = p['payeLe']
+        for cid, c in (p.get('campagnes') or {}).items():
+            if isinstance(c, dict): s['campagnes'].setdefault(cid, {'gain': 0.0, 'verse': 0.0})['gain'] += num(c.get('gain'))
+        for cid, c in (p.get('paiementsCampagnes') or {}).items():
+            if isinstance(c, dict): s['campagnes'].setdefault(cid, {'gain': 0.0, 'verse': 0.0})['verse'] += num(c.get('verse'))
+    out = []
+    for s in par.values():
+        if not (s['gagne'] or s['verse']): continue
+        s['gagne'], s['verse'] = round(s['gagne'], 2), round(s['verse'], 2)
+        s['campagnes'] = {k: {'gain': round(v['gain'], 2), 'verse': round(v['verse'], 2)} for k, v in s['campagnes'].items() if v['gain'] or v['verse']}
+        out.append(s)
     return out
 
 
@@ -88,7 +110,7 @@ def mettre_en_forme(brut):
             if cle not in par_personne or vues > par_personne[cle]['vues']: par_personne[cle] = ligne
         lignes = sorted(par_personne.values(), key=lambda x: (-x['vues'], -x['clips']))
         camps.append({k: c[k] for k in ('id', 'nom', 'tag', 'fin', 'terminee', 'prix')} | {'lignes': lignes})
-    return {'maj': brut['maj'], 'source': 'cyclom.fr', 'campagnes': camps}
+    return {'maj': brut['maj'], 'source': 'cyclom.fr', 'campagnes': camps, 'soldes': brut.get('soldes') or []}
 
 
 def main():
@@ -113,10 +135,11 @@ def main():
     # le classement est PRIVÉ : vers le Drive, seuls MES comptes gardent leur pseudo ; les autres deviennent anonymes
     # (le serveur reçoit la version complète pour reconnaître chaque clippeur, et anonymise lui-même avant d'envoyer)
     moi = {x.strip().lower() for x in os.environ.get('MOI_COMPTES', 'clipfrfilm').split(',') if x.strip()}
-    prive = {**final, 'campagnes': [{**c, 'lignes': [l if moi & set(l['comptes']) else {**l, 'pseudo': None, 'comptes': []} for l in c['lignes']]} for c in final['campagnes']]}
+    # sous : vers le Drive, seulement MON solde (le serveur reçoit tout et ne donne à chacun que le sien)
+    prive = {**final, 'soldes': [x for x in final.get('soldes') or [] if moi & set(x['comptes'])], 'campagnes': [{**c, 'lignes': [l if moi & set(l['comptes']) else {**l, 'pseudo': None, 'comptes': []} for l in c['lignes']]} for c in final['campagnes']]}
     sortie = Path(a[a.index('--sortie') + 1]) if '--sortie' in a else OUT
     sortie.parent.mkdir(exist_ok=True); sortie.write_text(json.dumps(prive, ensure_ascii=False, separators=(',', ':')), encoding='utf-8')
-    print(f"classement Cyclom : {len(final['campagnes'])} campagne(s) en cours, {sum(len(c['lignes']) for c in final['campagnes'])} clippeurs")
+    print(f"classement Cyclom : {len(final['campagnes'])} campagne(s), {len(final.get('soldes') or [])} soldes, {sum(len(c['lignes']) for c in final['campagnes'])} clippeurs")
     if '--depuis' in a: return
     r = subprocess.run(['rclone', 'copyto', str(sortie), DRIVE], capture_output=True, text=True)
     print('classement Cyclom → Drive', 'OK' if r.returncode == 0 else 'ÉCHEC')
