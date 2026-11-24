@@ -1283,6 +1283,7 @@ function monSolde(A) {
   return o;
 }
 const ordP = n => n === 1 ? '1er' : n + 'e';
+const rang = (x, l) => (l && l[x.cle]) || (x.tri.indexOf(l) + 1); // place officielle cyclom.fr
 function gains(A) {
   let auj = 0, tot = 0, ok = false;
   for (const v of A.videos) { const t = tags(v.d).find(x => tarif(x) != null); if (!t) continue; ok = true; const r = tarif(t) / 1000; auj += (v.gj || 0) * r; tot += v.v * r; }
@@ -1330,8 +1331,10 @@ function courses(A) {
     const fin = c.terminee ? Math.min(Date.now() - 1, c.fin ? new Date(c.fin + 'T23:59:00').getTime() : Infinity) : c.fin ? new Date(c.fin + 'T23:59:00').getTime() : null;
     // ordre OFFICIEL de cyclom.fr (rangVues / rangPosts), rien n'est recalculé ici ; sans place = en fin de liste
     // place = ordre des vues validées par cyclom.fr (l'ordre « rang » de cyclom.fr n'est pas toujours trié : 9e < 10e)
+    // Jawed 24/11 : la place = celle de cyclom.fr (rv / rp), c'est elle qui fixe les gains. Recalculer en triant les vues donnait
+    // 6e au lieu de 10e (la liste ne contient que les inscrits encore actifs). Sans rang officiel : en fin de liste, par vues.
     const officiel = cle => [...L].filter(l => (cle === 'rv' ? l.vues : l.clips) > 0 || l === m)
-      .sort((a, b) => cle === 'rv' ? b.vues - a.vues || b.clips - a.clips : b.clips - a.clips || b.vues - a.vues);
+      .sort((a, b) => (a[cle] || 1e9) - (b[cle] || 1e9) || (cle === 'rv' ? b.vues - a.vues || b.clips - a.clips : b.clips - a.clips || b.vues - a.vues));
     out.push({ ...c, finJ: c.fin, type: 'vues', cle: 'rv', prixL: c.prix?.vues || [], moi: m, fin, tri: officiel('rv') });
     if ((c.prix?.posts || []).length) out.push({ ...c, finJ: c.fin, type: 'clips', cle: 'rp', prixL: c.prix.posts, moi: m, fin, tri: officiel('rp') });
   }
@@ -1348,7 +1351,7 @@ function course(A, C, mode) {
   else L = [...L].sort((a, b) => ((b.fin || 9e15) > Date.now()) - ((a.fin || 9e15) > Date.now()) || (b.fin || 9e15) - (a.fin || 9e15)); // Campagnes : en cours d'abord, puis les plus récentes
   return L.map(x => {
     const val = r => x.type === 'clips' ? r.clips : r.vues, unite = x.type === 'clips' ? 'clips' : 'vues';
-    const i = x.tri.indexOf(x.moi), place = i + 1, devant = x.tri[i - 1], derriere = x.tri[i + 1], dixieme = x.tri[x.prixL.length - 1];
+    const i = x.tri.indexOf(x.moi), place = rang(x, x.moi), devant = x.tri[i - 1], derriere = x.tri[i + 1], dixieme = x.tri[x.prixL.length - 1];
     const prix = p => x.prixL[p - 1] || 0, gainSuivant = devant ? prix(place - 1) - prix(place) : 0;
     const manque = devant ? val(devant) - val(x.moi) + 1 : 0, avance = derriere ? val(x.moi) - val(derriere) : null;
     const g = x.type === 'clips' || !manque ? null : guide(A, C, manque);
@@ -1370,8 +1373,8 @@ function course(A, C, mode) {
     const finTxt = reste == null ? '' : reste <= 0 ? 'Campagne terminée, résultats après vérification.' : reste < 864e5 ? `Fin de la campagne dans ${Math.max(1, Math.round(reste / 3600e3))} h.` : `Fin de la campagne dans ${Math.round(reste / 864e5)} jours.`;
     // ---------- JAUGE « PROCHAINE PLACE » (Jawed 24/11) : un anneau qui se remplit vers la place du dessus + mode sprint 48 h ----------
     const fini = reste != null && reste <= 0, sprint = reste != null && reste > 0 && reste < 48 * 3600e3;
-    const cible = place === 1 ? null : place > x.prixL.length && dixieme ? dixieme : devant, placeCible = cible ? x.tri.indexOf(cible) + 1 : null;
-    const pc = place === 1 ? 1 : cible && val(cible) > 0 ? Math.max(.02, Math.min(.99, val(x.moi) / val(cible))) : 0;
+    const cible = place === 1 ? null : place > x.prixL.length && dixieme ? dixieme : devant, placeCible = cible ? rang(x, cible) : null;
+    const pc = place === 1 || fini ? 1 : cible && val(cible) > 0 ? Math.max(.02, Math.min(.99, val(x.moi) / val(cible))) : 0;
     const manqueC = cible ? val(cible) - val(x.moi) + 1 : 0, gainC = cible ? prix(placeCible) - prix(place) : 0;
     const R = 34, P = 2 * Math.PI * R, anim = !(typeof MV !== 'undefined' && MV.doux);
     const ord = n => n === 1 ? '1er' : n + 'e';
@@ -1397,10 +1400,10 @@ function course(A, C, mode) {
     const fin2 = reste == null ? '' : fini ? 'Classement relevé à la fin' : `Fin dans <b class="num" data-fin="${x.fin}">${resteTxt(reste)}</b> · place provisoire`;
     const mj = new Date((RAW.classement || CLASSEMENT).maj).getTime(), vieux = Date.now() - mj > 3 * 3600e3;
     let h = `<section class="card money course jauge ${sprint ? 'sprint' : ''} ${fini ? 'finie' : ''}">
-      <div class="jg-h"><span class="jg-nom">${esc(x.nom)}${x.type === 'clips' ? ' · clips' : ''}</span>${sprint ? '<span class="jg-badge">SPRINT</span>' : fini ? '<span class="jg-badge off">Terminée</span>' : ''}<b class="num jg-prix">${titre}</b></div>
+      <div class="jg-h"><span class="jg-nom">${esc(x.nom)}${x.type === 'clips' ? ' · clips' : ''}</span>${sprint ? '<span class="jg-badge">SPRINT</span>' : fini ? '<span class="jg-badge off">Terminée</span>' : ''}${fini ? '' : `<b class="num jg-prix">${titre}</b>`}</div>
       <div class="jg-corps">
-        <svg class="jg-anneau ${anim ? 'anim' : ''}" viewBox="0 0 80 80" aria-hidden="true" style="--p:${P.toFixed(1)};--o:${(P * (1 - pc)).toFixed(1)}"><circle cx="40" cy="40" r="${R}" class="jg-fond"/><circle cx="40" cy="40" r="${R}" class="jg-arc" stroke-dasharray="${P.toFixed(1)}" stroke-dashoffset="${(P * (1 - pc)).toFixed(1)}" transform="rotate(-90 40 40)"/><text x="40" y="40" class="jg-pl">${ord(place)}</text><text x="40" y="55" class="jg-pc">${place === 1 ? 'en tête' : Math.round(pc * 100) + ' %'}</text></svg>
-        <div class="jg-txt">${place === 1
+        <svg class="jg-anneau ${anim ? 'anim' : ''}" viewBox="0 0 80 80" aria-hidden="true" style="--p:${P.toFixed(1)};--o:${(P * (1 - pc)).toFixed(1)}"><circle cx="40" cy="40" r="${R}" class="jg-fond"/><circle cx="40" cy="40" r="${R}" class="jg-arc" stroke-dasharray="${P.toFixed(1)}" stroke-dashoffset="${(P * (1 - pc)).toFixed(1)}" transform="rotate(-90 40 40)"/><text x="40" y="40" class="jg-pl">${ord(place)}</text><text x="40" y="55" class="jg-pc">${fini ? 'finale' : place === 1 ? 'en tête' : Math.round(pc * 100) + ' %'}</text></svg>
+        <div class="jg-txt">${fini ? `<span class="jg-l">Place finale · cyclom.fr</span><b class="num jg-big">${k(val(x.moi))} ${unite}</b>` : place === 1
           ? `<span class="jg-l">${fini ? 'Place finale' : 'Tu es en tête'}</span><b class="num jg-big">${avance != null ? '+' + k(avance) : '—'}</b><span class="jg-s">${avance != null ? `${unite} d’avance sur le 2e` : ''}</span>`
           : `<span class="jg-l">${fini ? 'Il manquait' : 'Il te manque'} pour passer ${ord(placeCible)}</span><b class="num jg-big">${k(manqueC)} ${unite}</b>${gainC > 0 && !fini ? `<span class="jg-gain">+${eur(gainC)}</span>` : ''}`}</div>
       </div>${vit}
@@ -1408,7 +1411,7 @@ function course(A, C, mode) {
     if (mode !== 'court' && g && !fini) h += `<p class="say jg-guide">Pour y arriver : ${guideTxt(g)}</p>`;
     if (mode !== 'court') {
       const top = x.tri.slice(0, Math.max(10, x.prixL.length)), lignes = top.includes(x.moi) ? top : [...top, x.moi];
-      h += `<div class="podium">${lignes.map(r => { const p = x.tri.indexOf(r) + 1; return `<div class="pl ${r === x.moi ? 'moi' : ''}"><span class="pr">${p}</span><span class="pp">${r === x.moi ? 'Toi' : 'Clippeur ' + p}</span><span class="pv num">${k(val(r))}</span><span class="pg num">${prix(p) && !fini ? eur(prix(p)) : ''}</span></div>`; }).join('')}</div>${lignes.length > 4 ? '<button class="more podium-tout" type="button" data-podium>Voir tout le classement</button>' : ''}`;
+      h += `<div class="podium">${lignes.map(r => { const p = rang(x, r); return `<div class="pl ${r === x.moi ? 'moi' : ''}"><span class="pr">${p}</span><span class="pp">${r === x.moi ? 'Toi' : 'Clippeur ' + p}</span><span class="pv num">${k(val(r))}</span><span class="pg num">${prix(p) && !fini ? eur(prix(p)) : ''}</span></div>`; }).join('')}</div>${lignes.length > 4 ? '<button class="more podium-tout" type="button" data-podium>Voir tout le classement</button>' : ''}`;
     }
     return h + `</section>`;
   }).join('');
@@ -1520,7 +1523,7 @@ function renderHead() {
   for (const a of L) h += `<button class="acct" type="button" data-acc="${esc(a.id)}" aria-pressed="${ACC === a.id || L.length === 1}"><span class="av">${esc((a.user || '?')[0].toUpperCase())}</span>@${esc(a.user)}</button>`;
   if (A0?.videos?.length) { const S = NV.infosSerie(A0, calc(A0)); if (S.n) h += `<button class="acct nv-chip ${S.auj ? 'ok' : S.n ? 'danger' : ''}" type="button" data-serie aria-label="Ta série : ${S.n} jours">${NV.FLAMME}${S.n}</button>`; }
   try { const X = A0 ? courses(A0).filter(x => x.type === 'vues' && x.fin && x.fin > Date.now()).sort((a, b) => a.fin - b.fin)[0] : null;
-    if (X) { const pl = X.tri.indexOf(X.moi) + 1, sp = X.fin - Date.now() < 48 * 3600e3;
+    if (X) { const pl = rang(X, X.moi), sp = X.fin - Date.now() < 48 * 3600e3;
       h += `<button class="acct nv-place ${sp ? 'sprint' : ''}" type="button" data-go="campagnes" aria-label="Ta place provisoire sur ${esc(X.nom)} : ${pl}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v4a5 5 0 0 1-10 0V4z" fill="currentColor" opacity=".9"/><path d="M7 6H4.5a2.5 2.5 0 0 0 2.6 3.5M17 6h2.5a2.5 2.5 0 0 1-2.6 3.5M12 13v4M8.5 20h7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>${pl === 1 ? '1er' : pl + 'e'}</button>`; } } catch (e) {}
   if (WEB) h += `<a class="acct" href="https://jawedcyclom.github.io/cyclom-studio/apercu/" style="text-decoration:none">Aperçu multi-comptes ↗</a>`;
   if (!DRIVE && !WEB) h += `<button class="acct add" type="button" id="addAcc">+ Ajouter un compte</button>`;
@@ -1538,7 +1541,7 @@ function coupOeil(A, C) {
   let X = null; try { X = courses(A).filter(x => x.type === 'vues').find(x => x.fin && x.fin > Date.now()) || null; } catch (e) {} // jamais une campagne finie
   const TROPHEE = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v4a5 5 0 0 1-10 0V4z" fill="currentColor" opacity=".9"/><path d="M7 6H4.5a2.5 2.5 0 0 0 2.6 3.5M17 6h2.5a2.5 2.5 0 0 1-2.6 3.5M12 13v4M8.5 20h7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
   let tP;
-  if (X) { const pl = X.tri.indexOf(X.moi) + 1, fini = X.fin && X.fin <= Date.now(), sp = !fini && X.fin && X.fin - Date.now() < 48 * 3600e3;
+  if (X) { const pl = rang(X, X.moi), fini = X.fin && X.fin <= Date.now(), sp = !fini && X.fin && X.fin - Date.now() < 48 * 3600e3;
     tP = `<button class="oeil-t place ${sp ? 'sprint' : ''}" type="button" data-go="campagnes" aria-label="Ta place provisoire sur ${esc(X.nom)} : ${pl}"><span class="oeil-ic">${TROPHEE}</span><b class="num">${pl > 0 ? ordP(pl) : '—'}</b><small>${sp ? 'Sprint · ' : ''}${esc(X.nom)}</small></button>`; }
   else tP = `<div class="oeil-t"><span class="oeil-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18l5-6 4 3 7-9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><b class="num">${C.est && !C.partiel ? '≈ ' + k(C.est) : '—'}</b><small>vues prévues ce soir</small></div>`;
   let tS = '';
@@ -1887,7 +1890,7 @@ function vCampagnes(A, C) {
     for (const c of infosCampagnes()) if (enCours(c.tag) && A.videos.some(v => tags(v.d).includes(c.tag))) h += blocCartons(c, A) + blocMeilleurs(A, c);
   } else h += `<p class="cp-vide">Aucune campagne en cours. Elle s’affichera ici dès qu’elle démarre sur cyclom.fr.</p>`;
   const jj = d => d ? d.slice(8, 10) + '/' + d.slice(5, 7) : '';
-  const rows = finies.map(o => { const pv = o.vues ? o.vues.tri.indexOf(o.vues.moi) + 1 : 0, pc = o.clips ? o.clips.tri.indexOf(o.clips.moi) + 1 : 0, mv = (o.vues || o.clips).moi.vues || 0;
+  const rows = finies.map(o => { const pv = o.vues ? rang(o.vues, o.vues.moi) : 0, pc = o.clips ? rang(o.clips, o.clips.moi) : 0, mv = (o.vues || o.clips).moi.vues || 0;
     return `<button class="cp-row" type="button" data-camp="${esc(o.id)}"><span class="cp-pl ${pv === 1 ? 'or' : ''}">${pv ? ordP(pv) : '—'}</span><span class="cp-n"><b>${esc(o.nom)}</b><small>fini le ${jj(o.finJ)} · ${k(mv)} vues${pc ? ' · ' + ordP(pc) + ' en clips' : ''}</small></span><b class="cp-g num">${SO?.camp[o.id]?.gain ? eur2(SO.camp[o.id].gain) : ''}</b><span class="cp-chev" aria-hidden="true">›</span></button>`; })
     .concat([].map(c => `<button class="cp-row" type="button" data-q="#${esc(c.t)}"><span class="cp-pl off">#</span><span class="cp-n"><b>${esc(c.nom)}</b><small>${c.n} vidéo${c.n > 1 ? 's' : ''} · ${k(c.vues)} vues · sans classement</small></span><b class="cp-g"></b><span class="cp-chev" aria-hidden="true">›</span></button>`));
   if (rows.length) h += `<h2 class="cp-t">${actives.length ? 'Terminées' : 'Tes campagnes'}</h2><div class="cp-liste">${rows.join('')}</div>`;
@@ -3044,7 +3047,7 @@ const NV = (() => {
     L.push({ c: 'd', h: `<small>Ta série</small><div class="nv-fs ${S.auj ? 'ok' : 'danger'}">${FLAMME}<b class="num">${S.n}</b></div><span>${S.n > 1 ? 'jours d’affilée' : 'jour'}</span><p>${S.auj ? 'Gardée aujourd’hui.' : `<em>Poste avant minuit</em> pour la ${S.n ? 'garder' : 'lancer'}.`} Semaine : ${S.fait} / ${S.obj} vidéos.</p>` });
     // classement : campagne en cours d'abord ; même calcul que le Direct (+1 vue pour passer DEVANT, pas à égalité)
     const CS = courses(A).filter(x => x.type === 'vues'), X = CS.find(x => x.fin && x.fin > Date.now());
-    if (X) { const pl = X.tri.indexOf(X.moi) + 1, pr = X.prixL[pl - 1], dev = X.tri[pl - 2], fini = X.fin && X.fin <= Date.now();
+    if (X) { const pl = rang(X, X.moi), pr = X.prixL[pl - 1], dev = X.tri[pl - 2], fini = X.fin && X.fin <= Date.now();
       L.push({ c: 'e', h: `<small>${esc(X.nom)}</small><b class="nv-n num">${pl === 1 ? '1er' : pl + 'e'}</b><span>place provisoire${pr ? ', ' + eur(pr) : ''}</span><p>${fini ? 'Campagne terminée, résultats après vérification.' : pl > 1 && dev ? `Il te manque ${k((dev.vues || 0) - (X.moi.vues || 0) + 1)} vues pour passer ${pl - 1 === 1 ? '1er' : (pl - 1) + 'e'}.` : 'Garde ta place : continue à poster.'}</p>` }); }
     // les 3 heures les plus FORTES (pas les 3 plus tôt), rangées dans l'ordre de la journée
     const F = heuresFortes(A, C), H = F ? [...F].filter(h => h >= 8).slice(0, 3).sort((a, b) => a - b) : [];
