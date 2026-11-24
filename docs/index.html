@@ -953,6 +953,19 @@ button,a,[role="button"],.sec.pliable{-webkit-touch-callout:none}
   .sec.pliable:not(.ouvert)>.sec-h h2{font-size:14px;letter-spacing:-.01em}
   .sumbar:has(>.seg){font-size:12px}
 }
+/* ===== CE QUI MONTE en vignettes (Jawed 24/11 : « les vidéos sont par-dessus, c'est bizarre ») ===== */
+.monte-rail{display:grid;grid-auto-flow:column;grid-auto-columns:calc((100% - 20px) / 3.25);gap:10px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;margin:0 -16px;padding:2px 16px 4px;scroll-padding:0 16px}
+.monte-rail::-webkit-scrollbar{display:none}
+.mr{position:relative;display:block;aspect-ratio:9/16;border-radius:14px;overflow:hidden;background:var(--panel2);border:1px solid var(--edge);scroll-snap-align:start;padding:0;color:#fff;text-align:left;min-width:0}
+.mr>img,.mr>.ph{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.mr>.ph{display:flex;align-items:center;justify-content:center;padding:10px;font-size:11px;line-height:1.3;color:var(--fg2);text-align:center}
+.mr-rg{position:absolute;top:6px;left:6px;min-width:22px;height:22px;padding:0 6px;border-radius:11px;display:grid;place-items:center;font:800 12px var(--display);font-style:normal;color:#04121a;background:#6FE3D6;box-shadow:0 2px 8px rgba(0,0,0,.4)}
+.mr .ov{position:absolute;left:0;right:0;bottom:0;padding:36px 8px 8px;background:linear-gradient(rgba(3,7,16,0),rgba(3,7,16,.9) 38%,rgba(3,7,16,.97));display:flex;flex-direction:column;align-items:flex-start;gap:0}
+.mr .ov b{font:800 18px/1.1 var(--display);color:#6FE3D6;letter-spacing:-.01em}
+.mr .ov small{font-size:11px;color:rgba(255,255,255,.78)}
+.mr-tot{font:700 12px var(--display);color:#fff;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+@media (max-width:380px){.mr-tot{font-size:11px}.mr .ov b{font-size:16px}}
+@media (min-width:960px){.monte-rail{grid-auto-flow:row;grid-template-columns:repeat(5,minmax(0,1fr));overflow:visible;margin:0;padding:0}}
 </style>
 
 <header class="top">
@@ -1299,7 +1312,8 @@ function vDirect(A, C) {
   const lst = rise.length ? rise : topJ, vue = (st.dvue === 'postees' && C.duJour.length) || !lst.length ? 'postees' : 'monte';
   h += nb ? `<section class="sec"><div class="segw seg2" role="tablist"><button type="button" role="tab" data-dvue="monte" aria-selected="${vue === 'monte'}" ${lst.length ? '' : 'disabled'}>${rise.length ? 'Ce qui monte' : 'Ce qui rapporte'}</button><button type="button" role="tab" data-dvue="postees" aria-selected="${vue === 'postees'}">Postées aujourd’hui · ${nb}</button></div>`
     : `<section class="sec garde"><div class="sec-h"><h2>${rise.length ? 'Ce qui monte' : 'Ce qui rapporte'}</h2><small>${rise.length ? 'vues gagnées sur la dernière heure' : "vues gagnées aujourd'hui"}</small></div>`; // une seule liste = un vrai titre, pas un faux bouton
-  if (vue === 'monte') h += `<div class="rows">${lst.map(v => `<button class="row" type="button" data-vid="${v.id}">${cover(v)}<div class="t"><b class="num">+${k(rise.length ? v.gh : v.gj)} <small class="muted" style="font:500 12px var(--body)">${rise.length ? 'sur 1 h' : "aujourd'hui"}</small></b><span>${esc(titreVid(v))}</span></div><div class="r num"><b>${k(v.v)}</b><br><span class="muted">${dateVid(v.t)}</span></div></button>`).join('')}</div>`;
+  // Jawed 24/11 : la liste en 2 colonnes donnait des miniatures « par-dessus » → rangée de vignettes façon TikTok (rang, gain, total)
+  if (vue === 'monte') h += `<div class="strip monte-rail">${lst.map((v, i) => `<button class="mr" type="button" data-vid="${v.id}" aria-label="${esc(titreVid(v))}">${cover(v)}<i class="mr-rg">${i + 1}</i><span class="ov"><b class="num">+${k(rise.length ? v.gh : v.gj)}</b><small>${rise.length ? 'sur 1 h' : "aujourd'hui"}</small><span class="mr-tot num">${k(v.v)} au total</span></span></button>`).join('')}</div>`;
   else h += dj.length ? `<div class="grid">${dj.slice(0, 12).map(v => vcard(v, C)).join('')}</div>${dj.length > 12 ? `<button class="more" type="button" data-go="videos" data-per="jour">Voir les ${dj.length} vidéos du jour</button>` : ''}` : `<div class="card muted">Rien posté aujourd’hui pour l’instant${A.videos[0] ? ` : ta dernière vidéo date d’il y a ${Math.floor((C.now / 1000 - A.videos[0].t) / 3600)} h` : ''}.</div>`;
   h += `</section>`;
   return h;
