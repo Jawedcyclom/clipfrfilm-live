@@ -998,6 +998,9 @@ button,a,[role="button"],.sec.pliable{-webkit-touch-callout:none}
 .course.finie .jg-arc{stroke:rgba(255,255,255,.35);filter:none}
 @media (max-width:380px){.jg-anneau{width:84px;height:84px}.jg-big{font-size:24px}}
 @media (prefers-reduced-motion:reduce){.jg-anneau.anim .jg-arc,.jg-badge{animation:none}}
+/* ===== CORRECTIF 24/11 : la petite barre « Ce qui monte | Postées » n'est jamais collante ni décalée
+   (l'animation la passait en position relative et la règle « top » des sous-onglets la poussait de 109 px sur les vidéos) ===== */
+.segw.seg2{top:auto!important;bottom:auto!important}
 </style>
 
 <header class="top">
