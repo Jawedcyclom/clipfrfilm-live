@@ -517,6 +517,10 @@ button,a.link,a.ext,.vc,.row,.in,.camp,.cd,.rc,.hb{transition:transform .15s var
   .sheet .kv{grid-template-columns:repeat(3,minmax(0,1fr))}
   .sheet .vd{grid-template-columns:150px minmax(0,1fr)}.sheet .vd img,.sheet .vd .ph{width:150px}
 }
+.sem{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.sm{display:flex;flex-direction:column;gap:1px;padding:10px;border-radius:12px;background:var(--panel2);border:1px solid var(--edge);min-width:0}
+.sm small{font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sm b{font:800 18px var(--display)}.sm span{font-size:12px;font-weight:700}
+@media (max-width:959px){.sem{grid-template-columns:1fr 1fr}}
 /* ===== TÉLÉPHONE (Jawed 24/11) : façon Apple. Toute la LARGEUR sert : widgets sur 2 colonnes (écran Résumé de l'iPhone),
    rangées qui défilent sur le côté (App Store), on touche un widget pour l'ouvrir en grand. PC inchangé. ===== */
 .podium-tout,.w-apercu{display:none}
@@ -577,6 +581,245 @@ button,a.link,a.ext,.vc,.row,.in,.camp,.cd,.rc,.hb{transition:transform .15s var
   .camps .camp-n{grid-template-columns:1fr 1fr;gap:4px}
   .camps .camp-n>div:first-child{display:none}
   .camps .camp-n b{font-size:16px}
+}
+/* ===== MATIÈRE (agent 24/11) : rendu statique d'appli native sur téléphone (< 960 px). PC inchangé.
+   Surfaces : fond plat #050B18, surface 1 = cartes/widgets, surface 2 = éléments posés dedans. Pas de dégradé de carte, pas de lueur.
+   Espacements : 4 / 8 / 12 / 16 / 20 / 24. Rayons : 22 cartes et widgets, 14 éléments internes, 12 contrôles, pilule pour filtres et comptes.
+   Matériau translucide (flou + saturation) pour l'en-tête et la barre d'onglets. Assistant déplacé dans l'en-tête : il ne cache plus rien. ===== */
+@media (max-width:959px){
+  :root{--s1:#0c1628;--s2:#152138;--s3:#1d2b45;--hair:rgba(170,200,230,.09);--r-card:22px;--r-in:14px;--r-ctl:12px;
+    --mat:rgba(8,15,30,.72);--tabh:58px}
+  html,body{background:#050b18}
+  body{margin:0;background-image:none;padding-bottom:calc(var(--tabh) + 40px + env(safe-area-inset-bottom,0px))}
+  .wrap{gap:16px}
+  .num,.big,.tile b,.jv b,.camp-n b,.rec b,.sm b,.kv b,.ms b,.pl .pv,.pl .pg{font-variant-numeric:tabular-nums}
+
+  /* --- En-tête : matériau translucide, titre + fraîcheur empilés, actions rondes à droite --- */
+  .top{background:var(--mat);backdrop-filter:blur(24px) saturate(1.7);-webkit-backdrop-filter:blur(24px) saturate(1.7);
+    border-bottom:.5px solid rgba(170,200,230,.14);padding-top:8px;padding-bottom:8px}
+  .top-in{gap:8px}
+  .brand{display:grid;grid-template-columns:minmax(0,1fr) 44px 44px;grid-template-rows:26px 18px;gap:0 8px;align-items:center}
+  .brand-r{display:contents}
+  .logo{grid-area:1/1;font-size:22px;line-height:26px;letter-spacing:-.015em}
+  .fresh{grid-area:2/1;font-size:12px;line-height:18px;color:var(--muted);min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+  .gear{grid-area:1/3/3/4;align-self:start;width:44px;height:44px;border-radius:50%;background:var(--s2);border:0;color:var(--fg2)}
+  .gear svg{width:19px;height:19px}
+  /* l'assistant prend la place libre (colonne 2) de l'en-tête */
+  .fab{position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);bottom:auto;right:calc(max(16px,env(safe-area-inset-right,0px)) + 52px);
+    width:44px;height:44px;border-radius:50%;background:var(--s2);border:0;box-shadow:none;z-index:21}
+  .fab svg{width:20px;height:20px;color:var(--cyclom2)}
+  .accts{gap:8px;margin:0;padding:0}
+  .acct{min-height:36px;padding:4px 14px 4px 4px;border-radius:999px;background:var(--s2);border:0;font-size:14px;font-weight:600;position:relative}
+  .acct[aria-pressed="true"]{background:var(--cyclom-soft);box-shadow:inset 0 0 0 1px rgba(71,204,192,.5)}
+  .acct.add{border:0;background:none;color:var(--cyclom2);padding:4px 8px}
+  .av{width:28px;height:28px;font-size:12px;background:var(--cyclom);color:#04121a}
+
+  /* --- Cartes : surface plate, rayon continu, filet très fin --- */
+  .card,.hero,.sec.pliable:not(.ouvert),.camps .camp,.course{background:var(--s1);border:0;border-radius:var(--r-card);box-shadow:inset 0 0 0 .5px var(--hair)}
+  .card{padding:16px}
+  .course{box-shadow:inset 0 0 0 1px rgba(71,204,192,.28)}
+
+  /* --- Titres de section façon iOS : grands et gras hors carte, plus sobres dans une carte --- */
+  h2{font:800 22px/1.15 var(--display);letter-spacing:-.012em}
+  .card h2,.sheet h2{font-size:18px}
+  .sec-h small{font-size:13px;color:var(--muted)}
+  .sec.pliable.ouvert>.sec-h h2{font-size:22px}
+
+  /* --- Navigation de jour : une seule capsule --- */
+  .daynav{grid-template-columns:44px minmax(0,1fr) 44px;gap:0;background:var(--s1);border-radius:var(--r-ctl);box-shadow:inset 0 0 0 .5px var(--hair)}
+  .daynav button.ar,.cal{background:none;border:0;border-radius:var(--r-ctl);min-height:44px}
+  .daynav button.ar{color:var(--fg2);font-size:22px}
+  .cal{font-size:15px}
+
+  /* --- Haut de page --- */
+  .hero{padding:20px 16px 16px;row-gap:4px;column-gap:0}
+  .hero .lbl{font-size:13px;color:var(--fg2)}
+  .big{font-size:56px;line-height:1.02;margin:2px 0 2px}
+  .hero .say{font-size:15px}
+  .hero>.est{background:none!important;border:0!important;border-radius:0;padding:12px 0 0!important;margin-top:8px!important;justify-content:space-between;gap:4px;
+    box-shadow:inset 0 .5px 0 var(--hair)}
+  .hero>.est:last-of-type{padding-left:16px!important;box-shadow:inset 0 .5px 0 var(--hair),inset .5px 0 0 var(--hair)}
+  .hero>.est .muted{font-size:12px;line-height:1.3}
+  .hero>.est b,.hero>.est .num{font-size:24px;line-height:1.1}
+  .hero>.obj{margin-top:12px;padding-top:12px;border-top:0;box-shadow:inset 0 .5px 0 var(--hair)}
+  .obj .tr{height:8px;border-radius:4px;background:var(--s3)}
+  .obj .tr i{border-radius:4px;background:var(--cyclom)}
+  .jcl{font-size:12px}
+
+  /* --- Chiffres du jour : un seul bloc groupé (6 cases séparées par des filets) --- */
+  .tiles{gap:0;background:var(--s1);border-radius:var(--r-card);box-shadow:inset 0 0 0 .5px var(--hair);overflow:hidden}
+  .tile{background:none;border:0;border-radius:0;padding:12px 14px;gap:2px;min-height:84px}
+  .gain{align-items:baseline}.gain>span{min-width:0}.gain b{white-space:nowrap}
+  .tiles,.ins{flex:none}
+  .tile:nth-child(3n+2),.tile:nth-child(3n+3){box-shadow:inset .5px 0 0 var(--hair)}
+  .tile:nth-child(n+4){box-shadow:inset 0 .5px 0 var(--hair)}
+  .tile:nth-child(n+5){box-shadow:inset 0 .5px 0 var(--hair),inset .5px 0 0 var(--hair)}
+  .tile span{font-size:12px;color:var(--muted)}
+  .tile b{font-size:21px;line-height:1.15}
+  .tile small{font-size:11.5px;white-space:normal;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+
+  /* --- Widgets 2 colonnes --- */
+  .widgets{gap:12px}
+  .widgets>.sec.pliable:not(.ouvert),.sec.pliable:not(.ouvert){padding:16px;min-height:164px;gap:12px}
+  .sec.pliable:not(.ouvert)>.sec-h h2{font-size:16px;line-height:1.2;letter-spacing:-.005em}
+  .sec.pliable:not(.ouvert)>.sec-h small{font-size:12px;line-height:1.3}
+  .sec.pliable>.sec-h::after{border-color:var(--muted);width:8px;height:8px;right:6px}
+  .w-apercu{margin-top:auto}
+  .w-imgs{gap:4px}
+  .w-imgs img{border-radius:10px}
+  .w-tx{font-size:13px;line-height:1.35}
+  .w-tx b{font-size:20px;display:block;line-height:1.1;margin-bottom:2px}
+  .widgets>:last-child:nth-child(odd):not(.ouvert){min-height:0}
+  /* widget seul sur sa ligne et peu rempli (ex. « Ce qui explique tes vues ») : bandeau compact */
+  .wrap>.sec.pliable:not(.ouvert){min-height:0}
+
+  /* --- Listes groupées (« À retenir », diagnostic) : un bloc, des filets --- */
+  .ins{gap:0;background:var(--s1);border-radius:var(--r-card);box-shadow:inset 0 0 0 .5px var(--hair);overflow:hidden}
+  .in{background:none;border:0;border-radius:0;padding:14px 16px;min-height:56px;font-size:14.5px}
+  .in+.in{box-shadow:inset 0 .5px 0 var(--hair)}
+  .in .ic.g,.in .ic.b,.in .ic.a,.in .ic.c{box-shadow:none}
+  .card .ins{background:none;box-shadow:none;border-radius:0}
+
+  /* --- Rangées qui défilent sur le côté : liste sans boîtes, filets entre lignes --- */
+  .sec:has(>.segw)>.rows>.row,.sec .rows:has(>a.row)>.row{background:none;border:0;border-radius:0;padding:10px 0;box-shadow:inset 0 -.5px 0 var(--hair)}
+  .sec:has(>.segw)>.rows>.row:nth-child(3n),.sec .rows:has(>a.row)>.row:nth-child(3n){box-shadow:none}
+  .sec:has(>.segw)>.rows{row-gap:0;column-gap:16px}
+  .sec .rows:has(>a.row){row-gap:0}
+  .row img,.row .ph{width:44px;height:78px;border-radius:10px}
+  .sec:has(>.segw)>.rows .r .muted{display:none}
+  .row .t b{font-size:17px}
+  /* un seul sous-onglet = c'est un titre, pas un bouton */
+  .segw.seg2:has(>button:only-child){display:block;background:none;border:0;padding:0;box-shadow:none}
+  .segw.seg2>button:only-child{background:none!important;color:var(--fg)!important;font:800 22px/1.15 var(--display);letter-spacing:-.012em;padding:0;min-height:0;text-align:left;width:auto}
+
+  /* --- Sous-onglets : contrôle segmenté --- */
+  .segw{background:var(--s1);border:0;border-radius:var(--r-ctl);padding:3px;gap:2px;box-shadow:inset 0 0 0 .5px var(--hair);
+    top:calc(env(safe-area-inset-top,0px) + var(--toph,105px) + 4px)}
+  .segw:not(.seg2){background:rgba(12,22,40,.82);backdrop-filter:blur(20px) saturate(1.6);-webkit-backdrop-filter:blur(20px) saturate(1.6)}
+  .segw button{min-height:38px;border-radius:9px;font:600 13.5px var(--body)}
+  .segw button[aria-selected="true"]{background:var(--cyclom);color:#04121a;font-weight:700}
+
+  /* --- Filtres : pilules de 36 px, zone de toucher étendue à 44 px --- */
+  .chips{gap:8px;padding-top:4px;padding-bottom:4px;margin:-4px 0}
+  .chip{min-height:36px;border-radius:999px;background:var(--s2);border:0;padding:0 14px;font-size:14px;font-weight:600;color:var(--fg2);position:relative;display:inline-flex;align-items:center}
+  .chip::after{content:"";position:absolute;inset:-4px 0}
+  .chip[aria-pressed="true"]{background:var(--cyclom);color:#04121a}
+  .sec-h .chip{background:var(--s2)}
+  .seg{border:0;background:var(--s2);border-radius:var(--r-ctl);padding:2px}
+  .seg button{border-radius:10px;min-height:40px}
+  .search,.fbtn{background:var(--s2);border:0;border-radius:var(--r-ctl);min-height:44px}
+  .search input{padding:10px 0}
+  .more{background:var(--s2);border:0;border-radius:var(--r-in);min-height:48px;font-weight:600;color:var(--fg)}
+  .sumbar{font-size:13px}
+
+  /* --- Vidéos : vignettes nettes --- */
+  .grid{gap:4px;margin:0 -12px}
+  .vc{border:0;border-radius:10px}
+  .vc .ov b{font-size:15px}
+  .vc .tag{border-radius:6px}
+
+  /* --- Historique : cases de jour plates --- */
+  .jours{gap:8px}
+  .jr{border:0!important;border-radius:var(--r-in);background:var(--s1);box-shadow:inset 0 0 0 .5px var(--hair);padding:12px 14px}
+  .jr .jd b{font-size:14px}
+  .jr .jv b{font-size:16px}
+
+  /* --- Campagnes --- */
+  .camps .camp{padding:16px}
+  .camps .badge{border-radius:999px;padding:3px 8px}
+  .bar{height:6px;background:var(--s3)}
+  .bar i{background:var(--cyclom)}
+  .pl.moi{border-radius:var(--r-ctl)}
+
+  /* --- Analyse --- */
+  .sem{gap:8px}
+  .sm{background:var(--s2);border:0;border-radius:var(--r-in);padding:12px}
+  .sm b{font-size:20px}
+  .slot,.rc,.mot,.kv div,.ms div,.champ,.mc,.best div{border:0;border-radius:var(--r-in)}
+  .ic2{border:0;border-radius:var(--r-in)}
+
+  /* --- Feuille du bas --- */
+  .sheet{background:#0c1628;border:0;border-radius:28px 28px 0 0;box-shadow:0 -.5px 0 rgba(170,200,230,.16);padding-top:8px}
+  .grab{background:rgba(170,200,230,.28)}
+  .x{border-radius:50%;background:var(--s2);border:0}
+  .sheet .kv{gap:0;background:var(--s2);border-radius:var(--r-in);overflow:hidden;flex:none}
+  .sheet .kv div{background:none;border-radius:0;padding:10px 14px;gap:2px}
+  .sheet .kv div:nth-child(even){box-shadow:inset .5px 0 0 var(--hair)}
+  .sheet .kv div:nth-child(n+3){box-shadow:inset 0 .5px 0 var(--hair)}
+  .sheet .kv div:nth-child(even):nth-child(n+3){box-shadow:inset 0 .5px 0 var(--hair),inset .5px 0 0 var(--hair)}
+  .sheet .kv span{font-size:12px}
+  .sheet .kv b{font-size:18px}
+  .sheet .ms{gap:0;background:var(--s2);border-radius:var(--r-in);overflow:hidden;flex:none}
+  .sheet .ms div{background:none;border-radius:0;padding:10px 2px}
+  .sheet .ms div+div{box-shadow:inset .5px 0 0 var(--hair)}
+  .sheet .ms b{font-size:15px}
+  .sheet .vd img,.sheet .vd .ph{border-radius:var(--r-in)}
+  .sheet .chips[style*="wrap"]{-webkit-mask-image:none;mask-image:none;padding-right:0;overflow:visible;margin:0}
+  .sheet .chips[style*="wrap"] .chip{white-space:normal;text-align:left;line-height:1.3;padding:8px 14px;max-width:100%;border-radius:18px;color:var(--fg)}
+  .msg.ai{background:var(--s2)}
+  .ask input{background:var(--s2);border:0;border-radius:var(--r-ctl);min-height:48px;padding:0 14px}
+  .ask button{min-height:48px;border-radius:var(--r-ctl)}
+
+  /* --- Barre d'onglets : matériau translucide, icône active remplie, pas de trait --- */
+  .tabs{background:var(--mat);backdrop-filter:blur(24px) saturate(1.7);-webkit-backdrop-filter:blur(24px) saturate(1.7);border-top:.5px solid rgba(170,200,230,.14);padding-top:4px;padding-bottom:calc(4px + env(safe-area-inset-bottom,0px))}
+  .tab{min-height:var(--tabh);gap:3px;font:600 10.5px var(--body);letter-spacing:.01em;color:#8496ac}
+  .tab svg{width:26px;height:26px;stroke-width:1.7}
+  .tab[aria-selected="true"]{color:var(--cyclom2)}
+  .tab[aria-selected="true"] svg{color:var(--cyclom2)}
+  .tab[aria-selected="true"] .ico-in{fill-opacity:.32}
+  .tab[aria-selected="true"]::before{display:none}
+}
+@media (max-width:389px){
+  .tile{padding:12px}
+  .tile span{font-size:11.5px}
+  .tile b{font-size:19px}
+  .big{font-size:50px}
+}
+/* ===== MOUVEMENT (agent 24/11) : appui iOS, feuille du bas en ressort, repère d'onglet qui glisse, widgets FLIP.
+   Uniquement transform / opacity. Le JS correspondant est dans le bloc « MOUVEMENT » du script. ===== */
+:root{--mv-ios:cubic-bezier(.32,.72,0,1)}
+*{-webkit-tap-highlight-color:transparent}
+button,a,[role="button"],.sec.pliable{-webkit-touch-callout:none}
+/* appui : on s'enfonce vite, on revient en ressort */
+.mv-p.mv-p{transform:scale(var(--mv-s,.97));transition:transform .1s cubic-bezier(.3,0,.5,1)}
+.mv-r.mv-r{transition:transform .42s var(--mv-ios)}
+.mv-po.mv-po{opacity:.5;transition:opacity .08s}
+.mv-ro.mv-ro{transition:opacity .3s ease-out}
+.sec.pliable:not(.ouvert){cursor:pointer}
+/* widgets : chevron qui tourne en ressort, FLIP depuis le coin haut gauche */
+@media (max-width:959px){.sec.pliable>.sec-h::after{transition:transform .42s var(--mv-ios),top .42s var(--mv-ios)}}
+.mv-flip,.mv-flip>*{transform-origin:0 0}
+.mv-flip-actif{position:relative;z-index:3}
+/* repère qui glisse (onglets du bas, sous-onglets, segments) */
+.mv-glisse>*{position:relative;z-index:1}
+.mv-glisse>button{transition:color .28s ease-out,transform .15s var(--ease)}
+.mv-glisse>.mv-deco{position:absolute;z-index:0;pointer-events:none;transform-origin:0 0;display:block}
+.mv-glisse>.mv-cache{background:transparent!important;box-shadow:none!important}
+.mv-glisse>.mv-cache::before{opacity:0!important}
+/* feuille du bas : le voile (assombri + flou) passe dans ::before pour se fondre sans toucher la feuille.
+   NB : la couleur du voile est ici, plus sur .sheet-bg. */
+.sheet-bg{background:transparent!important}
+.sheet-bg::before{content:"";position:absolute;inset:0;background:rgba(0,0,0,.55);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+  opacity:var(--mv-voile,1);transition:opacity .3s ease-out;animation:mv-fondu .34s ease-out backwards}
+.sheet-bg.mv-tire::before{transition:none}
+.sheet{position:relative;z-index:1;animation:mv-monte .5s var(--mv-ios) backwards}
+.sheet.back{transition:transform .42s var(--mv-ios)}
+@keyframes mv-monte{from{transform:translateY(100%)}}
+@keyframes mv-pop{from{transform:translateY(16px) scale(.96);opacity:0}}
+@keyframes mv-fondu{from{opacity:0}}
+@keyframes mv-sort{to{opacity:0}}
+.mv-deja::before,.mv-deja>.sheet{animation:none}
+.mv-sort::before{animation:mv-sort .3s ease-in forwards}
+.mv-sort>.sheet{animation:none}
+.mv-fantome{pointer-events:none}
+@media (min-width:960px){.sheet{animation:mv-pop .3s var(--mv-ios) backwards}}
+/* défilement doux dans les rangées qui glissent sur le côté */
+.chips,.accts,.rows,.insp{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){
+  .sheet,.sheet-bg::before,.mv-sort::before{animation:none!important;transition:none!important}
+  .mv-p.mv-p{transform:none}.mv-po.mv-po{opacity:1}
+  .sec.pliable>.sec-h::after{transition:none}
+  .chips,.accts,.rows,.insp{scroll-behavior:auto}
 }
 </style>
 
@@ -1401,12 +1644,8 @@ function vCreneaux(A, C) {
   if (an === 'resume') {
     const { S, D } = lireDiagnostic(A, C, vs, med);
     h += D.length ? `<section class="sec"><div class="sec-h"><h2>Ton diagnostic</h2><small>sur ${st.slotPer} jours · touche une ligne</small></div><div class="ins">${D.slice(0, 4).map(x => `<button class="in" type="button" ${x.a}><span class="ic ${x.c}"></span><span class="tx">${x.t}</span><span class="chev">›</span></button>`).join('')}</div></section>` : '';
-    h += records(A, C);
-    h += `<section class="card sec"><div class="sec-h"><h2>Signal précoce</h2><small>tes vidéos de moins de 24 h</small></div>`;
-    h += S.length ? `<div class="rows">${S.slice(0, 5).map(x => `<button class="row" type="button" data-vid="${x.v.id}">${cover(x.v)}<div class="t"><b class="num">${k(x.val)} <small class="muted" style="font:500 12px var(--body)">à ${JAL_L[x.m]}</small></b><span>${esc(titreVid(x.v))}</span><span class="sig"><i style="width:${Math.max(4, 100 - x.top)}%"></i></span></div><div class="r num"><b class="${x.top <= 20 ? 'up' : x.top >= 70 ? 'down' : ''}">top ${x.top} %</b><br><span class="muted">≈ ${k(x.pred)} à 24 h</span></div></button>`).join('')}</div>
-      <p class="muted note">Top 10 % = à cet âge, elle fait mieux que 90 % de tes vidéos au même âge. Dans ton top 20 % : décline-la (même moment, autre accroche) ou poste la suite.</p>`
-      : `<div class="muted">Le signal apparaît lorsqu’une vidéo récente a un relevé après 1 h et au moins 12 vidéos comparables au même âge.</div>`;
-    return h + `</section>`;
+    h += taSemaine(A, C) + cartonsSemaine(A, C, med);
+    return h;
   }
   if (an === 'contenu') {
     h += per; if (vs.length < 30) return h + peu(30);
@@ -1688,7 +1927,7 @@ function replier() {
   for (const s of main.querySelectorAll('section.sec')) {
     const h = s.querySelector(':scope > .sec-h'), t = h?.querySelector('h2')?.textContent.trim();
     if (!t || s.classList.contains('login')) continue;
-    if (premier) { premier = false; continue; }
+    if (premier || (VIEW === 'creneaux' && (st.an || 'resume') === 'resume')) { premier = false; continue; } // Résumé : court, tout reste ouvert
     const cle = VIEW + ':' + t, o = OUVERTS.has(cle);
     s.classList.add('pliable'); s.classList.toggle('ouvert', o);
     h.dataset.plier = cle; h.setAttribute('role', 'button'); h.tabIndex = 0; h.setAttribute('aria-expanded', String(o));
@@ -1704,6 +1943,29 @@ function replier() {
     el.before(w); w.append(...g);
   }
 }
+
+// ---------- Résumé (Jawed 24/11 : records et signal précoce « nuls ») : ta semaine contre la précédente + tes cartons à décliner ----------
+function taSemaine(A, C) {
+  const Q = A.quotidien || {}, j = n => addJour(C.P.day, -n);
+  const abo = d => Q[d]?.f != null && Q[addJour(d, -1)]?.f != null ? Q[d].f - Q[addJour(d, -1)].f : null;
+  const somme = (a, f) => { let t = 0; for (let i = a; i < a + 7; i++) { const v = f(j(i)); if (v == null) return null; t += v; } return t; };
+  const posts = a => { const J = new Set(Array.from({ length: 7 }, (_, i) => j(a + i))); return A.videos.filter(v => J.has(pz(v.t * 1000).day)).length; };
+  const L = [['Vues', d => Q[d]?.g, k], ['Abonnés', abo, x => (x >= 0 ? '+' : '') + fmt(x)], ['Partages', d => Q[d]?.s, k]]
+    .map(([l, f, fm]) => ({ l, a: somme(1, f), b: somme(8, f), fm })).filter(x => x.a != null);
+  L.splice(1, 0, { l: 'Vidéos postées', a: posts(1), b: posts(8), fm: fmt });
+  if (!L.some(x => x.l === 'Vues')) return '';
+  const vues = L.find(x => x.l === 'Vues'), p = vues.b ? pct(vues.a, vues.b) : null;
+  return `<section class="card sec"><div class="sec-h"><h2>Ta semaine</h2><small>7 derniers jours ${p != null ? `· vues <b class="${p >= 0 ? 'up' : 'down'}">${pctTxt(p)}</b>` : ''}</small></div>
+    <div class="sem">${L.map(x => { const d = x.b ? pct(x.a, x.b) : null; return `<div class="sm"><small>${x.l}</small><b class="num">${x.fm(x.a)}</b><span class="${d == null ? 'muted' : d >= 0 ? 'up' : 'down'}">${d == null ? '—' : pctTxt(d)}</span></div>`; }).join('')}</div>
+    <p class="muted note">Comparé aux 7 jours d’avant (sans aujourd’hui, encore en cours).</p></section>`;
+}
+function cartonsSemaine(A, C, med) {
+  const lim = C.now / 1000 - 7 * 86400, L = A.videos.filter(v => v.t >= lim && v.t <= C.now / 1000 - 3600).sort((a, b) => b.v - a.v).slice(0, 3);
+  if (!L.length) return '';
+  return `<section class="card sec"><div class="sec-h"><h2>Tes cartons de la semaine</h2><small>à décliner tant que ça marche</small></div>
+    <div class="insp">${L.map(v => `<button class="ic2" type="button" data-vid="${v.id}">${cover(v)}<span class="ov"><b class="num">${k(v.v)}</b><small>${med ? fx(v.v / med) + ' ta normale' : dateVid(v.t)}</small></span></button>`).join('')}</div>
+    <p class="say" style="max-width:none;font-size:14px">Refais ces moments autrement : autre accroche, autre coupe, ou la suite (partie 2).</p></section>`;
+}
 // petit aperçu d'un widget replié : des miniatures, une mini-courbe ou la 1re info utile (mots séparés, chiffre en gras)
 const mots = el => [...el.querySelectorAll('*')].filter(x => !x.children.length && x.textContent.trim()).map(x => x.textContent.trim());
 function apercuWidget(s) {
@@ -1713,6 +1975,8 @@ function apercuWidget(s) {
   if (svg && s.classList.contains('chart')) return `<div class="w-svg">${svg.outerHTML.replace(/\sid="[^"]*"/g, '').replace('<svg', '<svg preserveAspectRatio="none"')}</div>`;
   const now = s.querySelector('.slot.now, .slot:not(.ok)');
   if (now) return `<div class="w-tx"><b>${esc(now.querySelector('.st b')?.textContent || '')}</b> ${esc(now.querySelector('.sd')?.textContent || '')}</div>`;
+  const sm = s.querySelector('.sem');
+  if (sm) return `<div class="w-tx">${[...sm.children].slice(0, 2).map(x => `${esc(x.querySelector('small').textContent)} <b>${esc(x.querySelector('b').textContent)}</b> <span class="${x.querySelector('span').className}">${esc(x.querySelector('span').textContent)}</span>`).join('<br>')}</div>`;
   const rec = s.querySelector('.rec');
   if (rec) return `<div class="w-tx"><b>${esc(rec.querySelector('b')?.textContent || '')}</b><br>${esc(rec.querySelector('small')?.textContent || '')} · ${esc(rec.querySelector('span')?.textContent || '')}</div>`;
   const cmp = s.querySelector('.cmpl');
@@ -1946,6 +2210,238 @@ async function charger() {
     rendreDoux(avant);
   } catch (e) { if (!RAW) $('#main').innerHTML = `<div class="warnbox">Impossible de charger tes stats. Vérifie ta connexion, on réessaie tout seul.</div>`; clearTimeout(charger.t); charger.t = setTimeout(charger, 20000); }
 }
+// ===== MOUVEMENT (agent 24/11) =====
+// Toute la couche mouvement : entrée des pages (cascade + sens du glissement), indicateur d'onglet / sous-onglet qui glisse,
+// widgets qui s'ouvrent en grand avec un ressort (FLIP), appui façon iOS, feuille du bas (ressort, voile flouté, fermeture
+// animée, lancer vers le bas), compteurs. Uniquement transform / opacity, coupé si « réduire les animations ».
+// Les fonctions render / rendreDoux / basculerSection / ouvrir / fermer sont ENVELOPPÉES ici (même nom) : leur code
+// n'est pas touché. Un rafraîchissement silencieux (même onglet, même jour, mêmes filtres) ne rejoue jamais rien.
+const MV = (() => {
+  const reduit = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const IOS = 'cubic-bezier(.32,.72,0,1)';
+  // ressort amorti échantillonné (p de 0 à 1, léger dépassement) → images clés WAAPI, donc joué par le compositeur
+  const ressort = (rep = .42, amort = .82, n = 26) => {
+    const w = 2 * Math.PI / rep, wd = w * Math.sqrt(1 - amort * amort), D = Math.min(1.2, 4.6 / (amort * w)), P = [];
+    for (let i = 0; i <= n; i++) { const t = D * i / n, e = Math.exp(-amort * w * t); P.push(i === n ? 1 : 1 - e * (Math.cos(wd * t) + amort * w / wd * Math.sin(wd * t))); }
+    return { P, D: Math.round(D * 1000) };
+  };
+  const RS = ressort(), POP = ressort(.36, .5);
+  const kf = (P, f) => P.map((p, i) => Object.assign({ offset: i / (P.length - 1) }, f(p)));
+  const fini = (an, f) => an.finished.then(f, f);
+
+  // ---------- 1. Entrée des pages ----------
+  let dernier = null;
+  const cle = () => ({ v: VIEW, an: st.an, jour: st.jour, acc: ACC, per: st.per, flt: st.flt, sort: st.sort, dvue: st.dvue, vmode: st.vmode, q: st.q, shown: st.shown });
+  const sens = (a, b) => a === b ? 0 : (a > b ? -1 : 1);
+  function genre(a, b) {
+    if (!a) return { k: 'page', dir: 0 };
+    if (a.v !== b.v) return { k: 'page', dir: sens(ORDRE.indexOf(a.v), ORDRE.indexOf(b.v)) };
+    if (a.acc !== b.acc) return { k: 'page', dir: 0 };
+    if (a.an !== b.an && b.v === 'creneaux') { const L = [...document.querySelectorAll('#main .segw [data-an]')].map(x => x.dataset.an); return { k: 'sous', dir: sens(L.indexOf(a.an), L.indexOf(b.an)) }; }
+    if (a.jour !== b.jour) return { k: 'jour', dir: sens(a.jour || '99999999', b.jour || '99999999') };
+    const autres = ['per', 'flt', 'sort', 'dvue', 'vmode', 'q'].some(x => a[x] !== b[x]);
+    if (!autres && b.shown > a.shown) return { k: 'plus', n: a.shown };
+    return autres ? { k: 'maj' } : null;
+  }
+  const CTRL = '.segw,.seg,.chips,.search,.sec-h,.daynav';
+  function blocs(g) {
+    const main = $('#main'), vh = innerHeight, out = [];
+    const pousse = el => { if (out.length >= 12) return; const r = el.getBoundingClientRect(); if (r.height && r.bottom > 0 && r.top < vh) out.push(el); };
+    if (g.k === 'plus') { [...main.querySelectorAll('.grid > *')].slice(g.n).forEach(pousse); return out; }
+    for (const c of main.children) {
+      if (g.k !== 'page' && c.matches('.segw')) continue; // la barre des sous-onglets ne bouge pas : seul son repère glisse
+      if (c.matches('.widgets,.tiles')) { [...c.children].forEach(pousse); continue; }
+      if (g.k !== 'page' && g.k !== 'jour' && c.querySelector(':scope>.segw,:scope>.seg,:scope>.chips,:scope>.search,:scope>.sec-h .seg')) { [...c.children].filter(x => !x.matches(CTRL)).forEach(pousse); continue; }
+      pousse(c);
+    }
+    return out;
+  }
+  function entree(g) {
+    const els = blocs(g); if (!els.length) return;
+    const maj = g.k === 'maj' || g.k === 'plus', dx = (g.dir || 0) * (g.k === 'jour' ? 26 : 18), dy = maj ? 6 : (dx ? 4 : 12);
+    const pas = maj ? 18 : 26, duree = maj ? 260 : 360;
+    els.forEach((el, i) => el.animate([{ opacity: 0, transform: `translate3d(${dx}px,${dy}px,0)` }, { opacity: 1, transform: 'none' }],
+      { duration: duree, delay: Math.min(i * pas, 220), easing: IOS, fill: 'backwards' }));
+    if (!maj) compter([...$('#main').querySelectorAll('.big, .num')]);
+  }
+
+  // ---------- 5. Compteurs qui montent ----------
+  function compter(liste) {
+    const vh = innerHeight, D = [];
+    for (const el of liste) {
+      if (D.length >= 10) break;
+      if (el.children.length || el.closest('.w-apercu') || (MV.doux && el.matches('.big'))) continue;
+      const r = el.getBoundingClientRect(); if (!r.height || r.bottom < 0 || r.top > vh) continue;
+      const t = el.textContent, m = t.match(/^(\D*?)(\d{1,3}(?:[\s  ]\d{3})+|\d+)([.,]\d+)?(\D*)$/);
+      if (!m || /[:/]/.test(t)) continue;
+      const sep = (m[2].match(/[\s  ]/) || [])[0], dec = m[3] ? m[3].length - 1 : 0, v = +m[2].replace(/\D/g, '') + (m[3] ? +('0.' + m[3].slice(1)) : 0);
+      if (!(v >= 3 || dec)) continue;
+      D.push({ el, t, m, sep, dec, v });
+    }
+    if (!D.length) return;
+    const ecrire = (d, x) => { let [i, f] = x.toFixed(d.dec).split('.'); if (d.sep) i = i.replace(/\B(?=(\d{3})+(?!\d))/g, d.sep); return d.m[1] + i + (f ? d.m[3][0] + f : '') + d.m[4]; };
+    const t0 = performance.now(), duree = 720, id = (MV.cpt = (MV.cpt || 0) + 1);
+    const tour = now => { if (id !== MV.cpt) return; const p = Math.min(1, (now - t0) / duree), e = 1 - Math.pow(1 - p, 4);
+      for (const d of D) if (d.el.isConnected) d.el.textContent = p < 1 ? ecrire(d, d.v * e) : d.t;
+      if (p < 1) requestAnimationFrame(tour); };
+    for (const d of D) d.el.textContent = ecrire(d, 0);
+    requestAnimationFrame(tour);
+  }
+
+  // ---------- Repère qui glisse (onglets du bas, sous-onglets, segments) ----------
+  // Copie le repère réel (trait ::before ou fond du bouton choisi), le fait glisser de l'ancien bouton au nouveau, puis le retire.
+  const transparent = c => !c || c === 'transparent' || /rgba\([^)]*,\s*0\)$/.test(c);
+  function glisser(box, avant, btn) {
+    if (!box || !btn || !avant || !box.isConnected) return;
+    const cb = getComputedStyle(btn), cp = getComputedStyle(btn, '::before'), deco = document.createElement('i');
+    deco.className = 'mv-deco'; deco.setAttribute('aria-hidden', 'true'); deco.style.cssText = 'position:absolute;display:block;pointer-events:none';
+    const fond = !transparent(cb.backgroundColor) || cb.backgroundImage !== 'none';
+    if (fond) Object.assign(deco.style, { left: 0, top: 0, width: '100%', height: '100%', background: cb.background, borderRadius: cb.borderRadius, boxShadow: cb.boxShadow });
+    else if (cp.content !== 'none' && cp.display !== 'none' && parseFloat(cp.width)) Object.assign(deco.style, { left: cp.left, top: cp.top, width: cp.width, height: cp.height, marginLeft: cp.marginLeft, marginTop: cp.marginTop, background: cp.background, borderRadius: cp.borderRadius, boxShadow: cp.boxShadow });
+    else return;
+    const pos0 = btn.style.position; if (cb.position === 'static') btn.style.position = 'relative'; // le temps de mesurer le repère
+    btn.appendChild(deco);
+    const rb = box.getBoundingClientRect(), rn = btn.getBoundingClientRect(), rd = deco.getBoundingClientRect();
+    btn.style.position = pos0;
+    if (getComputedStyle(box).position === 'static') box.style.position = 'relative';
+    box.appendChild(deco);
+    Object.assign(deco.style, { left: rd.left - rb.left - box.clientLeft + 'px', top: rd.top - rb.top - box.clientTop + 'px', width: rd.width + 'px', height: rd.height + 'px', margin: 0 });
+    const dx = avant.x - (rn.left - rb.left), dy = avant.y - (rn.top - rb.top), sx = fond ? avant.w / rn.width : 1;
+    if (Math.abs(dx) < 1 && Math.abs(dy) < 1) { deco.remove(); return; }
+    box.classList.add('mv-glisse'); btn.classList.add('mv-cache');
+    const an = deco.animate(kf(RS.P, p => ({ transform: `translate(${dx * (1 - p)}px,${dy * (1 - p)}px) scaleX(${sx + (1 - sx) * p})` })), { duration: RS.D, easing: 'linear' });
+    fini(an, () => { deco.remove(); btn.classList.remove('mv-cache'); if (!box.querySelector('.mv-deco')) box.classList.remove('mv-glisse'); });
+  }
+  const relatif = (box, b) => { const rb = box.getBoundingClientRect(), r = b.getBoundingClientRect(); return { x: r.left - rb.left, y: r.top - rb.top, w: r.width }; };
+  const SEL = '[aria-selected="true"],[aria-pressed="true"]';
+  const signature = box => [...box.children].map(b => Object.keys(b.dataset).join('+')).join('|');
+  function segments() { // état des barres de segments affichées : position du bouton choisi
+    return [...$('#main').querySelectorAll('.segw,.seg')].map(box => { const b = box.querySelector(':scope>' + SEL.split(',').join(',:scope>')); return b && { sig: signature(box), i: [...box.children].indexOf(b), pos: relatif(box, b) }; }).filter(Boolean);
+  }
+
+  // ---------- Enveloppe de render ----------
+  const _render = render;
+  render = function () {
+    const a = dernier, b = cle(), anime = !reduit() && RAW && RAW.comptes?.length;
+    const tabs = $('#tabs'), ancTab = tabs?.querySelector('.tab[aria-selected="true"]'), posTab = anime && ancTab ? relatif(tabs, ancTab) : null;
+    const segs = anime && a ? segments() : [];
+    _render();
+    if (!RAW?.comptes?.length) return;
+    dernier = b;
+    if (!anime) return;
+    const g = genre(a, b);
+    if (ancTab) { const n = tabs.querySelector('.tab[aria-selected="true"]'); if (n && n !== ancTab) { glisser(tabs, posTab, n); n.querySelector('svg')?.animate(kf(POP.P, p => ({ transform: `scale(${.78 + .22 * p})` })), { duration: POP.D, easing: 'linear' }); } }
+    if (segs.length) for (const box of $('#main').querySelectorAll('.segw,.seg')) {
+      const s = segs.find(x => x.sig === signature(box)), btn = box.querySelector(':scope>' + SEL.split(',').join(',:scope>'));
+      if (s && btn && [...box.children].indexOf(btn) !== s.i) glisser(box, s.pos, btn);
+    }
+    if (!g || !$('#sheet').hidden || (g.k === 'maj' && document.activeElement?.id === 'q')) return;
+    queueMicrotask(() => entree(g)); // après le scrollTo de go() : on anime ce qui est vraiment à l'écran
+  };
+  const _doux = rendreDoux;
+  rendreDoux = function (avant) { MV.doux = true; try { _doux(avant); } finally { MV.doux = false; } };
+
+  // ---------- 2. Widget qui s'ouvre / se ferme : FLIP + ressort ----------
+  let flips = [];
+  const stopFlips = () => { flips.forEach(f => f.cancel()); flips = []; document.querySelectorAll('.mv-flip').forEach(e => e.classList.remove('mv-flip', 'mv-flip-actif')); };
+  function boite(el, a, b, actif, ouvre) {
+    const vh = innerHeight, dx = a.left - b.left, dy = Math.max(-vh, Math.min(vh, a.top - b.top)), sx = a.width / b.width, sy = a.height / b.height;
+    const echelle = Math.abs(sx - 1) > .01 || Math.abs(sy - 1) > .01;
+    if (!actif && !echelle && Math.abs(dx) < .5 && Math.abs(dy) < .5) return;
+    el.classList.add('mv-flip'); if (actif) el.classList.add('mv-flip-actif');
+    const S = p => [sx + (1 - sx) * p, sy + (1 - sy) * p];
+    const an = el.animate(kf(RS.P, p => { const [x, y] = S(p); return { transform: `translate(${dx * (1 - p)}px,${dy * (1 - p)}px) scale(${x},${y})` }; }), { duration: RS.D, easing: 'linear' });
+    flips.push(an); fini(an, () => el.classList.remove('mv-flip', 'mv-flip-actif'));
+    if (!echelle) return;
+    for (const c of el.children) { // les enfants gardent leurs proportions (contre-échelle) ; le contenu qui arrive apparaît en fondu
+      const neuf = actif && !c.matches('.sec-h');
+      if (getComputedStyle(c).display === 'none') continue;
+      flips.push(c.animate(kf(RS.P, p => { const [x, y] = S(p); const o = { transform: `scale(${1 / x},${1 / y})` }; if (neuf) o.opacity = Math.max(0, Math.min(1, (p - (ouvre ? .45 : .6)) / .4)); return o; }), { duration: RS.D, easing: 'linear' }));
+    }
+  }
+  const _bascule = basculerSection;
+  basculerSection = function (h) {
+    const s = h?.parentElement;
+    if (reduit() || !s?.classList.contains('pliable')) return _bascule(h);
+    stopFlips();
+    const main = $('#main'), grille = s.parentElement.classList.contains('widgets') ? s.parentElement : null;
+    const cands = new Set([...(grille ? grille.children : []), ...main.children, s]); cands.delete(grille);
+    const A = new Map(); for (const el of cands) A.set(el, el.getBoundingClientRect());
+    _bascule(h);
+    const ouvre = s.classList.contains('ouvert'), vh = innerHeight, vu = r => r.bottom > -vh * .25 && r.top < vh * 1.25;
+    for (const [el, a] of A) { const b = el.getBoundingClientRect(); if (el === s || vu(a) || vu(b)) boite(el, a, b, el === s, ouvre); }
+  };
+
+  // ---------- 3. Appui façon iOS (léger enfoncement, sans délai visible, sans surbrillance) ----------
+  const PRESS = 'button:not(:disabled),a[href],a.link,[data-hour],tr[data-day],[role="button"]';
+  let appui = null;
+  const marquer = a => { a.on = true; a.el.style.setProperty('--mv-s', a.el.offsetWidth > 220 ? .98 : .96); a.el.classList.remove('mv-r', 'mv-ro'); a.el.classList.add(a.op ? 'mv-po' : 'mv-p'); };
+  function relacher(annule) {
+    const a = appui; appui = null; if (!a) return; clearTimeout(a.tm);
+    const fin = () => { a.el.classList.remove('mv-p', 'mv-po'); a.el.classList.add(a.op ? 'mv-ro' : 'mv-r'); setTimeout(() => a.el.classList.remove('mv-r', 'mv-ro'), 450); };
+    if (!a.on) { if (annule) return; marquer(a); return setTimeout(fin, 90); }
+    const reste = 90 - (performance.now() - a.t); reste > 0 ? setTimeout(fin, reste) : fin();
+  }
+  document.addEventListener('pointerdown', e => {
+    if (reduit() || e.button > 0) return; relacher(true);
+    let el = null, op = false; const w = e.target.closest('.sec.pliable:not(.ouvert)');
+    if (w && !e.target.closest('.sec.pliable:not(.ouvert) :is(button,a)')) el = w; // widget fermé : tout le widget s'enfonce
+    else { const h = e.target.closest('.sec.pliable.ouvert>.sec-h'); if (h && !e.target.closest('.sec-h :is(button,a)')) { el = h; op = true; } else el = e.target.closest(PRESS); }
+    if (!el || el.closest('.mv-fantome')) return;
+    appui = { el, op, x: e.clientX, y: e.clientY, t: performance.now(), on: false };
+    if (e.pointerType === 'mouse') marquer(appui); else { const a = appui; a.tm = setTimeout(() => { if (appui === a) marquer(a); }, 40); }
+  }, { passive: true });
+  document.addEventListener('pointermove', e => { if (appui && Math.hypot(e.clientX - appui.x, e.clientY - appui.y) > 10) relacher(true); }, { passive: true });
+  document.addEventListener('pointerup', () => relacher(false), { passive: true });
+  document.addEventListener('pointercancel', () => relacher(true), { passive: true });
+  // widget fermé : on peut le toucher n'importe où (pas seulement le titre) pour l'ouvrir
+  document.addEventListener('click', e => {
+    const w = e.target.closest('#main .sec.pliable:not(.ouvert)'); if (!w || e.target.closest('[data-plier], button, a, input, select')) return;
+    const h = w.querySelector(':scope>[data-plier]'); if (h) basculerSection(h);
+  });
+
+  // ---------- 4. Feuille du bas ----------
+  const _ouvrir = ouvrir, _fermer = fermer;
+  ouvrir = function (html, vid) {
+    const s = $('#sheet'), f = document.querySelector('.mv-fantome'), recent = f && performance.now() - (MV.tf || 0) < 150;
+    const deja = !s.hidden || recent, ancien = s.dataset.vid; if (recent) f.remove();
+    _ouvrir(html, vid);
+    const bg = s.firstElementChild; if (!bg || !deja) return;
+    bg.classList.add('mv-deja'); // déjà ouverte : on change juste le contenu, sans refaire monter la feuille
+    const i = CTX.indexOf(ancien), j = CTX.indexOf(vid);
+    if (!reduit() && ancien && vid && ancien !== vid && i >= 0 && j >= 0) bg.querySelector('.sheet')?.animate([{ opacity: .35, transform: `translate3d(${j > i ? 28 : -28}px,0,0)` }, { opacity: 1, transform: 'none' }], { duration: 300, easing: IOS });
+  };
+  fermer = function () {
+    const s = $('#sheet'), bg = s.firstElementChild, sh = bg?.querySelector('.sheet');
+    if (reduit() || s.hidden || !sh) return _fermer();
+    document.querySelectorAll('.mv-fantome').forEach(x => x.remove());
+    const depart = getComputedStyle(sh).transform, f = document.createElement('div');
+    f.className = 'mv-fantome'; f.setAttribute('aria-hidden', 'true'); f.inert = true;
+    document.body.append(f); f.append(bg); MV.tf = performance.now();
+    _fermer(); // l'état « fermé » est immédiat pour le reste du code ; seule la copie descend
+    bg.classList.add('mv-sort');
+    const pc = matchMedia('(min-width:960px)').matches, d0 = depart === 'none' ? 'translateY(0)' : depart;
+    const an = sh.animate(pc ? [{ transform: d0, opacity: 1 }, { transform: 'translateY(14px) scale(.96)', opacity: 0 }] : [{ transform: d0 }, { transform: 'translateY(102%)' }],
+      { duration: pc ? 200 : 320, easing: pc ? 'cubic-bezier(.4,0,1,1)' : IOS, fill: 'forwards' });
+    fini(an, () => f.remove()); setTimeout(() => f.remove(), 700);
+  };
+  // glisser vers le bas : le voile s'éclaircit avec le doigt, un petit lancer rapide suffit pour fermer
+  let vit = null;
+  document.addEventListener('touchmove', e => {
+    if (!SH || SH.dy <= 0) return; const bg = SH.sh.parentElement, y = e.touches[0].clientY, t = performance.now();
+    bg.classList.add('mv-tire'); bg.style.setProperty('--mv-voile', Math.max(.15, 1 - SH.dy / 520).toFixed(3));
+    vit = vit && t - vit.t > 0 ? { y, t, v: (y - vit.y) / (t - vit.t) * .6 + vit.v * .4 } : { y, t, v: 0 };
+  }, { passive: true });
+  document.addEventListener('touchend', () => {
+    const v = vit; vit = null; if (!SH) return; const bg = SH.sh.parentElement;
+    if (SH.dy > 24 && v && v.v > .45 && performance.now() - v.t < 120) { SH = null; return fermer(); } // lancer → fermeture (le gestionnaire d'origine voit SH vide)
+    if (SH.dy > 110) return; // le gestionnaire d'origine va fermer : le voile part de là où il en est
+    bg.classList.remove('mv-tire'); bg.style.removeProperty('--mv-voile');
+  }, { passive: true, capture: true });
+
+  return { reduit };
+})();
+
 if (WEB) chargerWeb(); else if (DRIVE) chargerDrive(); else charger();
 setInterval(() => { if (!DRIVE && document.visibilityState === 'visible' && $('#sheet').hidden) charger(); }, SITE ? 120000 : 600000);
 setInterval(fraicheur, 30000);
