@@ -107,7 +107,12 @@ def mettre_en_forme(brut):
         for pseudo, rv, rp, vues, clips, meilleur, gain, comptes in c['inscrits']:
             cle = tuple(sorted(x.lower() for x in (comptes or pseudo).split('|') if x))
             ligne = {'pseudo': pseudo, 'comptes': list(cle), 'rv': rv or None, 'rp': rp or None, 'vues': vues, 'clips': clips, 'meilleur': meilleur, 'gain': gain}
-            if cle not in par_personne or vues > par_personne[cle]['vues']: par_personne[cle] = ligne
+            # une personne inscrite avec plusieurs comptes = ADDITION de tous ses comptes (Jawed 25/11 : « campagne ça réunit tout »)
+            p = par_personne.get(cle)
+            if not p: par_personne[cle] = ligne; continue
+            if vues > p['vues']: p['pseudo'] = pseudo
+            p['vues'] += vues; p['clips'] += clips; p['gain'] += gain; p['meilleur'] = max(p['meilleur'], meilleur)
+            p['rv'] = min([x for x in (p['rv'], rv or None) if x] or [None]); p['rp'] = min([x for x in (p['rp'], rp or None) if x] or [None])
         lignes = sorted(par_personne.values(), key=lambda x: (-x['vues'], -x['clips']))
         camps.append({k: c[k] for k in ('id', 'nom', 'tag', 'fin', 'terminee', 'prix')} | {'lignes': lignes})
     return {'maj': brut['maj'], 'source': 'cyclom.fr', 'campagnes': camps, 'soldes': brut.get('soldes') or []}
