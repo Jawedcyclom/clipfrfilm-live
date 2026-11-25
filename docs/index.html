@@ -1276,30 +1276,30 @@ html.neon body::before{background:transparent}
 html.neon *{text-shadow:none}
 /* --- fond vivant : 2 lueurs qui glissent (compositeur seulement) + poussières de lumière (canvas #n-fond) --- */
 #n-fond,.n-lueur{display:none}
-html.neon #n-fond{display:block;position:fixed;inset:0;z-index:-1;pointer-events:none;width:100vw;height:100lvh}
+html.neon #n-fond{display:none;position:fixed;inset:0;z-index:-1;pointer-events:none;width:100vw;height:100lvh}
 html.neon .n-lueur{display:block;position:fixed;z-index:-2;pointer-events:none;border-radius:50%;will-change:transform}
 html.neon .n-lueur.a{width:130vmax;height:130vmax;left:calc(var(--gx) - 65vmax);top:calc(var(--gy) - 65vmax);
   background:radial-gradient(closest-side,rgba(30,86,230,.55),rgba(16,46,150,.2) 45%,transparent 72%);
-  transition:left 1.6s var(--n-io),top 1.6s var(--n-io);animation:n-derive 22s ease-in-out infinite alternate}
-html.neon .n-lueur.b{width:90vmax;height:90vmax;left:-38vmax;bottom:-46vmax;
+  transition:left 1.6s var(--n-io),top 1.6s var(--n-io)}
+html.neon .n-lueur.b{display:none!important;width:90vmax;height:90vmax;left:-38vmax;bottom:-46vmax;
   background:radial-gradient(closest-side,rgba(82,240,222,.10),rgba(20,90,140,.06) 50%,transparent 75%);animation:n-derive2 27s ease-in-out infinite alternate}
 @keyframes n-derive{0%{transform:translate3d(-4vw,-2vh,0) scale(1)}100%{transform:translate3d(5vw,4vh,0) scale(1.08)}}
 @keyframes n-derive2{0%{transform:translate3d(0,0,0)}100%{transform:translate3d(8vw,-6vh,0) scale(1.1)}}
 /* --- typo : Inter partout, chiffres serrés --- */
 html.neon h2,html.neon .sec-h h2{font:700 18px/1.2 var(--body);letter-spacing:-.022em;color:var(--fg)}
 html.neon .sec-h small,html.neon .lbl,html.neon .hero .lbl{color:var(--muted)}
-html.neon .big{font:800 54px/1 var(--body)!important;letter-spacing:-.045em;color:#fff;text-shadow:none!important}
+html.neon .big{font:700 54px/1 var(--body)!important;letter-spacing:-.04em;color:#fff;text-shadow:none!important}
 html.neon .tile b,html.neon .jv b,html.neon .camp-n b,html.neon .kv b,html.neon .ms b,html.neon .sm b,html.neon .rec b{font-family:var(--body);font-weight:750;letter-spacing:-.03em}
 html.neon .up,html.neon .tile b.up,html.neon .say b.up{color:var(--n-t)!important}
 html.neon .down,html.neon .say b.down,html.neon .oeil-d.down,html.neon .cmpr.down{color:#ff7a9a!important}
 html.neon svg [stroke="#fe2c55"]{stroke:var(--n-t)}html.neon svg [fill="#fe2c55"]{fill:var(--n-t)}html.neon svg [fill="#ff7a93"]{fill:#c9fff8}
 html.neon svg [stop-color="#fe2c55"]{stop-color:var(--n-t)}
-html.neon .bar i,html.neon .obj .tr i,html.neon .hb.best .tr i{background:linear-gradient(90deg,#2fbfd8,var(--n-t))!important}
+html.neon .bar i,html.neon .obj .tr i,html.neon .hb.best .tr i{background:var(--n-t)!important}
 html.neon .vc .tag{box-shadow:none!important;color:#02121a!important}
 /* --- logo : la marque Cyclom (C + lecture) qui luit, comme la fin de la v5 --- */
-html.neon .logo{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font:800 21px/1 var(--body)!important;letter-spacing:-.03em;color:#fff}
+html.neon .logo{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font:700 21px/1 var(--body)!important;letter-spacing:-.03em;color:#fff}
 html.neon .logo::before{content:"";display:inline-block;vertical-align:-5px;margin-right:9px;width:24px;height:24px;background:var(--n-t);
-  -webkit-mask:var(--n-marque) center/contain no-repeat;mask:var(--n-marque) center/contain no-repeat;filter:drop-shadow(0 0 6px rgba(82,240,222,.55))}
+  -webkit-mask:var(--n-marque) center/contain no-repeat;mask:var(--n-marque) center/contain no-repeat;}
 html.neon .logo b{color:var(--n-t)}
 html.neon .side-logo .logo{font-size:19px!important;overflow:visible}
 @media (min-width:960px){html.neon .brand .logo{display:none}}
@@ -1313,43 +1313,45 @@ html.neon .fab svg{color:var(--n-t)!important}
 html.neon .acct{background:rgba(255,255,255,.06)!important;box-shadow:inset 0 0 0 .5px var(--n-hair)!important;border:0!important;color:var(--fg)}
 html.neon .acct[aria-pressed="true"]{background:rgba(82,240,222,.12)!important;box-shadow:inset 0 0 0 1px rgba(82,240,222,.45)!important}
 html.neon .acct.add{background:none!important;box-shadow:none!important;color:var(--n-t)}
-html.neon .av{background:linear-gradient(140deg,#8af7ea,#2fbfd8)!important;color:#02121a!important}
+html.neon .av{background:var(--n-t)!important;color:#02121a!important}
 /* --- surfaces : verre iOS fin, ni contour lumineux ni lueur (règle 22), reflet fin en haut --- */
 html.neon .card,html.neon .hero,html.neon .sec.pliable:not(.ouvert),html.neon .camps .camp,html.neon .course,html.neon .nv-w,html.neon .tile,html.neon .widget,html.neon .oeil-t,html.neon .sm,html.neon .warnbox{
-  background:linear-gradient(180deg,rgba(32,54,104,.42),rgba(14,28,62,.42))!important;border:0!important;
-  box-shadow:inset 0 .5px 0 rgba(255,255,255,.14),inset 0 0 0 .5px var(--n-hair),0 10px 30px -18px rgba(0,0,0,.7)!important}
+  background:rgba(20,34,66,.55)!important;border:0!important;box-shadow:inset 0 0 0 .5px var(--n-hair)!important}
 html.neon .card .tile,html.neon .card .sm,html.neon .sheet .tile,html.neon .sheet .sm,html.neon .card .card{background:rgba(255,255,255,.045)!important;box-shadow:inset 0 0 0 .5px var(--n-hair)!important}
-html.neon .sk{background:linear-gradient(100deg,rgba(30,52,100,.35) 30%,rgba(82,240,222,.12) 50%,rgba(30,52,100,.35) 70%)!important;background-size:250% 100%!important;border:0!important;animation:sk 1.4s linear infinite}
+html.neon .sk{background:rgba(20,34,66,.5)!important;border:0!important;animation:none!important}
 /* --- contrôles --- */
 html.neon .chip{background:rgba(255,255,255,.06)!important;border:0!important;box-shadow:inset 0 0 0 .5px var(--n-hair)!important;color:var(--fg2)!important;border-radius:999px!important}
 html.neon .chip[aria-pressed="true"],html.neon .chip.actif{background:rgba(82,240,222,.14)!important;color:var(--n-t2)!important;box-shadow:inset 0 0 0 1px rgba(82,240,222,.5)!important}
 html.neon .segw,html.neon .seg{background:rgba(255,255,255,.06)!important;border:0!important;box-shadow:inset 0 0 0 .5px var(--n-hair)!important}
 html.neon .segw{background:rgba(8,18,44,.7)!important;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
 html.neon .segw button[aria-selected="true"],html.neon .seg button[aria-pressed="true"],html.neon .seg button[aria-selected="true"]{background:rgba(255,255,255,.92)!important;color:#03102b!important;box-shadow:0 2px 10px rgba(0,0,0,.35)!important}
-html.neon .btn,html.neon .link,html.neon .poste a,html.neon .ask button{background:linear-gradient(180deg,#8af7ea,#52f0de)!important;color:#02121a!important;font-weight:700!important;border-radius:999px!important;box-shadow:0 8px 24px -10px rgba(82,240,222,.7)!important}
+html.neon .btn,html.neon .link,html.neon .poste a,html.neon .ask button{background:#eef3fb!important;color:#03102b!important;font-weight:600!important;border-radius:12px!important;box-shadow:none!important}
 html.neon input:not([type=date]),html.neon .ask input{background:rgba(255,255,255,.06)!important;border:0!important;box-shadow:inset 0 0 0 .5px var(--n-hair2)!important;color:var(--fg)}
 html.neon .pill.g{background:rgba(82,240,222,.14)!important;color:var(--n-t2)!important}
 /* --- coup d'œil = écran verrouillé de la v5 : date discrète, chiffre géant blanc, notifs en verre --- */
 html.neon .oeil-j{text-transform:none!important;letter-spacing:-.01em!important;font:600 16px var(--body)!important;color:rgba(230,238,255,.78)!important;text-align:center}
 html.neon .oeil-big{justify-content:center;position:relative;flex-direction:column;align-items:center;gap:6px;padding-bottom:8px}
-html.neon .oeil-big b{font:800 clamp(72px,24vw,112px)/.9 var(--body)!important;letter-spacing:-.055em!important;color:#fff!important;
-  background:linear-gradient(180deg,#fff 35%,#c3d4f6);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;padding:0 .04em .04em}
+html.neon .oeil-big b{font:700 clamp(72px,24vw,112px)/.9 var(--body)!important;letter-spacing:-.05em!important;color:#fff!important}
 html.neon .oeil-big span{color:var(--muted)!important;font:600 15px var(--body)!important}
-html.neon .oeil-big::after{content:"";position:absolute;left:50%;bottom:30px;width:300px;max-width:78%;height:2px;border-radius:2px;
-  background:linear-gradient(90deg,transparent,var(--n-t) 18%,#fff 50%,var(--n-t) 82%,transparent);opacity:0;transform:translateX(-50%) scaleX(0)}
-html.neon .oeil-big.n-trace::after{animation:n-trace 1.6s var(--n-frein) forwards}
-@keyframes n-trace{0%{opacity:0;transform:translateX(-50%) scaleX(0)}12%{opacity:1}70%{opacity:.9;transform:translateX(-50%) scaleX(1)}100%{opacity:.3;transform:translateX(-50%) scaleX(1)}}
+/* jauge du jour : rempli = vues d'aujourd'hui / vues d'hier entier (se remplit avec le compteur) */
+html.neon .oeil-big[data-r]:not([data-r=""])::before{content:"";position:absolute;left:50%;bottom:28px;width:240px;max-width:70%;height:3px;border-radius:2px;background:rgba(255,255,255,.1);transform:translateX(-50%)}
+html.neon .oeil-big[data-r]:not([data-r=""])::after{content:"";position:absolute;left:50%;bottom:28px;width:240px;max-width:70%;height:3px;border-radius:2px;background:var(--n-t);
+  transform:translateX(-50%) scaleX(var(--r));transform-origin:0 0;margin-left:0;clip-path:inset(0)}
+html.neon .oeil-big.n-trace::after{animation:n-jauge 1.1s var(--n-frein) backwards}
+@keyframes n-jauge{from{transform:translateX(-50%) scaleX(0)}}
+html.neon .oeil-big span{margin-top:14px}
 html.neon .oeil-d{text-align:center;color:var(--fg2)!important}
 html.neon .oeil-d.up{color:var(--n-t)!important}
 html.neon .oeil-t{border-radius:24px!important;padding:16px!important}
 html.neon .oeil-t .oeil-ic{width:34px!important;height:34px!important;border-radius:10px;display:grid;place-items:center;background:rgba(82,240,222,.14);color:var(--n-t)!important;position:relative}
 html.neon .oeil-t .oeil-ic svg{width:20px!important;height:20px!important}
 html.neon .oeil-t.feu .oeil-ic{background:rgba(255,159,10,.15);color:#ffb340!important}
-html.neon .oeil-t b{font:800 34px/1.05 var(--body)!important;letter-spacing:-.04em;color:#fff!important}
-html.neon .oeil-t.place .oeil-ic::after,html.neon .oeil-t.place .oeil-ic::before{content:"";position:absolute;inset:0;border-radius:10px;box-shadow:0 0 0 1px rgba(82,240,222,.6);animation:n-anneau 3.2s var(--n-io) infinite}
-html.neon .oeil-t.place .oeil-ic::before{animation-delay:.22s}
+html.neon .oeil-t b{font:700 34px/1.05 var(--body)!important;letter-spacing:-.04em;color:#fff!important}
 @keyframes n-anneau{0%{transform:scale(1);opacity:.8}40%,100%{transform:scale(1.9);opacity:0}}
-html.neon .oeil-go{color:var(--muted)!important}
+html.neon .oeil-go{display:none!important}
+html.neon .cp-hero small,html.neon .lbl,html.neon .oeil-j{text-transform:none!important;letter-spacing:0!important}
+/* le coup d'œil n'occupe plus tout l'écran : le détail commence juste dessous (Jawed : « tu en caches trop ») */
+@media (max-width:959px){html.neon .oeil{min-height:0!important;padding-top:22px!important;gap:18px!important}html.neon .oeil-j{margin:0!important}}
 html.neon .oeil-go svg{color:var(--n-t)}
 /* --- barre d'onglets : capsule de verre qui flotte, repère = point de lumière qui s'étire en trait --- */
 @media (max-width:959px){
@@ -1362,9 +1364,9 @@ html.neon .oeil-go svg{color:var(--n-t)}
 }
 html.neon .tabs-in{position:relative}
 html.neon .tab[aria-selected="true"]{color:#fff!important}
-html.neon .tab[aria-selected="true"] svg{color:var(--n-t)!important;filter:drop-shadow(0 0 8px rgba(82,240,222,.45))}
+html.neon .tab[aria-selected="true"] svg{color:var(--n-t)!important}
 html.neon .tab[aria-selected="true"]::before{display:none!important}
-html.neon .n-rep{position:absolute;left:0;top:0;height:3px;width:16px;border-radius:3px;background:var(--n-t);box-shadow:0 0 10px 1px rgba(82,240,222,.75);pointer-events:none;z-index:2;position:absolute!important}
+html.neon .n-rep{position:absolute;left:0;top:0;height:3px;width:16px;border-radius:3px;background:var(--n-t);pointer-events:none;z-index:2;position:absolute!important}
 @media (min-width:960px){
   html.neon .tabs{background:rgba(3,9,26,.5)!important;backdrop-filter:blur(26px)!important;-webkit-backdrop-filter:blur(26px)!important;border-right:.5px solid var(--n-hair)!important}
   html.neon .tab:hover{background:rgba(255,255,255,.05)!important}
@@ -1374,7 +1376,7 @@ html.neon .n-rep{position:absolute;left:0;top:0;height:3px;width:16px;border-rad
 /* --- feuilles : verre nuit --- */
 html.neon .sheet{background:linear-gradient(180deg,rgba(14,28,62,.94),rgba(4,10,28,.97))!important;border:0!important;box-shadow:inset 0 .5px 0 rgba(255,255,255,.16),0 -30px 80px rgba(0,0,0,.55)!important}
 html.neon .sheet-bg::before{background:rgba(1,4,14,.6)!important}
-html.neon .sheet-h h2{font:800 22px/1.2 var(--body)!important;letter-spacing:-.03em}
+html.neon .sheet-h h2{font:700 22px/1.2 var(--body)!important;letter-spacing:-.03em}
 /* --- alerte « ta vidéo décolle » = notif iOS de la v5 --- */
 html.neon .nv-alerte{border:0!important;background:rgba(30,46,84,.62)!important;backdrop-filter:blur(30px) saturate(1.8)!important;-webkit-backdrop-filter:blur(30px) saturate(1.8)!important;
   box-shadow:inset 0 .5px 0 rgba(255,255,255,.2),inset 0 0 0 .5px var(--n-hair2),0 20px 50px rgba(0,0,0,.55)!important;border-radius:24px!important}
@@ -1382,10 +1384,10 @@ html.neon .nv-alerte b{font:600 15px var(--body)!important;color:#fff!important}
 /* --- intro : point de lumière → trait → logo + anneaux → nom (1 fois par session) --- */
 .n-intro{position:fixed;inset:0;z-index:400;pointer-events:none;display:grid;place-items:center;background:radial-gradient(90vmax 70vmax at 60% 30%,#0b2a7a 0%,#04103a 35%,#01040e 75%)}
 .n-intro .n-c{position:relative;display:flex;flex-direction:column;align-items:center;gap:20px}
-.n-intro .n-m{width:92px;height:92px;background:#52f0de;-webkit-mask:var(--n-marque) center/contain no-repeat;mask:var(--n-marque) center/contain no-repeat;filter:drop-shadow(0 0 14px rgba(82,240,222,.75));opacity:0}
-.n-intro .n-p{position:absolute;left:50%;top:46px;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:4px;background:#fff;box-shadow:0 0 18px 6px rgba(82,240,222,.9);opacity:0}
+.n-intro .n-m{width:92px;height:92px;background:#52f0de;-webkit-mask:var(--n-marque) center/contain no-repeat;mask:var(--n-marque) center/contain no-repeat;opacity:0}
+.n-intro .n-p{position:absolute;left:50%;top:46px;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:4px;background:#fff;opacity:0}
 .n-intro .n-r{position:absolute;left:50%;top:46px;width:92px;height:92px;margin:-46px 0 0 -46px;border-radius:50%;box-shadow:0 0 0 1.5px rgba(82,240,222,.7);opacity:0}
-.n-intro .n-nom{font:800 30px/1 'Inter',system-ui,sans-serif;letter-spacing:-.035em;color:#fff;white-space:pre}
+.n-intro .n-nom{font:700 30px/1 'Inter',system-ui,sans-serif;letter-spacing:-.035em;color:#fff;white-space:pre}
 .n-intro .n-nom span{display:inline-block;opacity:0}
 .n-intro .n-nom .t{color:#52f0de}
 @media (prefers-reduced-motion:reduce){html.neon .n-lueur{animation:none!important}html.neon .fresh::before,html.neon .oeil-t.place .oeil-ic::after,html.neon .oeil-t.place .oeil-ic::before{animation:none!important}.n-intro{display:none}}
@@ -1754,7 +1756,7 @@ function renderHead() {
   try { const X = A0 ? courses(A0).filter(x => x.type === 'vues' && x.fin && x.fin > Date.now()).sort((a, b) => a.fin - b.fin)[0] : null;
     if (X) { const pl = rang(X, X.moi), sp = X.fin - Date.now() < 48 * 3600e3;
       h += `<button class="acct nv-place ${sp ? 'sprint' : ''}" type="button" data-go="campagnes" aria-label="Ta place provisoire sur ${esc(X.nom)} : ${pl}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v4a5 5 0 0 1-10 0V4z" fill="currentColor" opacity=".9"/><path d="M7 6H4.5a2.5 2.5 0 0 0 2.6 3.5M17 6h2.5a2.5 2.5 0 0 1-2.6 3.5M12 13v4M8.5 20h7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>${pl === 1 ? '1er' : pl + 'e'}</button>`; } } catch (e) {}
-  if (WEB) h += `<a class="acct" href="https://jawedcyclom.github.io/cyclom-studio/apercu/" style="text-decoration:none">Aperçu multi-comptes ↗</a>`;
+  if (WEB) h += `<a class="acct" href="https://jawedcyclom.github.io/cyclom-studio/apercu/" style="text-decoration:none">Démo ↗</a>`;
   if (!DRIVE && !WEB) h += `<button class="acct add" type="button" id="addAcc">+ Ajouter un compte</button>`;
   $('#accts').innerHTML = h;
 }
@@ -1778,7 +1780,7 @@ function coupOeil(A, C) {
     tS = `<button class="oeil-t feu ${S.auj ? 'ok' : 'danger'}" type="button" data-serie aria-label="Ta série : ${S.n} jours"><span class="oeil-ic">${NV.FLAMME}</span><b class="num">${S.n} j</b><small>${S.auj ? 'série gardée' : S.n ? 'poste avant minuit' : 'poste pour la lancer'}</small></button>`; }
   catch (e) { tS = `<button class="oeil-t feu" type="button" data-serie><b class="num">${serie(A, C)} j</b><small>Série</small></button>`; }
   return `<section class="oeil" aria-label="Coup d’œil"><p class="oeil-j">${jour}${C.partiel ? ' · relevé partiel' : ''}</p>
-    <button class="oeil-big" type="button" data-fm="g" aria-label="Détail des vues"><b class="num">${fmt(C.today)}</b><span>vues ›</span></button>${delta ? delta.replace('</p>', (hier ? ' · ' + hier : '') + '</p>') : hier ? `<p class="oeil-d">${hier}</p>` : ''}
+    <button class="oeil-big" type="button" data-fm="g" style="--r:${C.yTot ? Math.min(1, C.today / C.yTot).toFixed(3) : 0}" data-r="${C.yTot ? Math.round(100 * C.today / C.yTot) : ""}" aria-label="Détail des vues"><b class="num">${fmt(C.today)}</b><span>vues ›</span></button>${delta ? delta.replace('</p>', (hier ? ' · ' + hier : '') + '</p>') : hier ? `<p class="oeil-d">${hier}</p>` : ''}
     <div class="oeil-duo">${tP}${tS}</div>
     <button class="oeil-go" type="button" data-oeil-go aria-label="Voir le détail"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Glisse pour le détail</button></section><div id="detail-direct"></div>`;
 }
@@ -2651,6 +2653,9 @@ function render() {
 }
 // Téléphone (Jawed 24/11 : « trop de gros trucs dès qu'on ouvre une page ») : façon Apple / TikTok, chaque section
 // devient une ligne (titre + résumé + ›) qu'on touche pour l'ouvrir. L'essentiel (le gros chiffre) reste ouvert. PC inchangé.
+// Jawed 25/11 « tu en caches un peu trop » : les sections qui servent tous les jours sont OUVERTES d'office (on peut les replier, c'est retenu)
+const IMPORTANTES = new Set(['Pourquoi tes vues', 'Plan du jour', 'Heure par heure', 'Ce qui monte', 'Ce qui rapporte', 'Les clips qui cartonnent', 'Postées ce jour', 'Postées ce jour-là', 'Ce qui a rapporté ce jour-là', 'Ta série']);
+const FERMES = new Set((() => { try { return JSON.parse(localStorage.getItem('cs_fermes') || '[]'); } catch (e) { return []; } })());
 const OUVERTS = new Set((() => { try { return JSON.parse(localStorage.getItem('cs_ouverts') || '[]'); } catch (e) { return []; } })());
 function replier() {
   if (!matchMedia('(max-width:959px)').matches) return;
@@ -2660,7 +2665,7 @@ function replier() {
     const h = s.querySelector(':scope > .sec-h'), t = h?.querySelector('h2')?.textContent.trim();
     if (!t || s.classList.contains('login') || s.classList.contains('garde')) continue;
     if (premier || (VIEW === 'creneaux' && (st.an || 'resume') === 'resume')) { premier = false; continue; } // Résumé : court, tout reste ouvert
-    const cle = VIEW + ':' + t, o = OUVERTS.has(cle);
+    const cle = VIEW + ':' + t, o = OUVERTS.has(cle) || (IMPORTANTES.has(t) && !FERMES.has(cle));
     s.classList.add('pliable'); s.classList.toggle('ouvert', o);
     h.dataset.plier = cle; h.setAttribute('role', 'button'); h.tabIndex = 0; h.setAttribute('aria-expanded', String(o));
     const ap = apercuWidget(s); if (ap) h.insertAdjacentHTML('afterend', `<div class="w-apercu" aria-hidden="true">${ap}</div>`);
@@ -2722,8 +2727,8 @@ function apercuWidget(s) {
 }
 function basculerSection(h) {
   const s = h.parentElement, o = s.classList.toggle('ouvert'), cle = h.dataset.plier;
-  h.setAttribute('aria-expanded', String(o)); o ? OUVERTS.add(cle) : OUVERTS.delete(cle);
-  try { localStorage.setItem('cs_ouverts', JSON.stringify([...OUVERTS])); } catch (e) {}
+  h.setAttribute('aria-expanded', String(o)); o ? OUVERTS.add(cle) : OUVERTS.delete(cle); o ? FERMES.delete(cle) : FERMES.add(cle);
+  try { localStorage.setItem('cs_ouverts', JSON.stringify([...OUVERTS])); localStorage.setItem('cs_fermes', JSON.stringify([...FERMES])); } catch (e) {}
 }
 document.addEventListener('keydown', e => { const h = e.target.closest?.('[data-plier]'); if (h && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); basculerSection(h); } });
 function rendreDoux(avant) {
@@ -3709,7 +3714,7 @@ const NEON = (() => {
   const marche = () => { cancelAnimationFrame(raf); der = 0; if (!reduit() && document.visibilityState === 'visible') raf = requestAnimationFrame(boucle); };
   addEventListener('resize', () => { clearTimeout(taille.t); taille.t = setTimeout(taille, 150); });
   document.addEventListener('visibilitychange', marche);
-  taille(); marche();
+  // poussières retirées (Jawed : « ça fait IA ») : le canvas reste éteint
   // la lueur glisse lentement selon l'onglet (caméra qui se déplace, règle 7)
   const POS = { direct: ['62%', '16%'], videos: ['18%', '30%'], historique: ['80%', '48%'], creneaux: ['35%', '70%'], campagnes: ['70%', '86%'] };
   const lueur = v => { const p = POS[v] || POS.direct; document.documentElement.style.setProperty('--gx', p[0]); document.documentElement.style.setProperty('--gy', p[1]); };
@@ -3747,7 +3752,39 @@ const NEON = (() => {
     const doux = !!MV?.doux; _render.apply(this, arguments);
     if (doux || reduit()) return;
     const b = document.querySelector('#main .oeil-big'); if (b) { b.classList.remove('n-trace'); void b.offsetWidth; b.classList.add('n-trace'); }
+    requestAnimationFrame(() => setTimeout(choregraphie, 40));
   };
+  // Motion design dans la page (comme la v5) : chaque animation montre une donnée qui arrive, jamais de boucle.
+  // - courbes : le trait se dessine de gauche à droite (lent → rapide → long freinage), l'aire apparaît derrière
+  // - barres : montent depuis leur base, en cascade de gauche à droite (une toutes les ~16 ms)
+  // - listes (diagnostic, « pourquoi tes vues », jours, campagnes) : arrivent l'une après l'autre comme des notifs
+  // - place en campagne : UN anneau part de l'icône à l'arrivée
+  const FREIN = 'cubic-bezier(.6,0,.12,1)', IO = 'cubic-bezier(.32,.72,0,1)';
+  const visible = el => { const r = el.getBoundingClientRect(); return r.height && r.bottom > 0 && r.top < innerHeight; };
+  function choregraphie() {
+    const main = $('#main'); if (!main) return;
+    let n = 0;
+    for (const svg of main.querySelectorAll('svg')) {
+      if (n > 6 || !visible(svg) || svg.closest('.tab,.oeil-ic,button.acct') || svg.getBoundingClientRect().width < 120) continue; n++;
+      const traits = [...svg.querySelectorAll('path,polyline')].filter(x => x.getAttribute('fill') === 'none' && !x.getAttribute('stroke-dasharray') && (x.getAttribute('stroke') || '').match(/#|var|url|rgb/));
+      for (const t of traits.slice(0, 3)) { let L = 0; try { L = t.getTotalLength(); } catch (e) {} if (!L) continue;
+        if (t.getAttribute('vector-effect') === 'non-scaling-stroke') { const vb = svg.viewBox.baseVal, r = svg.getBoundingClientRect(); if (vb && vb.width) L *= Math.max(r.width / vb.width, r.height / vb.height); }
+        t.style.strokeDasharray = L; t.animate([{ strokeDashoffset: L }, { strokeDashoffset: 0 }], { duration: 1100, easing: FREIN, fill: 'backwards' }).finished.then(() => { t.style.strokeDasharray = ''; }, () => {}); }
+      for (const a of [...svg.querySelectorAll('path')].filter(x => x.getAttribute('fill') && x.getAttribute('fill') !== 'none')) a.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 700, delay: 350, easing: 'ease-out', fill: 'backwards' });
+      const barres = [...svg.querySelectorAll('rect')].filter(r => +r.getAttribute('height') > 0 && +r.getAttribute('width') < 60);
+      if (barres.length >= 4) barres.forEach((r, i) => { r.style.transformBox = 'fill-box'; r.style.transformOrigin = '50% 100%';
+        r.animate([{ transform: 'scaleY(0)' }, { transform: 'scaleY(1)' }], { duration: 560, delay: Math.min(i * 16, 420), easing: IO, fill: 'backwards' }); });
+    }
+    for (const html of main.querySelectorAll('.hb .tr, .obj .tr')) if (visible(html)) html.querySelectorAll(':scope > i').forEach((i, k) => { i.style.transformOrigin = '0 50%'; i.animate([{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }], { duration: 700, delay: k * 30, easing: FREIN, fill: 'backwards' }); });
+    let k = 0;
+    for (const row of main.querySelectorAll('.in, .cp-row, .jours > *, .rows > *, .plan > :not(.sec-h), .pl, .cd')) {
+      if (k > 10 || !visible(row)) continue;
+      row.animate([{ opacity: 0, transform: 'translate3d(0,8px,0)' }, { opacity: 1, transform: 'none' }], { duration: 380, delay: 80 + k++ * 32, easing: IO, fill: 'backwards' });
+    }
+    const ic = main.querySelector('.oeil-t.place .oeil-ic');
+    if (ic && visible(ic)) { const o = document.createElement('i'); o.setAttribute('aria-hidden', 'true'); o.style.cssText = 'position:absolute;inset:0;border-radius:10px;box-shadow:0 0 0 1px #52f0de;pointer-events:none'; ic.appendChild(o);
+      o.animate([{ transform: 'scale(1)', opacity: .9 }, { transform: 'scale(2)', opacity: 0 }], { duration: 900, delay: 500, easing: 'cubic-bezier(.2,.7,.3,1)', fill: 'both' }).finished.then(() => o.remove(), () => o.remove()); }
+  }
 
   // ---------- touches 1-5 sur PC ----------
   document.addEventListener('keydown', e => {
