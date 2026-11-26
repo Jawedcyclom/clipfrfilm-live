@@ -844,7 +844,7 @@ button,a,[role="button"],.sec.pliable{-webkit-touch-callout:none}
 .nv-serie.danger{border-color:rgba(255,181,71,.45)}
 .nv-serie.danger .nv-sub{color:#ffb547;font-weight:600}
 .nv-sem{display:flex;gap:4px;margin:2px 0;flex-wrap:nowrap}
-.nv-sem i{width:18px;height:18px;border-radius:6px;display:grid;place-items:center;font:700 9.5px var(--body);font-style:normal;color:var(--muted);background:var(--panel2);border:1px solid var(--edge)}
+.nv-sem i{width:20px;height:20px;border-radius:6px;display:grid;place-items:center;font:700 11px var(--body);font-style:normal;color:var(--muted);background:var(--panel2);border:1px solid var(--edge)}
 .nv-sem i.on{background:#ff8a3d;border-color:#ff8a3d;color:#1b0b00}
 .nv-sem i.auj:not(.on){border-color:#ffb547;color:#ffb547}
 .nv-sem i.fut{opacity:.35}
@@ -1444,7 +1444,7 @@ html.neon .segw{background:rgba(6,13,32,.96)!important}
 @media (min-width:960px){.an-kpi{grid-template-columns:repeat(4,1fr)}.an-hero>b{font-size:72px}}
 /* l'assistant dans l'en-tête : sur PC il garde sa place de bouton flottant */
 @media (max-width:959px){.fab-l{display:none}}
-@media (min-width:960px){.top .fab{position:static!important;order:1;padding:0 14px!important;height:34px;font-size:13px!important;gap:6px;box-shadow:none!important}.top .fab svg{width:16px;height:16px}.top .brand-r .gear{order:2}}
+@media (min-width:960px){.top .fab{position:static!important;order:1;padding:0 14px!important;height:36px;font-size:13px!important;gap:6px;box-shadow:none!important}.top .fab svg{width:16px;height:16px}.top .brand-r .gear{order:2}}
 </style>
 
 <header class="top">
@@ -1750,8 +1750,13 @@ function compteCourant() {
   if (ACC !== 'tous') { const a = L.find(x => x.id === ACC); if (a) return a; ACC = 'tous'; }
   if (L.length === 1) return L[0];
   const sumMap = (key, inner) => { const o = {}; for (const a of L) for (const [kk, v] of Object.entries(a[key] || {})) {
-    if (inner) { o[kk] = o[kk] || {}; for (const [f, x] of Object.entries(v)) o[kk][f] = (o[kk][f] || 0) + (x || 0); }
-    else o[kk] = (o[kk] || 0) + (v || 0); } return o; };
+    if (inner) { o[kk] = o[kk] || {}; for (const [f, x] of Object.entries(v)) if (typeof x === 'number' && isFinite(x)) o[kk][f] = (o[kk][f] || 0) + x; }
+    else if (typeof v === 'number' && isFinite(v)) o[kk] = (o[kk] || 0) + v; }
+    if (inner) { // audit Codex DATA-03 : un jour où un compte déjà suivi n'a pas de relevé = total PARTIEL (marqué, et exclu des comparaisons)
+      const debut = L.map(a => Object.keys(a[key] || {}).sort()[0] || '99999999');
+      for (const kk of Object.keys(o)) { const att = L.filter((a, i) => debut[i] <= kk), ont = att.filter(a => a[key]?.[kk]?.g != null);
+        if (ont.length < att.length) o[kk]._p = `${ont.length}/${att.length}`; } }
+    return o; };
   const vids = []; for (const a of L) for (const v of a.videos) vids.push({ ...v, acc: a.user });
   vids.sort((a, b) => b.t - a.t);
   return { id: 'tous', user: L.map(a => a.user).join(' + '), abonnes: L.reduce((s, a) => s + (a.abonnes || 0), 0), likes: L.reduce((s, a) => s + (a.likes || 0), 0),
@@ -1879,11 +1884,6 @@ function vDirect(A, C) {
     ${(() => { const G = gains(A); return G ? `<button class="tile" type="button" data-go="campagnes" style="text-align:left"><span>Gagné</span><b class="num" style="color:var(--gold)">${eur(G.auj)}</b></button>`
       : `<button class="tile" type="button" data-fm="c"><span>Comms</span><b class="num">${Q.c != null ? '+' + k(Q.c) : '—'}</b></button>`; })()}
   </div>`;
-  h += analyseDirect(A, C); // ÉPURE 24/11 : rejoint Plan / Inspire / Heure par heure = 4 widgets 2×2
-  h += planJour(A, C);
-  h += inspiration(A);
-  h += `<section class="sec card chart"><div class="sec-h"><h2>Heure par heure</h2><small>touche une barre</small></div>${chartJour(A, C, C.P.day)}${hourTip(A, C, C.P.day)}
-    <div class="legend"><span><i style="background:var(--accent)"></i>Aujourd'hui</span><span><i style="background:#5a5a66"></i>Hier</span></div></section>`;
   // une seule liste avec deux vues : ce qui monte maintenant / postées aujourd'hui (moins de scroll)
   const dj = [...C.duJour].sort((a, b) => b.t - a.t);
   const rise = A.videos.filter(v => v.gh > 0).sort((a, b) => b.gh - a.gh).slice(0, 5);
@@ -1895,6 +1895,12 @@ function vDirect(A, C) {
   if (vue === 'monte') h += `<div class="strip monte-rail">${lst.map((v, i) => `<button class="mr" type="button" data-vid="${v.id}" aria-label="${esc(titreVid(v))}">${cover(v)}<i class="mr-rg">${i + 1}</i><span class="ov"><b class="num">+${k(rise.length ? v.gh : v.gj)}</b><span class="mr-tot num">${k(v.v)} au total</span></span></button>`).join('')}</div>`;
   else h += dj.length ? `<div class="grid">${dj.slice(0, 12).map(v => vcard(v, C)).join('')}</div>${dj.length > 12 ? `<button class="more" type="button" data-go="videos" data-per="jour">Voir les ${dj.length} vidéos du jour</button>` : ''}` : `<div class="card muted">Rien posté aujourd’hui pour l’instant${A.videos[0] ? ` : ta dernière vidéo date d’il y a ${Math.floor((C.now / 1000 - A.videos[0].t) / 3600)} h` : ''}.</div>`;
   h += `</section>`;
+  // UI-03 (audit 26/11) : d’abord le chiffre, puis les vidéos qui rapportent MAINTENANT ; les analyses du jour ensuite
+  h += analyseDirect(A, C); // ÉPURE 24/11 : rejoint Plan / Inspire / Heure par heure = 4 widgets 2×2
+  h += planJour(A, C);
+  h += inspiration(A);
+  h += `<section class="sec card chart"><div class="sec-h"><h2>Heure par heure</h2><small>touche une barre</small></div>${chartJour(A, C, C.P.day)}${hourTip(A, C, C.P.day)}
+    <div class="legend"><span><i style="background:var(--accent)"></i>Aujourd'hui</span><span><i style="background:#5a5a66"></i>Hier</span></div></section>`;
   return h;
 }
 
@@ -2223,8 +2229,8 @@ function vHistorique(A, C) {
     ${pp != null ? `<span class="pill ${pp >= 0 ? 'g' : 'b'}">${pctTxt(pp)} sur ${clos.length} jours terminés vs les précédents</span>` : ''}</div>${barres(sel, vals)}</section>`;
   const nbv0 = {}; for (const v of A.videos) { const d = pz(v.t * 1000).day; nbv0[d] = (nbv0[d] || 0) + 1; }
   if (innerWidth < 700) {
-    h += `<div class="jours">${[...sel].reverse().map(d => { const q = Q[d], p = Q[addJour(d, -1)], dv = p && d !== C.P.day ? pct(q.g, p.g) : null, df = q.f != null && p?.f != null ? q.f - p.f : null;
-      return `<button class="jr" type="button" data-day="${d}"><span class="jd"><b>${dayLabel(d)}</b><small>${nbv0[d] || 0} vidéo${(nbv0[d] || 0) > 1 ? 's' : ''}${df != null ? ` · ${df >= 0 ? '+' : ''}${fmt(df)} abonnés` : ''}</small></span><span class="jv"><b class="num">${k(q.g)}</b>${d === C.P.day ? '<small class="muted">en cours</small>' : ''}${dv != null ? `<small class="${dv >= 0 ? 'up' : 'down'}">${pctTxt(dv)}</small>` : ''}</span><span class="chev">›</span></button>`; }).join('')}</div>
+    h += `<div class="jours">${[...sel].reverse().map(d => { const q = Q[d], p = Q[addJour(d, -1)], dv = p && d !== C.P.day && !q._p && !p._p ? pct(q.g, p.g) : null, df = q.f != null && p?.f != null ? q.f - p.f : null;
+      return `<button class="jr" type="button" data-day="${d}"><span class="jd"><b>${dayLabel(d)}</b><small>${nbv0[d] || 0} vidéo${(nbv0[d] || 0) > 1 ? 's' : ''}${df != null ? ` · ${df >= 0 ? '+' : ''}${fmt(df)} abonnés` : ''}</small></span><span class="jv"><b class="num">${k(q.g)}</b>${d === C.P.day ? '<small class="muted">en cours</small>' : ''}${q._p ? `<small class="muted">partiel · ${q._p} comptes</small>` : ''}${dv != null ? `<small class="${dv >= 0 ? 'up' : 'down'}">${pctTxt(dv)}</small>` : ''}</span><span class="chev">›</span></button>`; }).join('')}</div>
       <p class="muted note-c">Touche un jour pour le détail · jour en cours partiel · jours finis : TikTok Studio · aujourd'hui : relevé 5 min</p>`;
     return h;
   }
@@ -2387,14 +2393,14 @@ function analyseDirect(A, C) {
     observations.unshift({ a: 'data-vid="' + esc(star.id) + '"', c: 'g', t: '<b>' + esc(titreVid(star)) + '</b> apporte ' + k(star.gj) + ' vues, soit ' + Math.round(100 * star.gj / C.today) + ' % du total du jour.' });
   }
   if (!observations.length) return '';
-  return `<section class="sec direct-analyse"><div class="sec-h"><h2>Pourquoi tes vues</h2><button type="button" class="chip" data-an="resume">Analyse ›</button></div><div class="ins">${observations.map(x => `<button class="in" type="button" ${x.a}><span class="ic ${x.c}"></span><span class="tx">${x.t}</span><span class="chev">›</span></button>`).join('')}</div></section>`;
+  return `<section class="sec direct-analyse"><div class="sec-h"><h2>Pourquoi tes vues</h2><button type="button" class="chip" data-an="resume">Analyse ›</button></div><div class="ins">${observations.map(x => `<button class="in" type="button" ${x.a}><span class="ic ${x.c}"></span><span class="tx">${x.t.replace(/ ([%‰])/g, ' $1')}</span><span class="chev">›</span></button>`).join('')}</div></section>`;
 }
 // ===== ANALYSE (refaite le 26/11, façon YouTube Studio / TikTok Studio) : Vue d'ensemble · Contenu · Audience =====
 // Une période (7 / 28 / 90 j, jours TERMINÉS), un gros chiffre + sa comparaison, les chiffres clés, LA courbe, ce qui marche, le classement.
 const AN_ALIAS = { resume: 'vue', moment: 'audience', vie: 'contenu' };
 function anPeriode(A, C, per) {
   const fin = C.yd, deb = addJour(fin, -(per - 1)), deb2 = addJour(deb, -per), fin2 = addJour(deb, -1);
-  const met = m => { const L = SP.jours(A, C, m), cur = L.filter(x => x[0] >= deb && x[0] <= fin), av = L.filter(x => x[0] >= deb2 && x[0] <= fin2);
+  const Qp = A.quotidien || {}, met = m => { const L = SP.jours(A, C, m).map(x => Qp[x[0]]?._p ? [x[0], null] : x), cur = L.filter(x => x[0] >= deb && x[0] <= fin), av = L.filter(x => x[0] >= deb2 && x[0] <= fin2);
     const s = a => { const ok = a.filter(x => x[1] != null); return a.length >= Math.ceil(per * .8) && ok.length >= Math.ceil(per * .8) ? ok.reduce((t, x) => t + x[1], 0) : null; };
     return { cur, av, a: s(cur), b: s(av) }; };
   return { deb, fin, g: met('g'), f: met('f'), p: met('p'), s: met('s') };
@@ -3069,7 +3075,7 @@ async function chargerWeb() {
   if (!cle) return ecranMdp();
   try { await lireWeb(cle); }
   catch (e) { if (e?.code === 'mdp') { try { localStorage.removeItem('cs_cle'); } catch (x) {} return ecranMdp('Le mot de passe a changé : tape le nouveau.'); }
-    if (!RAW) $('#main').innerHTML = `<div class="warnbox">Les données ne répondent pas pour l’instant. Nouvel essai dans 2 minutes.</div>`; }
+    if (!RAW) $('#main').innerHTML = `<div class="warnbox">Les données ne répondent pas pour l’instant. Nouvel essai tout seul dans 2 minutes.<br><button class="btn" type="button" onclick="location.reload()" style="margin-top:12px">Réessayer maintenant</button></div>`; }
   clearInterval(chargerWeb.t); chargerWeb.t = setInterval(() => lireWeb(cle).catch(() => {}), 120000);
 }
 document.addEventListener('submit', async e => {
@@ -3094,7 +3100,7 @@ async function charger() {
     clearTimeout(charger.t); if ((RAW.en_attente || []).length || !RAW.comptes.length) charger.t = setTimeout(charger, 15000);
     if (avant && (!$('#sheet').hidden || document.activeElement?.id === 'q')) { A_RENDRE = true; fraicheur(); return; } // ne jamais casser ce que la personne fait
     rendreDoux(avant);
-  } catch (e) { if (!RAW) $('#main').innerHTML = `<div class="warnbox">Impossible de charger tes stats. Vérifie ta connexion, on réessaie tout seul.</div>`; clearTimeout(charger.t); charger.t = setTimeout(charger, 20000); }
+  } catch (e) { if (!RAW) $('#main').innerHTML = `<div class="warnbox">Impossible de charger tes stats. Vérifie ta connexion, on réessaie tout seul.<br><button class="btn" type="button" onclick="charger()" style="margin-top:12px">Réessayer maintenant</button></div>`; clearTimeout(charger.t); charger.t = setTimeout(charger, 20000); }
 }
 // ===== MOUVEMENT (agent 24/11) =====
 // Toute la couche mouvement : entrée des pages (cascade + sens du glissement), indicateur d'onglet / sous-onglet qui glisse,
