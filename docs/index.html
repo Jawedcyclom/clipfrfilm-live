@@ -695,7 +695,7 @@ button,a.link,a.ext,.vc,.row,.in,.camp,.cd,.rc,.hb{transition:transform .15s var
 
   /* --- Sous-onglets : contrôle segmenté --- */
   .segw{background:var(--s1);border:0;border-radius:var(--r-ctl);padding:3px;gap:2px;box-shadow:inset 0 0 0 .5px var(--hair);
-    top:calc(env(safe-area-inset-top,0px) + var(--toph,105px) + 4px)}
+    top:calc(var(--toph,105px) - 1px)}
   .segw:not(.seg2){background:rgba(12,22,40,.82);backdrop-filter:blur(20px) saturate(1.6);-webkit-backdrop-filter:blur(20px) saturate(1.6)}
   .segw button{min-height:38px;border-radius:9px;font:600 13.5px var(--body)}
   .segw button[aria-selected="true"]{background:var(--cyclom);color:#04121a;font-weight:700}
@@ -1440,6 +1440,10 @@ html.neon .segw{background:rgba(6,13,32,.96)!important}
 .row .t span:not(.muted){white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .jr .jd small{white-space:normal!important;overflow:visible!important;text-overflow:clip!important}
 @media (max-width:959px){.sec.pliable>.sec-h{min-height:44px}}
+.an-tt small{display:block;margin-top:2px;font-size:12px;color:var(--muted)}
+#accts[hidden]{display:none!important}
+@media (max-width:959px){html.neon:not(.studio) .tabs{background:rgba(6,14,36,.9)!important}}
+html.neon:not(.studio) .segw:not(.seg2){background:rgba(8,18,44,.96)!important}
 .an-base{display:block;margin-top:8px;font-size:12px;line-height:1.4;color:var(--muted)}
 @media (min-width:960px){.an-kpi{grid-template-columns:repeat(4,1fr)}.an-hero>b{font-size:72px}}
 /* l'assistant dans l'en-tête : sur PC il garde sa place de bouton flottant */
@@ -1890,9 +1894,11 @@ function renderHead() {
   try { const X = A0 ? courses(A0).filter(x => x.type === 'vues' && x.fin && x.fin > Date.now()).sort((a, b) => a.fin - b.fin)[0] : null;
     if (X) { const pl = rang(X, X.moi), sp = X.fin - Date.now() < 48 * 3600e3;
       h += `<button class="acct nv-place ${sp ? 'sprint' : ''}" type="button" data-go="campagnes" aria-label="Ta place provisoire sur ${esc(X.nom)} : ${pl}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v4a5 5 0 0 1-10 0V4z" fill="currentColor" opacity=".9"/><path d="M7 6H4.5a2.5 2.5 0 0 0 2.6 3.5M17 6h2.5a2.5 2.5 0 0 1-2.6 3.5M12 13v4M8.5 20h7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>${pl === 1 ? '1er' : pl + 'e'}</button>`; } } catch (e) {}
-  if (WEB) h += `<a class="acct" href="https://jawedcyclom.github.io/cyclom-studio/apercu/" style="text-decoration:none">Démo ↗</a>`;
   if (!DRIVE && !WEB) h += `<button class="acct add" type="button" id="addAcc">+ Ajouter un compte</button>`;
   $('#accts').innerHTML = h;
+  // finitions 26/11 : un seul compte et rien d'autre à montrer = la ligne ne sert à rien (40 px gagnés sur chaque écran)
+  const seul = L.length === 1 && !$('#accts .nv-chip, #accts .nv-place, #accts .add'); $('#accts').hidden = seul;
+  const hd = $('header.top'); if (hd) document.documentElement.style.setProperty('--toph', hd.offsetHeight + 'px');
 }
 
 // ---------- Coup d'œil (Jawed 24/11) : 3 chiffres à l'ouverture, détail en glissant vers le haut ----------
@@ -1911,7 +1917,7 @@ function coupOeil(A, C) {
   else tP = `<div class="oeil-t"><span class="oeil-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18l5-6 4 3 7-9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><b class="num">${C.est && !C.partiel ? '≈ ' + k(C.est) : '—'}</b><small>vues prévues ce soir</small></div>`;
   let tS = '';
   try { const S = NV.infosSerie(A, C);
-    tS = `<button class="oeil-t feu ${S.auj ? 'ok' : 'danger'}" type="button" data-serie aria-label="Ta série : ${S.n} jours"><span class="oeil-ic">${NV.FLAMME}</span>${!S.n && A.videos[0] ? `<b class="num">${Math.floor((C.now / 1000 - A.videos[0].t) / 3600)}\u00a0h</b><small>sans poster</small>` : `<b class="num">${S.n} j</b><small>${S.auj ? 'série gardée' : 'poste avant minuit'}</small>`}</button>`; }
+    tS = `<button class="oeil-t feu ${S.auj ? 'ok' : 'danger'}" type="button" data-serie aria-label="Ta série : ${S.n} jours"><span class="oeil-ic">${!S.n && A.videos[0] ? '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7.5V12l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>' : NV.FLAMME}</span>${!S.n && A.videos[0] ? `<b class="num">${Math.floor((C.now / 1000 - A.videos[0].t) / 3600)}\u00a0h</b><small>sans poster</small>` : `<b class="num">${S.n} j</b><small>${S.auj ? 'série gardée' : 'poste avant minuit'}</small>`}</button>`; }
   catch (e) { tS = `<button class="oeil-t feu" type="button" data-serie><b class="num">${serie(A, C)} j</b><small>Série</small></button>`; }
   return `<section class="oeil" aria-label="Coup d’œil"><p class="oeil-j">${jour}${C.partiel ? ' · relevé partiel' : ''}</p>
     <button class="oeil-big" type="button" data-fm="g" style="--r:${C.yTot ? Math.min(1, C.today / C.yTot).toFixed(3) : 0}" data-r="${C.yTot ? Math.round(100 * C.today / C.yTot) : ""}" aria-label="Détail des vues"><b class="num">${fmt(C.today)}</b><span>vues ›</span></button>${delta ? delta.replace('</p>', (hier ? ' · ' + hier : '') + '</p>') : hier ? `<p class="oeil-d">${hier}</p>` : ''}
@@ -2485,7 +2491,7 @@ function anDelta(a, b) { if (a == null || b == null) return '<span class="an-d m
 function anTop(A, C, per, med) {
   const lim = C.now / 1000 - per * 86400, L = A.videos.filter(v => v.t >= lim && !v.r).sort((a, b) => b.v - a.v).slice(0, 5); if (!L.length) return '';
   const mx = L[0].v || 1;
-  return `<section class="card sec an-top"><div class="sec-h"><h2>Tes meilleures vidéos</h2><small>postées sur la période</small></div><ol class="an-rk">${L.map((v, i) => `<li><button type="button" data-vid="${esc(v.id)}"><span class="an-n num">${i + 1}</span>${cover(v)}<span class="an-t"><span class="an-tt">${esc(titreVid(v))}</span><span class="an-bar"><i style="width:${Math.max(3, v.v / mx * 100).toFixed(1)}%"></i></span></span><span class="an-v"><b class="num">${k(v.v)}</b><small>${k(v.l)} likes</small></span></button></li>`).join('')}</ol></section>`;
+  return `<section class="card sec an-top"><div class="sec-h"><h2>Tes meilleures vidéos</h2><small>postées sur la période</small></div><ol class="an-rk">${L.map((v, i) => `<li><button type="button" data-vid="${esc(v.id)}"><span class="an-n num">${i + 1}</span>${cover(v)}<span class="an-t"><span class="an-tt">${sansTags(v.d) ? esc(sansTags(v.d)) : `${esc(titreVid(v).split(' · ')[0])}<small>${esc(titreVid(v).split(' · ').slice(1).join(' · '))}</small>`}</span><span class="an-bar"><i style="width:${Math.max(3, v.v / mx * 100).toFixed(1)}%"></i></span></span><span class="an-v"><b class="num">${k(v.v)}</b><small>${k(v.l)} likes</small></span></button></li>`).join('')}</ol></section>`;
 }
 function vCreneaux(A, C) {
   const an = AN_ALIAS[st.an] || st.an || 'vue', per = [7, 28, 90].includes(st.slotPer) ? st.slotPer : 28;
@@ -2504,7 +2510,7 @@ function vCreneaux(A, C) {
     if (W.length) h += `<section class="card sec an-why"><div class="sec-h"><h2>Ce qui marche pour toi</h2><small>${per} derniers jours</small></div>${W.map(x => `<button type="button" class="an-w" ${x.a}><b class="num ${x.c === 'b' ? 'down' : ''}">${x.g}</b><span>${x.s.replace(/ ([%‰])/g, '\u00a0$1')}</span><span class="chev">›</span></button>`).join('')}<p class="muted note">Observé sur tes ${vs.length} vidéos (${bt}) : des pistes à tester, pas des garanties.</p></section>`;
     { const G = groupes(A, C, vs), bh = G.heure.filter(r => r.n >= MINI && r.m).sort((x, y) => y.m - x.m)[0];
       if (bh && med && bh.m / med >= 1.15) h += `<section class="card sec an-exp"><div class="sec-h"><h2>À tester cette semaine</h2><small>une expérience, pas une règle</small></div>
-        <p class="an-exp-t">Poste <b>5 vidéos entre ${bh.l}</b> d’ici ${dayLabel(addJour(C.P.day, 7)).replace(/^\w+/, x => JOURS_L[JOURS.indexOf(x)] || x)}.</p>
+        <p class="an-exp-t">Poste <b>5 vidéos entre ${bh.l}</b> d’ici ${dayLabel(addJour(C.P.day, 7)).replace(/^\w+/, x => JOURS_L[JOURS.indexOf(x)] || x).replace(' ', ' ')}.</p>
         <div class="an-exp-m"><div><small>À battre</small><b class="num">${k(med)}</b><span>${bt}, ta normale</span></div><div><small>Ce créneau sur ${per} j</small><b class="num up">${fx(bh.m / med)}</b><span>${bh.n} vidéos</span></div></div>
         <p class="muted note">D’autres choses jouent aussi (campagne, sujet, durée) : compare à ta normale, pas à ta meilleure vidéo.</p></section>`; }
     return h + anTop(A, C, per, med);
@@ -2731,6 +2737,7 @@ function mesComptes() {
   if (RAW.moi?.admin && SITE) h += `<button class="more" type="button" id="agence">${AGENCE ? 'Voir seulement mes comptes' : 'Voir tous les comptes de l’agence'}</button>`;
   h += `<div class="muted" style="font-size:12.5px">Tes stats sont relevées toutes les ${DRIVE ? '5' : '15'} minutes, même appli fermée. On ne voit jamais ton mot de passe : TikTok nous donne seulement tes vidéos et leurs chiffres.</div>`;
   h += liensExternes(compteCourant());
+  if (WEB) h += `<a class="ext" style="justify-content:center" href="https://jawedcyclom.github.io/cyclom-studio/apercu/">Voir la démo ↗</a>`; // déplacé de l'en-tête (26/11)
   if (SITE) h += `<a class="ext" style="justify-content:center" href="/deconnexion">Se déconnecter</a>`;
   if (WEB) h += `<button class="more" type="button" data-webout>Oublier le mot de passe sur cet appareil</button>`;
   ouvrir(h);
