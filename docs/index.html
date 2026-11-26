@@ -1448,6 +1448,8 @@ html.neon:not(.studio) .segw:not(.seg2){background:rgba(8,18,44,.96)!important}
 html.gl-actif #main{transition:none!important}
 .gl-fantome *,.gl-fantome *::before,.gl-fantome *::after,.gl-voisin *,.gl-voisin *::before,.gl-voisin *::after{animation:none!important;transition:none!important}
 html,body{overflow-x:clip}
+/* la grande carte du jour (aujourd'hui / jour passé) a maintenant un fond de verre : elle reprend ses marges intérieures au téléphone */
+@media (max-width:959px){html.neon:not(.studio) .card.hero{padding:16px 16px 14px!important}}
 .an-base{display:block;margin-top:8px;font-size:12px;line-height:1.4;color:var(--muted)}
 @media (min-width:960px){.an-kpi{grid-template-columns:repeat(4,1fr)}.an-hero>b{font-size:72px}}
 /* l'assistant dans l'en-tête : sur PC il garde sa place de bouton flottant */
@@ -1687,6 +1689,7 @@ const ago = ms => { const m = Math.round((Date.now() - ms) / 60000); if (m < 1) 
 const dateVid = t => new Date(t * 1000).toLocaleString('fr-FR', { timeZone: TZ, day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }).replace(' ', ' à ');
 const tags = d => (String(d || '').toLowerCase().match(/#[\p{L}\p{N}_]+/gu) || []).map(t => t.slice(1));
 const casse = t => t && t === t.toUpperCase() && /[A-Z]{4}/.test(t) ? t.toLowerCase().replace(/(^|[\s\-—(])(\p{L})/gu, (m, a, b) => a + b.toUpperCase()) : t;
+const titreSansDate = v => titreVid(v).replace(/ · \d\d\/\d\d à \d\d:\d\d$/, ''); // pour les lignes qui affichent déjà la date à droite
 const titreVid = v => { const t = sansTags(v.d); if (t) return t; const c = tags(v.d).find(x => x.startsWith('cyclomx'));
   const nomC = c ? ((RAW?.campagnes || []).find(x => x.tag === c)?.nom || '#' + c) : 'Vidéo'; return nomC + (v.du ? ' · ' + v.du + ' s' : '') + ' · ' + dateVid(v.t); };
 const sansTags = d => String(d || '').replace(/#[\p{L}\p{N}_]+/gu, '').replace(/\s+/g, ' ').trim();
@@ -2144,7 +2147,7 @@ function vJourPasse(A, C, d) {
   if (aHeures) h += `<section class="sec card chart"><div class="sec-h"><h2>Heure par heure</h2><small>glisse le doigt</small></div>${chartJour(A, C, d)}${hourTip(A, C, d)}
     <div class="legend"><span><i style="background:var(--accent)"></i>${d === C.yd ? 'Hier' : 'Ce jour'}</span><span><i style="background:#5a5a66"></i>${d === C.yd ? 'Avant-hier' : 'Veille'}</span></div></section>`;
   if (gains.length) h += `<section class="sec"><div class="sec-h"><h2>Ce qui a rapporté ce jour-là</h2><small>vues gagnées dans la journée</small></div>
-    <div class="rows">${gains.map(({ v, g }) => `<button class="row" type="button" data-vid="${v.id}">${cover(v)}<div class="t"><b class="num">+${k(g)}</b><span>${esc(titreVid(v))}</span></div><div class="r num"><b>${k(v.v)}</b><br><span class="muted">${dateVid(v.t)}</span></div></button>`).join('')}</div></section>`;
+    <div class="rows">${gains.map(({ v, g }) => `<button class="row" type="button" data-vid="${v.id}">${cover(v)}<div class="t"><b class="num">+${k(g)}</b><span>${esc(titreSansDate(v))}</span></div><div class="r num"><b>${k(v.v)}</b><br><span class="muted">${dateVid(v.t)}</span></div></button>`).join('')}</div></section>`;
   h += `<section class="sec"><div class="sec-h"><h2>Postées ce jour-là</h2><small>${nb} vidéo${nb > 1 ? 's' : ''} · ${k(vs.reduce((s, v) => s + v.v, 0))} vues à ce jour</small></div>`;
   h += nb ? `<div class="grid">${vs.slice(0, 30).map(v => vcard(v, C)).join('')}</div>` : `<div class="card muted">Aucune vidéo postée ce jour-là.</div>`;
   if (nb > 30) h += `<button class="more" type="button" data-go="videos" data-per="d:${d}">Voir les ${nb} vidéos de ce jour</button>`;
@@ -2207,7 +2210,7 @@ function vcard(v, C) {
 
 function vrow(v, C) {
   const f = C.fois(v), lr = v.v ? v.l / v.v * 100 : 0;
-  return `<button class="row" type="button" data-vid="${v.id}">${cover(v)}<div class="t"><b class="num">${k(v.v)} <small class="muted" style="font:500 12px var(--body)">vues</small></b><span>${esc(titreVid(v))}</span><span class="muted" style="font-size:12px">${sansTags(v.d) ? dateVid(v.t) + ' · ' : ''}${lr.toLocaleString('fr-FR', { maximumFractionDigits: 1 })} % likes${v.du && sansTags(v.d) ? ' · ' + v.du + ' s' : ''}</span></div><div class="r num">${f != null ? `<b class="${f >= 1 ? 'up' : 'down'}">${f.toLocaleString('fr-FR', { maximumFractionDigits: 1 })}×</b><br>` : ''}${v.gj ? `<span class="up">+${k(v.gj)}</span>` : ''}</div></button>`;
+  return `<button class="row" type="button" data-vid="${v.id}">${cover(v)}<div class="t"><b class="num">${k(v.v)} <small class="muted" style="font:500 12px var(--body)">vues</small></b><span>${esc(titreSansDate(v))}</span><span class="muted" style="font-size:12px">${sansTags(v.d) ? dateVid(v.t) + ' · ' : ''}${lr.toLocaleString('fr-FR', { maximumFractionDigits: 1 })} % likes${v.du && sansTags(v.d) ? ' · ' + v.du + ' s' : ''}</span></div><div class="r num">${f != null ? `<b class="${f >= 1 ? 'up' : 'down'}">${f.toLocaleString('fr-FR', { maximumFractionDigits: 1 })}×</b><br>` : ''}${v.gj ? `<span class="up">+${k(v.gj)}</span>` : ''}</div></button>`;
 }
 // ---------- Vue : Vidéos ----------
 function filtreVideos(A, C) {
@@ -2611,7 +2614,7 @@ function vCreneaux(A, C) {
     const vieilles = A.videos.filter(v => { const j = (C.now / 1000 - v.t) / 86400; return j >= 21 && j <= 180 && !v.r; }), medV = median(vieilles.map(v => v.v));
     const rep_ = vieilles.filter(v => medV && v.v >= medV * 4).sort((a, b) => b.v - a.v).slice(0, 5);
     if (rep_.length) h += `<section class="card sec"><div class="sec-h"><h2>À reposter</h2><small>cartons d’il y a 3 semaines et +</small></div>
-      <div class="rows">${rep_.map(v => `<button class="row" type="button" data-vid="${v.id}">${cover(v)}<div class="t"><b class="num">${k(v.v)}</b><span>${esc(titreVid(v))}</span><span class="muted" style="font-size:12px">${sansTags(v.d) ? dateVid(v.t) + ' · ' : ''}${v.v / medV < 50 ? fx(v.v / medV) + ' ta normale' : 'dans ton top 1 %'}</span></div></button>`).join('')}</div>
+      <div class="rows">${rep_.map(v => `<button class="row" type="button" data-vid="${v.id}">${cover(v)}<div class="t"><b class="num">${k(v.v)}</b><span>${esc(titreSansDate(v))}</span><span class="muted" style="font-size:12px">${sansTags(v.d) ? dateVid(v.t) + ' · ' : ''}${v.v / medV < 50 ? fx(v.v / medV) + ' ta normale' : 'dans ton top 1 %'}</span></div></button>`).join('')}</div>
       <p class="muted note">Nouveau début ou nouveau titre : ça repart souvent.</p></section>`;
     return h;
   }
@@ -3126,6 +3129,7 @@ const GL = { m: null, anim: [] };
 const IOSG = 'cubic-bezier(.22,.8,.2,1)';
 function cibleGlisse(sens) { // sens +1 = page suivante (doigt vers la gauche)
   if (VIEW === 'direct' && RAW) { const auj = pz(RAW.maj).day, cur = st.jour || auj, d = addJour(cur, sens), B = bornes(compteCourant(), calc(compteCourant()));
+    if (sens > 0 && cur === auj) return { v: ORDRE[ORDRE.indexOf('direct') + 1] }; // aujourd'hui → glisser à gauche = Vidéos (Jawed 26/11)
     return d > auj || d < B.mn ? null : { jour: d === auj ? null : d }; }
   const v = ORDRE[ORDRE.indexOf(VIEW) + sens]; return v ? { v } : null;
 }
