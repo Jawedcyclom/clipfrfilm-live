@@ -1558,7 +1558,7 @@ html.neon.studio #cs-toast{background:#25272c!important;box-shadow:none!importan
 (() => {
 'use strict';
 // LOOK APPLE (Jawed 25/11) : lien /apple/ ou ?look=apple ; ?look=base = look actuel
-{ const lk = new URLSearchParams(location.search).get('look'); if (lk === 'apple' || (lk !== 'base' && lk !== 'neon' && /\/apple\//.test(location.pathname))) document.documentElement.classList.add('apple'); else if (lk !== 'base') { document.documentElement.classList.add('neon'); if (lk !== 'neon') document.documentElement.classList.add('studio'); } } // 26/11 : Studio sobre par défaut, ?look=neon = ancien néon
+{ const lk = new URLSearchParams(location.search).get('look'); if (lk === 'apple' || (lk !== 'base' && lk !== 'neon' && /\/apple\//.test(location.pathname))) document.documentElement.classList.add('apple'); else if (lk !== 'base') { document.documentElement.classList.add('neon'); if (lk === 'studio') document.documentElement.classList.add('studio'); } } // 26/11 : Jawed « c'est moche, remets le néon » → néon par défaut, ?look=studio = sobre
 // ---------- Source des données ----------
 // Sur le vrai site, le serveur définit window.CYCLOM_API (ex. "/api/moi"). Sans ça : aperçu avec demo.json.
 // Trois sources : 'site' (window.CYCLOM_API, serveur Cyclom), 'drive' (dashboard perso : fichier du relevé cloud sur Google Drive), 'demo' (demo.json).
