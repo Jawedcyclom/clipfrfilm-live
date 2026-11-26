@@ -1428,6 +1428,18 @@ html.neon .segw{background:rgba(6,13,32,.96)!important}
 .an-peu{margin-top:12px;padding:16px;line-height:1.45}
 .row .ph>span,.strip .ph>span,.in .ph>span,.alert .ph>span,.nv-alerte .ph>span,.an-rk .ph>span{display:none}
 .c2{height:36px!important}
+#cs-toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 116px);transform:translate(-50%,-8px);opacity:0;z-index:60;pointer-events:none;
+  padding:10px 16px;border-radius:12px;background:rgba(20,30,52,.96);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.14);color:var(--fg);font:500 14px var(--body);white-space:nowrap;transition:opacity .2s,transform .2s}
+#cs-toast.on{opacity:1;transform:translate(-50%,0)}
+#cs-maj{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 96px);transform:translateX(-50%);z-index:60;min-height:44px;padding:0 18px;border-radius:22px;border:0;
+  background:#f2f5f8;color:#06101e;font:600 14px var(--body);white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,.45)}
+@media (min-width:960px){#cs-toast{top:84px}#cs-maj{bottom:24px}}
+.an-exp-t{margin:0 0 12px;font-size:17px;line-height:1.4;color:var(--fg)}
+.an-exp-m{display:grid;grid-template-columns:1fr 1fr;gap:1px;border-radius:12px;overflow:hidden;background:var(--hair,rgba(255,255,255,.08))}
+.an-exp-m>div{display:flex;flex-direction:column;gap:2px;padding:12px;background:var(--s2,var(--panel2))}.an-exp-m small,.an-exp-m span{font-size:12px;color:var(--muted)}.an-exp-m b{font:700 22px/1.15 var(--body)}
+.row .t span:not(.muted){white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.jr .jd small{white-space:normal!important;overflow:visible!important;text-overflow:clip!important}
+@media (max-width:959px){.sec.pliable>.sec-h{min-height:44px}}
 .an-base{display:block;margin-top:8px;font-size:12px;line-height:1.4;color:var(--muted)}
 @media (min-width:960px){.an-kpi{grid-template-columns:repeat(4,1fr)}.an-hero>b{font-size:72px}}
 /* l'assistant dans l'en-tête : sur PC il garde sa place de bouton flottant */
@@ -1625,7 +1637,7 @@ function course(A, C, mode) {
     const val = r => x.type === 'clips' ? r.clips : r.vues, unite = x.type === 'clips' ? 'clips' : 'vues';
     const i = x.tri.indexOf(x.moi), place = rang(x, x.moi), devant = x.tri[i - 1], derriere = x.tri[i + 1], dixieme = x.tri[x.prixL.length - 1];
     const prix = p => x.prixL[p - 1] || 0, gainSuivant = devant ? prix(place - 1) - prix(place) : 0;
-    const manque = devant ? val(devant) - val(x.moi) + 1 : 0, avance = derriere ? val(x.moi) - val(derriere) : null;
+    const manque = devant ? val(devant) - val(x.moi) + 1 : 0, avance = derriere && val(x.moi) - val(derriere) > 0 ? val(x.moi) - val(derriere) : null; // place officielle ≠ ordre des vues : pas d'« avance » négative
     const g = x.type === 'clips' || !manque ? null : guide(A, C, manque);
     // prix provisoire officiel (gain calculé par cyclom.fr), sinon le prix de la place
     const finiT = x.fin && x.fin <= Date.now(); // campagne finie : pas de montant (pas sûr de ce qui a été payé)
@@ -1676,7 +1688,7 @@ function course(A, C, mode) {
       <div class="jg-corps">
         <svg class="jg-anneau ${anim ? 'anim' : ''}" viewBox="0 0 80 80" aria-hidden="true" style="--p:${P.toFixed(1)};--o:${(P * (1 - pc)).toFixed(1)}"><circle cx="40" cy="40" r="${R}" class="jg-fond"/><circle cx="40" cy="40" r="${R}" class="jg-arc" stroke-dasharray="${P.toFixed(1)}" stroke-dashoffset="${(P * (1 - pc)).toFixed(1)}" transform="rotate(-90 40 40)"/><text x="40" y="40" class="jg-pl">${ord(place)}</text><text x="40" y="55" class="jg-pc">${fini ? 'finale' : place === 1 ? 'en tête' : Math.round(pc * 100) + ' %'}</text></svg>
         <div class="jg-txt">${fini ? `<span class="jg-l">Place finale · cyclom.fr</span><b class="num jg-big">${k(val(x.moi))} ${unite}</b>` : place === 1
-          ? `<span class="jg-l">${fini ? 'Place finale' : 'Tu es en tête'}</span><b class="num jg-big">${avance != null ? '+' + k(avance) : '—'}</b><span class="jg-s">${avance != null ? `${unite} d’avance sur le 2e` : ''}</span>`
+          ? `<span class="jg-l">${fini ? 'Place finale' : 'Tu es en tête'}</span>${avance != null ? `<b class="num jg-big">+${k(avance)}</b>` : ''}<span class="jg-s">${avance != null ? `${unite} d’avance sur le 2e` : ''}</span>`
           : `<span class="jg-l">${fini ? 'Il manquait' : 'Il te manque'} pour passer ${ord(placeCible)}</span><b class="num jg-big">${k(manqueC)} ${unite}</b>${gainC > 0 && !fini ? `<span class="jg-gain">+${eur(gainC)}</span>` : ''}`}</div>
       </div>${vit}
       <div class="jg-pied">${fin2 ? `<span>${fin2}</span>` : ''}<span class="${vieux ? 'down' : 'muted'}">${vieux ? 'Classement pas à jour depuis ' + ago(mj).replace('il y a ', '') : 'Relevé cyclom.fr · ' + ago(mj)}</span></div>`;
@@ -2408,6 +2420,11 @@ function vCreneaux(A, C) {
     if (G.cur.length > 1) h += `<section class="card sec an-ch"><div class="sec-h"><h2>Vues par jour</h2><small><i class="an-lg"></i>période <i class="an-lg pt"></i>d’avant</small></div>${SP.trace(G.cur, G.av.length === G.cur.length ? G.av : null, { titre: 'Vues par jour', ligne: per > 31 })}</section>`;
     const { D } = lireDiagnostic(A, C, vs, med), W = D.filter(x => x.g).slice(0, 3);
     if (W.length) h += `<section class="card sec an-why"><div class="sec-h"><h2>Ce qui marche pour toi</h2><small>${per} derniers jours</small></div>${W.map(x => `<button type="button" class="an-w" ${x.a}><b class="num ${x.c === 'b' ? 'down' : ''}">${x.g}</b><span>${x.s.replace(/ ([%‰])/g, '\u00a0$1')}</span><span class="chev">›</span></button>`).join('')}<p class="muted note">Observé sur tes ${vs.length} vidéos (${bt}) : des pistes à tester, pas des garanties.</p></section>`;
+    { const G = groupes(A, C, vs), bh = G.heure.filter(r => r.n >= MINI && r.m).sort((x, y) => y.m - x.m)[0];
+      if (bh && med && bh.m / med >= 1.15) h += `<section class="card sec an-exp"><div class="sec-h"><h2>À tester cette semaine</h2><small>une expérience, pas une règle</small></div>
+        <p class="an-exp-t">Poste <b>5 vidéos entre ${bh.l}</b> d’ici ${dayLabel(addJour(C.P.day, 7)).replace(/^\w+/, x => JOURS_L[JOURS.indexOf(x)] || x)}.</p>
+        <div class="an-exp-m"><div><small>À battre</small><b class="num">${k(med)}</b><span>${bt}, ta normale</span></div><div><small>Ce créneau sur ${per} j</small><b class="num up">${fx(bh.m / med)}</b><span>${bh.n} vidéos</span></div></div>
+        <p class="muted note">D’autres choses jouent aussi (campagne, sujet, durée) : compare à ta normale, pas à ta meilleure vidéo.</p></section>`; }
     return h + anTop(A, C, per, med);
   }
   if (an === 'contenu') {
@@ -2639,7 +2656,7 @@ function mesComptes() {
 async function retirer(id, btn) {
   if (btn.dataset.ok !== '1') { btn.dataset.ok = '1'; btn.textContent = 'Sûr ? Touche encore'; btn.style.color = 'var(--bad)'; return; }
   btn.disabled = true; btn.textContent = '…';
-  try { await fetch('/api/retirer', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ compte: id }) }); if (ACC === id) ACC = 'tous'; save(); fermer(); await charger(); }
+  try { const r = await fetch('/api/retirer', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ compte: id }) }); if (!r.ok) throw new Error('HTTP ' + r.status); if (ACC === id) ACC = 'tous'; save(); fermer(); await charger(); }
   catch (e) { btn.textContent = 'Échec, réessaie'; btn.disabled = false; }
 }
 function ajouterCompte() {
@@ -2898,7 +2915,14 @@ document.addEventListener('click', e => {
   if (t.dataset.grp) { const [g, i] = t.dataset.grp.split(':'); return ficheGroupe(g, i); }
   if (t.id === 'heatTog') { st.heat = !st.heat; if (st.heat) OUVERTS.add(VIEW + ':Jour × heure'); return render(); } // demandé exprès = ouvert
 });
-document.addEventListener('input', e => { if (e.target.id === 'q') { st.q = e.target.value; st.shown = 60; const pos = e.target.selectionStart; render(); const i = $('#q'); i.focus(); try { i.setSelectionRange(pos, pos); } catch (x) {} } });
+let QT = null;
+function majListe() { // remplace seulement ce qui est SOUS la barre de recherche
+  const bar = $('#main .vbar'); if (VIEW !== 'videos' || !bar) return render();
+  const A = compteCourant(), C = calc(A), t = document.createElement('template'); t.innerHTML = vVideos(A, C);
+  while (bar.nextSibling) bar.nextSibling.remove(); const nv = t.content; nv.querySelector('.vbar')?.remove();
+  const f = $('#main .fbtn'), nf = nv.querySelector('.fbtn'); if (f && nf) f.replaceWith(nf); bar.after(nv); }
+document.addEventListener('input', e => { if (e.target.id !== 'q' || e.isComposing) return; st.q = e.target.value; st.shown = 60; clearTimeout(QT); QT = setTimeout(majListe, 140); });
+document.addEventListener('compositionend', e => { if (e.target.id === 'q') { st.q = e.target.value; clearTimeout(QT); QT = setTimeout(majListe, 140); } });
 document.addEventListener('change', e => { const id = e.target.id, v = e.target.value;
   if (id === 'sort') { st.sort = v; return render(); }
   if (!v) return;
@@ -2908,13 +2932,27 @@ document.addEventListener('change', e => { const id = e.target.id, v = e.target.
   if (id === 'hpick' || id === 'dpick' || id === 'fday') return ficheJour(d); });
 document.addEventListener('submit', e => { if (e.target.id === 'askf') { e.preventDefault(); const q = $('#askq').value; demander(q); } });
 let T0 = null, SH = null;
-document.addEventListener('touchstart', e => { const sh = e.target.closest?.('.sheet'); if (!sh || sh.scrollTop > 0) { SH = null; return; } SH = { sh, y: e.touches[0].clientY, dy: 0 }; }, { passive: true });
-document.addEventListener('touchmove', e => { if (!SH) return; SH.dy = e.touches[0].clientY - SH.y; if (SH.dy > 0) { SH.sh.classList.remove('back'); SH.sh.style.transform = `translateY(${SH.dy}px)`; } }, { passive: true });
+// Audit Codex NAV-05 : une zone qui défile sur le côté (rangée de vignettes, puces, tableau…) garde le geste pour elle,
+// où qu'elle soit dans la page — plus de liste de classes à tenir à jour.
+function toast(t) { let el = $('#cs-toast'); if (!el) { el = document.createElement('div'); el.id = 'cs-toast'; el.setAttribute('role', 'status'); el.setAttribute('aria-live', 'polite'); document.body.append(el); }
+  el.textContent = t; el.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.remove('on'), 2600); }
+function defileCote(el) { for (let x = el; x && x !== document.body && x.nodeType === 1; x = x.parentElement) { if (x.matches('input,textarea,select,svg[data-gx],[data-horizontal-scroll]')) return true;
+  const o = getComputedStyle(x).overflowX; if ((o === 'auto' || o === 'scroll') && x.scrollWidth > x.clientWidth + 2) return true; } return false; }
+// Fermer la feuille au doigt : seulement un geste VERTICAL vers le bas (verrouillé après 10 px), feuille tout en haut, un seul doigt,
+// jamais depuis une zone qui défile sur le côté ou une courbe ; annulé proprement (touchcancel)
+document.addEventListener('touchstart', e => { const sh = e.target.closest?.('.sheet'); if (!sh || sh.scrollTop > 0 || e.touches.length > 1 || defileCote(e.target)) { SH = null; return; } SH = { sh, y: e.touches[0].clientY, x: e.touches[0].clientX, dy: 0, sens: null }; }, { passive: true });
+document.addEventListener('touchmove', e => { if (!SH) return; if (e.touches.length > 1) { SH.sh.classList.add('back'); SH.sh.style.transform = ''; SH = null; return; }
+  const dy = e.touches[0].clientY - SH.y, dx = e.touches[0].clientX - SH.x;
+  if (!SH.sens) { if (Math.hypot(dx, dy) < 10) return; SH.sens = Math.abs(dy) > Math.abs(dx) * 1.3 && dy > 0 ? 'v' : 'non'; }
+  if (SH.sens !== 'v' || SH.sh.scrollTop > 0) { SH.dy = 0; return; }
+  SH.dy = dy; if (SH.dy > 0) { SH.sh.classList.remove('back'); SH.sh.style.transform = `translateY(${SH.dy}px)`; } }, { passive: true });
 document.addEventListener('touchend', () => { if (!SH) return; const { sh, dy } = SH; SH = null; if (dy > 110) return fermer(); sh.classList.add('back'); sh.style.transform = ''; }, { passive: true });
-document.addEventListener('touchstart', e => { const t = e.touches[0]; T0 = { x: t.clientX, y: t.clientY, el: e.target }; }, { passive: true });
-document.addEventListener('touchend', e => { if (!T0) return; const t = e.changedTouches[0], dx = t.clientX - T0.x, dy = t.clientY - T0.y, el = T0.el; T0 = null;
-  if (Math.abs(dx) < 70 || Math.abs(dy) > 45 || dy > 60) return;
-  if (el.closest && el.closest('.chips,.tbl-wrap,.accts,.heat,input,select')) return;
+document.addEventListener('touchcancel', () => { if (SH) { SH.sh.classList.add('back'); SH.sh.style.transform = ''; SH = null; } T0 = null; }, { passive: true });
+document.addEventListener('touchstart', e => { if (e.touches.length > 1) { T0 = null; return; } const t = e.touches[0]; T0 = { x: t.clientX, y: t.clientY, el: e.target, cote: defileCote(e.target) }; }, { passive: true });
+document.addEventListener('touchmove', e => { if (T0 && e.touches.length > 1) T0 = null; }, { passive: true });
+document.addEventListener('touchend', e => { if (!T0) return; const t = e.changedTouches[0], dx = t.clientX - T0.x, dy = t.clientY - T0.y, el = T0.el, cote = T0.cote; T0 = null;
+  if (Math.abs(dx) < 70 || Math.abs(dy) > 45 || dy > 60 || Math.abs(dx) < Math.abs(dy) * 2) return;
+  if (cote || (el.closest && el.closest('.chips,.tbl-wrap,.accts,.heat,.heat2,input,select'))) return;
   if (!$('#sheet').hidden) { const sv = $('#sheet').dataset.vid; if (!sv) return; const i = CTX.indexOf(sv) + (dx < 0 ? 1 : -1); if (CTX[i]) ficheVideo(CTX[i]); return; }
   if (VIEW === 'direct' && RAW) { // sur Direct, glisser change de jour (comme les flèches)
     const auj = pz(RAW.maj).day, cur = st.jour || auj, d = addJour(cur, dx < 0 ? 1 : -1), B = bornes(compteCourant(), calc(compteCourant()));
@@ -3005,13 +3043,15 @@ async function cleDepuisMdp(mdp) {
   return crypto.subtle.deriveKey({ name: 'PBKDF2', salt: WEB_SEL, iterations: WEB_TOURS, hash: 'SHA-256' }, base, { name: 'AES-GCM', length: 256 }, true, ['decrypt']);
 }
 async function lireWeb(cle) {
-  const r = await fetch(WEB_URL + '?t=' + Date.now(), { cache: 'no-store' });
+  const n = lireWeb.n = (lireWeb.n || 0) + 1, ac = new AbortController(), to = setTimeout(() => ac.abort(), 20000);
+  let r; try { r = await fetch(WEB_URL + '?t=' + Date.now(), { cache: 'no-store', signal: ac.signal }); } catch (e) { throw { code: 'reseau' }; } finally { clearTimeout(to); }
   if (!r.ok) throw { code: 'reseau' };
   const bin = Uint8Array.from(atob((await r.text()).trim()), c => c.charCodeAt(0));
   let gz; try { gz = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: bin.slice(0, 12) }, cle, bin.slice(12)); } catch (e) { throw { code: 'mdp' }; }
   const txt = await new Response(new Blob([gz]).stream().pipeThrough(new DecompressionStream('gzip'))).text();
   const P = JSON.parse(txt), avant = RAW;
   if (!P || !P.live || typeof P.live !== 'object' || !P.live.items) throw { code: 'reseau' }; // paquet abîmé : on garde ce qui est affiché
+  if (n !== lireWeb.n) return; // une lecture plus récente est partie entre-temps
   if (avant && P.live.updated < avant.maj) return;
   COV = P.covers || {}; CLASSEMENT = P.classement || null; CAMPINFO = P.campagnes || null; RAW = convertir(P.live);
   if (!avant || ($('#sheet').hidden && document.activeElement?.id !== 'q')) rendreDoux(avant); else { A_RENDRE = true; fraicheur(); }
@@ -3044,10 +3084,12 @@ document.addEventListener('submit', async e => {
 async function charger() {
   if (DRIVE) return;
   try {
-    const r = await fetch(API ? API + (AGENCE ? '?tous=1' : '') : 'demo.json', { cache: 'no-store', credentials: 'same-origin' });
+    const n = charger.n = (charger.n || 0) + 1, ac = new AbortController(), to = setTimeout(() => ac.abort(), 20000);
+    const r = await fetch(API ? API + (AGENCE ? '?tous=1' : '') : 'demo.json', { cache: 'no-store', credentials: 'same-origin', signal: ac.signal }).finally(() => clearTimeout(to));
     if (r.status === 401 && SITE) { location.href = '/connexion'; return; }
     if (!r.ok) throw new Error('HTTP ' + r.status);
     const nv = await r.json(); if (!nv || !Array.isArray(nv.comptes) || !nv.comptes.every(a => a && a.id != null && Array.isArray(a.videos))) throw new Error('données invalides');
+    if (n !== charger.n) return; // réponse dépassée par une plus récente
     const avant = RAW; RAW = nv;
     clearTimeout(charger.t); if ((RAW.en_attente || []).length || !RAW.comptes.length) charger.t = setTimeout(charger, 15000);
     if (avant && (!$('#sheet').hidden || document.activeElement?.id === 'q')) { A_RENDRE = true; fraicheur(); return; } // ne jamais casser ce que la personne fait
@@ -3186,6 +3228,7 @@ const MV = (() => {
   // compositeur, elle continue pendant le calcul), la page se construit à l'image suivante : plus de gel visible au toucher.
   const _go = go;
   go = function (v, haut) {
+    const jeton = go.n = (go.n || 0) + 1; cancelAnimationFrame(go.r); clearTimeout(go.t); // une navigation plus récente annule celles en attente
     if (reduit() || v === VIEW || !RAW?.comptes?.length) return _go(v, haut);
     const tabs = $('#tabs'), anc = tabs?.querySelector('.tab[aria-selected="true"]'), n = tabs?.querySelector(`.tab[data-v="${v}"]`);
     if (anc && n) {
@@ -3193,7 +3236,7 @@ const MV = (() => {
       tabs.querySelectorAll('.tab').forEach(t => t.setAttribute('aria-selected', String(t === n)));
       glisser(tabs, pos, n); n.querySelector('svg')?.animate(kf(POP.P, p => ({ transform: `scale(${.78 + .22 * p})` })), { duration: POP.D, easing: 'linear' });
     }
-    clearTimeout(go.t); requestAnimationFrame(() => { go.t = setTimeout(() => _go(v, haut), 16); });
+    go.r = requestAnimationFrame(() => { go.t = setTimeout(() => { if (jeton === go.n) _go(v, haut); }, 16); });
   };
   const _doux = rendreDoux;
   rendreDoux = function (avant) { MV.doux = true; try { _doux(avant); } finally { MV.doux = false; } };
@@ -3476,7 +3519,10 @@ const NV = (() => {
   ind.innerHTML = '<svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.34-5.66" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M20 4v5h-5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   document.body.appendChild(ind);
   let P = null, occupe = false;
-  const actualiser = async () => { try { if (WEB) await chargerWeb(); else if (DRIVE) render(); else await charger(); } catch (e) {} };
+  const actualiser = async () => { const avant = RAW?.maj; let ok = true;
+    try { if (WEB) { const b = localStorage.getItem('cs_cle'); if (!b) return; const cle = await crypto.subtle.importKey('raw', Uint8Array.from(atob(b), c => c.charCodeAt(0)), 'AES-GCM', true, ['decrypt']); await lireWeb(cle); } else if (DRIVE) render(); else await charger(); } catch (e) { ok = false; }
+    const h = RAW?.maj ? new Date(RAW.maj).toLocaleTimeString('fr-FR', { timeZone: TZ, hour: '2-digit', minute: '2-digit' }).replace(':', 'h') : '';
+    toast(!ok ? 'Pas de connexion : chiffres de ' + h + ' gardés' : DRIVE ? 'Affichage rafraîchi · relevé de ' + h : RAW?.maj !== avant ? 'Nouveaux chiffres · relevé de ' + h : 'Déjà à jour · relevé de ' + h); };
   document.addEventListener('touchstart', e => { if (occupe || scrollY > 2 || R || !$('#sheet').hidden || e.touches.length > 1 || e.target.closest('.nv-story,input,textarea,.rows,.chips,.segw,.nv-sem')) return; P = { y: e.touches[0].clientY, x: e.touches[0].clientX, d: 0 }; }, { passive: true });
   document.addEventListener('touchmove', e => {
     if (!P) return; const dy = e.touches[0].clientY - P.y, dx = e.touches[0].clientX - P.x;
@@ -3785,10 +3831,12 @@ if (location.hostname === '127.0.0.1' || location.hostname === 'localhost') wind
 if (!DRIVE && location.protocol === 'https:') {
   let version = null;
   const lireVersion = async () => { try { const r = await fetch(location.pathname, { method: 'HEAD', cache: 'no-store' }); return r.headers.get('etag') || r.headers.get('last-modified'); } catch (e) { return null; } };
-  const verifier = async () => { const v = await lireVersion(); if (!v) return; if (!version) { version = v; return; }
-    if (v !== version && $('#sheet').hidden && !document.querySelector('.nv-story') && document.activeElement?.tagName !== 'INPUT') location.reload(); };
-  verifier(); setInterval(verifier, 5 * 60e3);
-  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') verifier(); });
+  const libre = () => $('#sheet').hidden && !document.querySelector('.nv-story') && !['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName);
+  const verifier = async retour => { const v = await lireVersion(); if (!v) return; if (!version) { version = v; return; } if (v === version) return;
+    if (retour && libre() && scrollY < 40) return location.reload(); // tu reviens sur l'appli, en haut de page : on recharge direct
+    if (!$('#cs-maj')) { const b = document.createElement('button'); b.id = 'cs-maj'; b.type = 'button'; b.textContent = 'Nouvelle version · toucher pour mettre à jour'; b.onclick = () => location.reload(); document.body.append(b); } };
+  verifier(); setInterval(() => verifier(false), 5 * 60e3);
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') verifier(true); });
 }
 // ===== NÉON v5 (Jawed 25/11 : « rends le site comme la vidéo v5 promoteur Cyclom ») =====
 // Fond vivant (lueur bleue qui glisse selon l'onglet + poussières de lumière), intro logo (point → trait → logo + anneaux → nom,
