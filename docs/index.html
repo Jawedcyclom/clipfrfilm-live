@@ -1445,6 +1445,82 @@ html.neon .segw{background:rgba(6,13,32,.96)!important}
 /* l'assistant dans l'en-tête : sur PC il garde sa place de bouton flottant */
 @media (max-width:959px){.fab-l{display:none}}
 @media (min-width:960px){.top .fab{position:static!important;order:1;padding:0 14px!important;height:36px;font-size:13px!important;gap:6px;box-shadow:none!important}.top .fab svg{width:16px;height:16px}.top .brand-r .gear{order:2}}
+
+/* ===== LOOK « STUDIO SOBRE » (Jawed 26/11 : « ça se voit c'est fait IA, pas pro » → choix « Studio sobre ») =====
+   Façon TikTok Studio / YouTube Studio / Stripe : graphite NEUTRE (aucun bleu dans les surfaces), aucune lueur, aucun verre,
+   aucune poussière, cartes plates sur 3 marches de gris + filets à 8 %, UN accent turquoise réservé aux hausses, à la sélection
+   et aux barres de données. Texte : 3 rôles. Retour au néon : ?look=neon. Classe html.studio (avec html.neon : le comportement ne change pas). */
+html.neon.studio{--bg:#0e0f11;--n-bg:#0e0f11;--s1:#16171a;--s2:#1e2024;--s3:#272a2f;--panel:#16171a;--panel2:#1e2024;--mat:#0e0f11;
+  --hair:rgba(255,255,255,.08);--n-hair:rgba(255,255,255,.08);--n-hair2:rgba(255,255,255,.12);--edge:rgba(255,255,255,.08);--edge2:rgba(255,255,255,.14);
+  --fg:#f2f3f5;--fg2:#b8bcc4;--muted:#868b95;--n-t:#4fe3d0;--n-t2:#8aeee2;--cyclom:#4fe3d0;--cyclom2:#8aeee2;--accent:#4fe3d0;--good:#4fe3d0;--gold:#4fe3d0;
+  --cyclom-soft:rgba(79,227,208,.12);--accent-soft:rgba(79,227,208,.12);--n-ts:rgba(79,227,208,.12);--bad:#ff6b7f;--down:#ff6b7f;--up:#4fe3d0}
+html.neon.studio,html.neon.studio body{background:#0e0f11!important;background-image:none!important}
+html.neon.studio #n-fond,html.neon.studio .n-lueur,html.neon.studio .n-intro{display:none!important}
+html.neon.studio *{text-shadow:none!important}
+html.neon.studio :is(.top,.tabs,.segw,.sheet,.card,.tile,.chip,.acct,.nv-alerte,.oeil-t,.gear,.fab,.sec,.course,.widget,.nv-w,.sm,.warnbox,#cs-toast){backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+/* en-tête : plein, un filet */
+html.neon.studio .top{background:#0e0f11!important;border-bottom:1px solid rgba(255,255,255,.07)!important;box-shadow:none!important}
+html.neon.studio .logo{font:600 20px/1 var(--body)!important;letter-spacing:-.02em;color:var(--fg)!important}
+html.neon.studio .fresh{color:var(--muted)!important}
+html.neon.studio .gear,html.neon.studio .fab{background:var(--s2)!important;box-shadow:none!important;color:var(--fg2)!important}
+html.neon.studio .fab svg{color:var(--fg2)!important}
+html.neon.studio .acct{background:var(--s2)!important;box-shadow:none!important;color:var(--fg)!important}
+html.neon.studio .acct[aria-pressed="true"]{background:var(--s3)!important;box-shadow:inset 0 0 0 1px rgba(255,255,255,.14)!important}
+/* surfaces : 3 marches de gris, pas d'ombre, filet discret */
+html.neon.studio :is(.card,.hero,.sec.pliable:not(.ouvert),.camps .camp,.course,.nv-w,.tile,.widget,.oeil-t,.sm,.warnbox,.an-rc,.cp-liste,.ins,.an-kpi>*){background:var(--s1)!important;box-shadow:none!important;border:0!important}
+html.neon.studio :is(.card .tile,.card .sm,.sheet .tile,.sheet .sm,.card .card,.slot,.an-exp-m>div,.mr,.ic2){background:var(--s2)!important;box-shadow:none!important}
+html.neon.studio .an-kpi{background:rgba(255,255,255,.06)!important}
+html.neon.studio .sk{background:var(--s1)!important}
+html.neon.studio .warnbox{color:var(--fg2)!important}
+/* contrôles */
+html.neon.studio .chip{background:var(--s2)!important;box-shadow:none!important;color:var(--fg2)!important}
+html.neon.studio .chip[aria-pressed="true"],html.neon.studio .chip.actif{background:var(--fg)!important;color:#0e0f11!important;box-shadow:none!important}
+html.neon.studio .segw{background:var(--s1)!important;box-shadow:none!important}
+html.neon.studio .segw button[aria-selected="true"],html.neon.studio .seg button[aria-pressed="true"]{background:var(--s3)!important;color:var(--fg)!important;box-shadow:none!important}
+html.neon.studio .btn{background:var(--fg)!important;color:#0e0f11!important;box-shadow:none!important}
+html.neon.studio .more{background:var(--s1)!important;box-shadow:none!important;color:var(--fg)!important}
+/* coup d'œil : le chiffre, sans halo ; tuiles plates ; icônes neutres */
+html.neon.studio .oeil-j{color:var(--muted)!important;font:500 15px var(--body)!important}
+html.neon.studio .oeil-big b{color:var(--fg)!important;font-weight:650!important}
+html.neon.studio .oeil-big[data-r]:not([data-r=""])::before{background:rgba(255,255,255,.08)!important}
+html.neon.studio .oeil-big[data-r]:not([data-r=""])::after{box-shadow:none!important;filter:none!important}
+html.neon.studio .oeil-t{border-radius:16px!important}
+html.neon.studio .oeil-t .oeil-ic{background:var(--s2)!important;color:var(--fg2)!important}
+html.neon.studio .oeil-t .oeil-ic::before,html.neon.studio .oeil-t .oeil-ic::after{display:none!important}
+html.neon.studio .oeil-t.feu.ok .oeil-ic{color:#ffb340!important}
+html.neon.studio .oeil-t b{color:var(--fg)!important;font-weight:650!important}
+html.neon.studio .fresh::before{animation:none!important;box-shadow:none!important}
+/* titres : 600, pas 700-800 */
+html.neon.studio h2,html.neon.studio .sec-h h2{font:600 17px/1.25 var(--body)!important;letter-spacing:-.015em;color:var(--fg)!important}
+html.neon.studio .big,html.neon.studio .an-hero>b,html.neon.studio .cp-hero b{font-weight:650!important;color:var(--fg)!important}
+html.neon.studio :is(.tile b,.an-kpi b,.an-w>b,.an-nm b,.an-rc b,.an-exp-m b,.jv b,.sm b){font-weight:600!important}
+/* barre d'onglets : collée en bas, pleine, un filet (plus de capsule de verre qui flotte) */
+@media (max-width:959px){
+  html.neon.studio body{padding-bottom:calc(var(--tabh,58px) + 20px + env(safe-area-inset-bottom,0px))!important}
+  html.neon.studio .tabs{left:0!important;right:0!important;bottom:0!important;border-radius:0!important;max-width:none!important;padding:0 4px env(safe-area-inset-bottom,0px)!important;
+    background:#0e0f11!important;box-shadow:none!important;border-top:1px solid rgba(255,255,255,.08)!important}
+  html.neon.studio .tab{color:#80858f!important}
+}
+html.neon.studio .tab[aria-selected="true"]{color:var(--fg)!important}
+html.neon.studio .tab[aria-selected="true"] svg{color:var(--fg)!important}
+html.neon.studio .n-rep{background:var(--fg)!important;box-shadow:none!important;height:2px!important}
+@media (min-width:960px){
+  html.neon.studio .tabs{background:#0e0f11!important;border-right:1px solid rgba(255,255,255,.07)!important}
+  html.neon.studio .tab[aria-selected="true"]{background:var(--s2)!important}
+  html.neon.studio .n-rep{width:2px!important}
+}
+/* feuilles : surface pleine */
+html.neon.studio .sheet{background:#17181b!important;box-shadow:0 -1px 0 rgba(255,255,255,.08)!important}
+html.neon.studio .sheet-bg::before{background:rgba(0,0,0,.6)!important}
+html.neon.studio .nv-alerte{background:#1e2024!important;box-shadow:0 12px 32px rgba(0,0,0,.5)!important}
+/* données : couleur = sens. Hausse turquoise, baisse rose, le reste en gris */
+html.neon.studio :is(.up,.tile b.up,.say b.up,.oeil-d.up,.an-d.up){color:var(--up)!important}
+html.neon.studio :is(.down,.say b.down,.oeil-d.down,.cmpr.down,.an-d.down){color:var(--down)!important}
+html.neon.studio .an-w>b{color:var(--fg)!important}
+html.neon.studio .an-nm>div:first-child b{color:var(--fg)!important}
+html.neon.studio .mot{background:var(--s2)!important;box-shadow:none!important}
+html.neon.studio .say{color:var(--fg2)!important}
+html.neon.studio #cs-toast{background:#25272c!important;box-shadow:none!important}
 </style>
 
 <header class="top">
@@ -1482,7 +1558,7 @@ html.neon .segw{background:rgba(6,13,32,.96)!important}
 (() => {
 'use strict';
 // LOOK APPLE (Jawed 25/11) : lien /apple/ ou ?look=apple ; ?look=base = look actuel
-{ const lk = new URLSearchParams(location.search).get('look'); if (lk === 'apple' || (lk !== 'base' && lk !== 'neon' && /\/apple\//.test(location.pathname))) document.documentElement.classList.add('apple'); else if (lk !== 'base') document.documentElement.classList.add('neon'); }
+{ const lk = new URLSearchParams(location.search).get('look'); if (lk === 'apple' || (lk !== 'base' && lk !== 'neon' && /\/apple\//.test(location.pathname))) document.documentElement.classList.add('apple'); else if (lk !== 'base') { document.documentElement.classList.add('neon'); if (lk !== 'neon') document.documentElement.classList.add('studio'); } } // 26/11 : Studio sobre par défaut, ?look=neon = ancien néon
 // ---------- Source des données ----------
 // Sur le vrai site, le serveur définit window.CYCLOM_API (ex. "/api/moi"). Sans ça : aperçu avec demo.json.
 // Trois sources : 'site' (window.CYCLOM_API, serveur Cyclom), 'drive' (dashboard perso : fichier du relevé cloud sur Google Drive), 'demo' (demo.json).
