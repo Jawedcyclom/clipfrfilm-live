@@ -1553,6 +1553,41 @@ html.neon:not(.studio) .top{background:linear-gradient(180deg,rgba(6,14,36,.78),
 html.neon:not(.studio) .sheet{background:linear-gradient(170deg,rgba(255,255,255,.07),rgba(255,255,255,.015) 40%),rgba(10,22,52,.9)!important;
   backdrop-filter:blur(30px) saturate(1.6)!important;-webkit-backdrop-filter:blur(30px) saturate(1.6)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 -30px 80px rgba(0,0,0,.5)!important}
 @media (prefers-reduced-transparency:reduce){html.neon:not(.studio) *{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}}
+/* ===== INTERACTIONS (Jawed 26/11 : « rends plus beaux les effets quand on passe sur une info, la courbe… ») =====
+   Courbes : colonne claire sous le doigt, trait en dégradé, point lumineux, le reste s'efface un peu, bulle en verre qui glisse.
+   Cartes : survol = la carte s'éclaire et monte d'1 px (PC) ; appui = elle s'enfonce légèrement (téléphone). Une seule courbe d'animation. */
+svg[data-gx]{cursor:crosshair;touch-action:pan-y}
+svg[data-gx] :is(rect,path,circle):not(.gx-o *){transition:opacity .18s ease}
+svg.gx-on > :is(rect,path,circle):not([fill="transparent"]){opacity:.55}
+.gx-o .gx-c{fill:rgba(255,255,255,.07)}
+.gx-o .gx-z{fill:rgba(82,240,222,.14)}
+.gx-o .gx-l{stroke:url(#gxlg);stroke-width:1.2;stroke-opacity:1}
+.gx-o .gx-p{fill:#fff;stroke:#52f0de;stroke-width:2.5}
+.gx-o .gx-h{fill:rgba(82,240,222,.22)}
+#gxtip{background:linear-gradient(160deg,rgba(255,255,255,.14),rgba(255,255,255,.04)),rgba(10,22,50,.82)!important;backdrop-filter:blur(18px) saturate(1.6);-webkit-backdrop-filter:blur(18px) saturate(1.6);
+  border:0!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.22),inset 0 0 0 .5px rgba(190,215,255,.22),0 14px 34px -10px rgba(0,0,0,.7)!important;
+  border-radius:14px!important;padding:8px 12px!important;opacity:0;transform:translate(-50%,calc(-100% + 6px)) scale(.96);transition:opacity .16s ease,transform .22s cubic-bezier(.32,.72,0,1),left .09s linear,top .09s linear}
+#gxtip.on{opacity:1;transform:translate(-50%,-100%) scale(1)}
+#gxtip b{font:700 16px/1.2 var(--body);letter-spacing:-.01em}
+#gxtip small i{font-style:normal;font-weight:600}#gxtip small i.up{color:#52f0de}#gxtip small i.down{color:#ff7a9a}
+#gxtip::after{content:"";position:absolute;left:50%;bottom:-5px;width:10px;height:10px;transform:translateX(-50%) rotate(45deg);background:rgba(14,26,56,.9);box-shadow:inset -.5px -.5px 0 rgba(190,215,255,.22);border-radius:0 0 3px 0}
+/* survol (souris) : la carte s'éclaire, le reflet du haut s'allume, elle monte d'1 px */
+@media (hover:hover) and (pointer:fine){
+  html.neon :is(.tile,.oeil-t,.an-rc,.mr,.vc,.ic2,.cp-row,.an-w,.an-rk button,.row,.in,.jr,.hb:not(:disabled),.mot,.chip,.acct,.more,.gear,.fab,[data-fm]){transition:transform .2s cubic-bezier(.32,.72,0,1),background-color .2s ease,box-shadow .2s ease,filter .2s ease}
+  html.neon :is(.tile,.oeil-t,.an-rc,.cp-row,.an-w,.an-rk button,.row,.in,.jr,.hb:not(:disabled)):hover{filter:brightness(1.12)}
+  html.neon :is(.tile,.oeil-t,.an-rc):hover{transform:translateY(-1px)}
+  html.neon :is(.mr,.vc,.ic2):hover{transform:translateY(-2px);filter:brightness(1.08)}
+  html.neon :is(.mr,.vc,.ic2) img{transition:transform .4s cubic-bezier(.32,.72,0,1)}
+  html.neon :is(.mr,.vc,.ic2):hover img{transform:scale(1.04)}
+  html.neon :is(.chip,.acct,.more,.gear,.fab,.mot):hover{filter:brightness(1.18)}
+  html.neon .tab:not([aria-selected="true"]):hover{color:#c9d6ea!important}
+  html.neon .c2:not(:disabled):hover{box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.7)}
+}
+/* appui (doigt) : léger éclaircissement en plus de l'enfoncement déjà en place */
+html.neon .mv-p.mv-p{filter:brightness(1.15)}
+/* clavier : anneau net et doux */
+html.neon :focus-visible{outline:2px solid rgba(82,240,222,.85)!important;outline-offset:2px;border-radius:12px}
+@media (prefers-reduced-motion:reduce){#gxtip{transition:none}html.neon *:hover{transform:none!important}}
 </style>
 
 <header class="top">
@@ -2009,7 +2044,7 @@ function vDirect(A, C) {
   h += analyseDirect(A, C); // ÉPURE 24/11 : rejoint Plan / Inspire / Heure par heure = 4 widgets 2×2
   h += planJour(A, C);
   h += inspiration(A);
-  h += `<section class="sec card chart"><div class="sec-h"><h2>Heure par heure</h2><small>touche une barre</small></div>${chartJour(A, C, C.P.day)}${hourTip(A, C, C.P.day)}
+  h += `<section class="sec card chart"><div class="sec-h"><h2>Heure par heure</h2><small>glisse le doigt</small></div>${chartJour(A, C, C.P.day)}${hourTip(A, C, C.P.day)}
     <div class="legend"><span><i style="background:var(--accent)"></i>Aujourd'hui</span><span><i style="background:#5a5a66"></i>Hier</span></div></section>`;
   return h;
 }
@@ -2093,7 +2128,7 @@ function vJourPasse(A, C, d) {
     <div class="tile"><span>Partages</span><b class="num">${q.s != null ? '+' + k(q.s) : '—'}</b></div>
     <div class="tile"><span>Comms</span><b class="num">${q.c != null ? '+' + k(q.c) : '—'}</b></div>
   </div>`;
-  if (aHeures) h += `<section class="sec card chart"><div class="sec-h"><h2>Heure par heure</h2><small>touche une barre</small></div>${chartJour(A, C, d)}${hourTip(A, C, d)}
+  if (aHeures) h += `<section class="sec card chart"><div class="sec-h"><h2>Heure par heure</h2><small>glisse le doigt</small></div>${chartJour(A, C, d)}${hourTip(A, C, d)}
     <div class="legend"><span><i style="background:var(--accent)"></i>${d === C.yd ? 'Hier' : 'Ce jour'}</span><span><i style="background:#5a5a66"></i>${d === C.yd ? 'Avant-hier' : 'Veille'}</span></div></section>`;
   if (gains.length) h += `<section class="sec"><div class="sec-h"><h2>Ce qui a rapporté ce jour-là</h2><small>vues gagnées dans la journée</small></div>
     <div class="rows">${gains.map(({ v, g }) => `<button class="row" type="button" data-vid="${v.id}">${cover(v)}<div class="t"><b class="num">+${k(g)}</b><span>${esc(titreVid(v))}</span></div><div class="r num"><b>${k(v.v)}</b><br><span class="muted">${dateVid(v.t)}</span></div></button>`).join('')}</div></section>`;
@@ -2141,14 +2176,13 @@ function chartJour(A, C, D0) {
   const mx = Math.max(1, ...tv.filter(x => x != null), ...yv.filter(x => x != null));
   const nice = (() => { const p = Math.pow(10, Math.floor(Math.log10(mx))); for (const m of [1, 2, 2.5, 5, 10]) if (m * p >= mx) return m * p; return 10 * p; })();
   const bw = (W - pl) / 24, y = v => pt + (Ht - pt - pb) * (1 - v / nice);
-  let s = `<svg viewBox="0 0 ${W} ${Ht}" role="img" aria-label="Vues par heure aujourd'hui et hier">`;
+  let s = `<svg viewBox="0 0 ${W} ${Ht}" role="img" aria-label="Vues par heure aujourd'hui et hier"${gxAttr({ W, px: Array.from({ length: 24 }, (_, h) => +(pl + h * bw + bw / 2).toFixed(1)), py: tv.map(v => v == null ? null : +y(v).toFixed(1)), lab: Array.from({ length: 24 }, (_, h) => `${h}h – ${h + 1}h`), val: tv, v2: yv, n2: auj ? 'hier' : 'veille', mode: 'somme', u: 'vues', bw: +bw.toFixed(1) })}>`;
   for (const g of [0, .5, 1]) { const yy = y(nice * g); s += `<line x1="${pl}" x2="${W}" y1="${yy}" y2="${yy}" stroke="rgba(255,255,255,.07)"/><text x="${pl - 5}" y="${yy + 3.5}" text-anchor="end" font-size="9.5" fill="#7f7f8b">${k(nice * g)}</text>`; }
   for (let h = 0; h < 24; h++) { const x = pl + h * bw;
     if (yv[h] != null) s += `<rect x="${x + 1}" y="${y(yv[h])}" width="${bw - 2}" height="${Ht - pb - y(yv[h])}" rx="2" fill="#3a3a44"/>`;
     if (tv[h] != null) s += `<rect x="${x + bw * .22}" y="${y(tv[h])}" width="${bw * .56}" height="${Ht - pb - y(tv[h])}" rx="2" fill="${auj && h === C.P.hour ? '#ff7a93' : '#fe2c55'}"/>`;
     if (h % 3 === 0) s += `<text x="${x + bw / 2}" y="${Ht - 6}" text-anchor="middle" font-size="9.5" fill="#7f7f8b">${h}h</text>`;
-    if (st.hourSel === h) s += `<rect x="${x}" y="${pt}" width="${bw}" height="${Ht - pt - pb}" rx="3" fill="rgba(255,255,255,.08)"/>`;
-    s += `<rect data-hour="${h}" x="${x}" y="0" width="${bw}" height="${Ht}" fill="transparent"/>`; }
+ }
   return s + '</svg>';
 }
 
@@ -2360,7 +2394,7 @@ function barres(days, vals, feuille) {
   const bw = (W - pl) / n;
   const y = v => pt + (Ht - pt - pb) * (1 - v / nice) / (signe ? 2 : 1);
   const zero = y(0);
-  let s = `<svg viewBox="0 0 ${W} ${Ht}" role="img" aria-label="Barres par jour"${gxAttr({ W, px: days.map((d, i) => pl + i * bw + bw / 2), lab: days.map(dayLabel), val: vals, mode: 'somme' })}>`;
+  let s = `<svg viewBox="0 0 ${W} ${Ht}" role="img" aria-label="Barres par jour"${gxAttr({ W, px: days.map((d, i) => pl + i * bw + bw / 2), py: vals.map(v => v == null ? null : +y(Math.max(0, v)).toFixed(1)), lab: days.map(dayLabel), val: vals, mode: 'somme', bw: +bw.toFixed(1) })}>`;
   for (const g of (signe ? [-1, 0, 1] : [0, .5, 1])) { const yy = y(nice * g); s += `<line x1="${pl}" x2="${W}" y1="${yy}" y2="${yy}" stroke="rgba(255,255,255,.07)"/><text x="${pl - 5}" y="${yy + 3.5}" text-anchor="end" font-size="9.5" fill="#7f7f8b">${k(nice * g)}</text>`; }
   const step = Math.ceil(n / 7);
   days.forEach((d, i) => { const v = vals[i]; const x = pl + i * bw;
@@ -2710,7 +2744,7 @@ function courbe(pts) {
   const x = t => pl + (W - pl) * ((t - t0) / Math.max(1, t1 - t0)), y = v => pt + (Ht - pt - pb) * (1 - (v - mn) / Math.max(1, mx - mn));
   const d = pts.map((p, i) => (i ? 'L' : 'M') + x(p[0]).toFixed(1) + ' ' + y(p[1]).toFixed(1)).join(' ');
   const last = pts[pts.length - 1];
-  return `<svg viewBox="0 0 ${W} ${Ht}" role="img" aria-label="Courbe des vues"${gxAttr({ W, px: pts.map(p => +x(p[0]).toFixed(1)), lab: pts.map(p => new Date(p[0]).toLocaleString('fr-FR', { timeZone: TZ, day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })), val: pts.map(p => p[1]), mode: 'ecart' })}><line x1="${pl}" x2="${W}" y1="${y(mx)}" y2="${y(mx)}" stroke="rgba(255,255,255,.07)"/><line x1="${pl}" x2="${W}" y1="${y(mn)}" y2="${y(mn)}" stroke="rgba(255,255,255,.07)"/>
+  return `<svg viewBox="0 0 ${W} ${Ht}" role="img" aria-label="Courbe des vues"${gxAttr({ W, px: pts.map(p => +x(p[0]).toFixed(1)), py: pts.map(p => +y(p[1]).toFixed(1)), lab: pts.map(p => new Date(p[0]).toLocaleString('fr-FR', { timeZone: TZ, day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })), val: pts.map(p => p[1]), mode: 'ecart' })}><line x1="${pl}" x2="${W}" y1="${y(mx)}" y2="${y(mx)}" stroke="rgba(255,255,255,.07)"/><line x1="${pl}" x2="${W}" y1="${y(mn)}" y2="${y(mn)}" stroke="rgba(255,255,255,.07)"/>
     <text x="${pl - 5}" y="${y(mx) + 3.5}" text-anchor="end" font-size="9.5" fill="#7f7f8b">${k(mx)}</text><text x="${pl - 5}" y="${y(mn) + 3.5}" text-anchor="end" font-size="9.5" fill="#7f7f8b">${k(mn)}</text>
     <path d="${d} L${x(last[0])} ${Ht - pb} L${pl} ${Ht - pb}Z" fill="rgba(82,240,222,.14)"/><path d="${d}" fill="none" stroke="#52f0de" stroke-width="2"/><circle cx="${x(last[0])}" cy="${y(last[1])}" r="3.5" fill="#fe2c55"/>
     <text x="${pl}" y="${Ht - 4}" font-size="9.5" fill="#7f7f8b">${new Date(t0).toLocaleString('fr-FR', { timeZone: TZ, day: '2-digit', month: '2-digit', hour: '2-digit' })}</text><text x="${W}" y="${Ht - 4}" text-anchor="end" font-size="9.5" fill="#7f7f8b">maintenant</text></svg>`;
@@ -3783,7 +3817,7 @@ const SP = (() => {
     const top = nice(mx), bas = mn < 0 ? -nice(-mn) : 0;
     const bw = (W - pl - pr) / n, X = i => pl + bw * i + bw / 2, Y = v => pt + (Ht - pt - pb) * (top - v) / Math.max(1, top - bas);
     const barres = n <= 31 && !o.ligne;
-    let s = `<svg class="sp-svg" viewBox="0 0 ${W} ${Ht}" role="img" aria-label="${esc(o.titre || 'Courbe')}"${gxAttr({ W, px: L.map((x, i) => +X(i).toFixed(1)), lab: L.map(x => o.lab ? o.lab(x[0]) : dayLabel(x[0])), val: vals, v2: L2 ? L2.map(x => x?.[1] ?? null) : null, mode: o.mode || 'somme', u: o.u || '' })}>
+    let s = `<svg class="sp-svg" viewBox="0 0 ${W} ${Ht}" role="img" aria-label="${esc(o.titre || 'Courbe')}"${gxAttr({ W, px: L.map((x, i) => +X(i).toFixed(1)), py: L.map(x => x[1] == null ? null : +Y(Math.max(0, x[1])).toFixed(1)), bw: +bw.toFixed(1), lab: L.map(x => o.lab ? o.lab(x[0]) : dayLabel(x[0])), val: vals, v2: L2 ? L2.map(x => x?.[1] ?? null) : null, mode: o.mode || 'somme', u: o.u || '' })}>
       <defs><linearGradient id="spg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#52f0de" stop-opacity=".32"/><stop offset="1" stop-color="#52f0de" stop-opacity="0"/></linearGradient></defs>`;
     for (const g of [bas, (top + bas) / 2, top].filter((x, i, a) => a.indexOf(x) === i)) s += `<line x1="${pl}" x2="${W - pr + 6}" y1="${Y(g).toFixed(1)}" y2="${Y(g).toFixed(1)}" stroke="rgba(255,255,255,${g === 0 ? .14 : .06})"/><text x="${W - 2}" y="${(Y(g) + 3.5).toFixed(1)}" text-anchor="end" font-size="10" fill="#8a9aae">${k(g)}</text>`;
     if (L2) { const pts = L2.map((x, i) => x?.[1] != null ? [X(i), Y(x[1])] : null).filter(Boolean);
@@ -3902,24 +3936,30 @@ const SP = (() => {
   const lire = svg => { if (cache?.el === svg) return cache.o; try { const o = JSON.parse(svg.dataset.gx); cache = { el: svg, o }; return o; } catch (e) { return null; } };
   const indice = (svg, o, x) => { const r = svg.getBoundingClientRect(), sx = (x - r.left) * o.W / r.width; let b = 0, bd = 1e9; o.px.forEach((p, i) => { const d = Math.abs(p - sx); if (d < bd) { bd = d; b = i; } }); return b; };
   const NS = 'http://www.w3.org/2000/svg';
-  function calque(svg) { let g = svg.querySelector('.gx-o'); if (!g) { g = document.createElementNS(NS, 'g'); g.setAttribute('class', 'gx-o'); g.innerHTML = '<rect class="gx-z" y="0" height="100%"/><line class="gx-l" y1="0" y2="100%"/><line class="gx-l gx-l2" y1="0" y2="100%"/>'; svg.appendChild(g); } return g; }
+  function calque(svg) { let g = svg.querySelector('.gx-o'); if (!g) { g = document.createElementNS(NS, 'g'); g.setAttribute('class', 'gx-o'); g.innerHTML = '<defs><linearGradient id="gxlg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".25" stop-color="#fff" stop-opacity=".7"/><stop offset="1" stop-color="#fff" stop-opacity=".08"/></linearGradient></defs><rect class="gx-c" y="0" height="100%" rx="4"/><rect class="gx-z" y="0" height="100%" rx="4"/><line class="gx-l" y1="0" y2="100%"/><line class="gx-l gx-l2" y1="0" y2="100%"/><circle class="gx-h" r="9"/><circle class="gx-p" r="4"/>'; svg.appendChild(g); } svg.classList.add('gx-on'); return g; }
   function montrer(svg, a, b) {
     const o = lire(svg); if (!o) return; const g = calque(svg), r = svg.getBoundingClientRect(), sc = r.width / o.W;
-    if (!tip) { tip = document.createElement('div'); tip.id = 'gxtip'; document.body.appendChild(tip); }
+    if (!tip) { tip = document.createElement('div'); tip.id = 'gxtip'; tip.hidden = true; tip.setAttribute('role', 'status'); document.body.appendChild(tip); }
     const [l1, l2] = g.querySelectorAll('.gx-l'), z = g.querySelector('.gx-z'), f = v => v == null ? '—' : fmt(v);
     l1.setAttribute('x1', o.px[a]); l1.setAttribute('x2', o.px[a]);
-    if (b == null || b === a) { l2.style.display = z.style.display = 'none';
-      const v2 = o.v2?.[a]; tip.innerHTML = `<b class="num">${f(o.val[a])}</b> ${esc(o.u || '')}<small>${esc(o.lab[a])}${v2 != null ? ` · avant ${k(v2)}` : ''}</small>`; }
-    else { const [i, j] = a < b ? [a, b] : [b, a]; l2.style.display = z.style.display = ''; l2.setAttribute('x1', o.px[b]); l2.setAttribute('x2', o.px[b]);
+    const col = g.querySelector('.gx-c'), pt = g.querySelector('.gx-p'), halo = g.querySelector('.gx-h'), bw = o.bw || (o.px.length > 1 ? o.px[1] - o.px[0] : 8);
+    col.setAttribute('x', o.px[a] - bw / 2); col.setAttribute('width', bw);
+    const py = o.py?.[a]; for (const c of [pt, halo]) { c.style.display = py == null ? 'none' : ''; if (py != null) { c.setAttribute('cx', o.px[a]); c.setAttribute('cy', py); } }
+    if (b == null || b === a) { l2.style.display = z.style.display = 'none'; col.style.display = '';
+      const v2 = o.v2?.[a], d = v2 != null && o.val[a] != null && v2 ? pct(o.val[a], v2) : null;
+      tip.innerHTML = `<b class="num">${f(o.val[a])}</b> ${esc(o.u || '')}<small>${esc(o.lab[a])}${v2 != null ? ` · ${esc(o.n2 || 'avant')} ${k(v2)}` : ''}${d != null && Math.abs(d) >= 1 ? ` <i class="${d >= 0 ? 'up' : 'down'}">${pctTxt(d)}</i>` : ''}</small>`; }
+    else { const [i, j] = a < b ? [a, b] : [b, a]; l2.style.display = z.style.display = ''; col.style.display = 'none'; pt.style.display = halo.style.display = 'none'; l2.setAttribute('x1', o.px[b]); l2.setAttribute('x2', o.px[b]);
       const pas = o.px.length > 1 ? (o.px[1] - o.px[0]) / 2 : 4; z.setAttribute('x', o.px[i] - (o.mode === 'ecart' ? 0 : pas)); z.setAttribute('width', o.px[j] - o.px[i] + (o.mode === 'ecart' ? 0 : 2 * pas));
       if (o.mode === 'ecart') { const d = (o.val[j] ?? 0) - (o.val[i] ?? 0); tip.innerHTML = `<b class="num">${d >= 0 ? '+' : '−'}${fmt(Math.abs(d))}</b> en ${esc(o.lab[i])} → ${esc(o.lab[j])}<small>${o.val[i] ? pctTxt(pct(o.val[j], o.val[i])) : ''}</small>`; }
       else { const seg = o.val.slice(i, j + 1).filter(x => x != null), t = seg.reduce((s, x) => s + x, 0);
         tip.innerHTML = `<b class="num">${fmt(t)}</b> ${esc(o.u || '')} en ${j - i + 1} ${o.lab[0]?.endsWith(' h') ? 'heures' : 'jours'}<small>${esc(o.lab[i])} → ${esc(o.lab[j])} · ${k(t / Math.max(1, seg.length))} en moyenne</small>`; } }
     const cx = r.left + ((b == null ? o.px[a] : (o.px[a] + o.px[b]) / 2)) * sc;
-    tip.style.left = Math.max(80, Math.min(innerWidth - 80, cx)) + 'px'; tip.style.top = Math.max(8, r.top - 8) + 'px'; tip.hidden = false;
+    const nl = Math.max(80, Math.min(innerWidth - 80, cx)), nt = Math.max(8, r.top - 10);
+    if (tip.hidden) { tip.classList.remove('on'); tip.style.left = nl + 'px'; tip.style.top = nt + 'px'; tip.hidden = false; requestAnimationFrame(() => tip.classList.add('on')); }
+    else { tip.style.left = nl + 'px'; tip.style.top = nt + 'px'; }
     if (navigator.vibrate && montrer.der !== a) { try { navigator.vibrate(3); } catch (e) {} } montrer.der = a;
   }
-  function cacher() { if (tip) tip.hidden = true; cible?.querySelector('.gx-o')?.remove(); cible = null; }
+  function cacher() { if (tip) { tip.classList.remove('on'); tip.hidden = true; } cible?.querySelector('.gx-o')?.remove(); cible?.classList.remove('gx-on'); cible = null; }
   function maj() { if (!cible) return; const o = lire(cible); if (!o) return; const xs = [...P.values()];
     if (xs.length >= 2) montrer(cible, indice(cible, o, xs[0]), indice(cible, o, xs[1])); else if (xs.length === 1) montrer(cible, sourisBas != null ? sourisBas : indice(cible, o, xs[0]), sourisBas != null ? indice(cible, o, xs[0]) : null); }
   document.addEventListener('pointerdown', e => { const svg = e.target.closest?.('svg[data-gx]'); if (!svg) return;
