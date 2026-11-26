@@ -1444,6 +1444,10 @@ html.neon .segw{background:rgba(6,13,32,.96)!important}
 #accts[hidden]{display:none!important}
 @media (max-width:959px){html.neon:not(.studio) .tabs{background:rgba(6,14,36,.9)!important}}
 html.neon:not(.studio) .segw:not(.seg2){background:rgba(8,18,44,.96)!important}
+/* glisser au doigt : la page colle au doigt (aucune transition CSS), les copies n'animent rien */
+html.gl-actif #main{transition:none!important}
+.gl-fantome *,.gl-fantome *::before,.gl-fantome *::after,.gl-voisin *,.gl-voisin *::before,.gl-voisin *::after{animation:none!important;transition:none!important}
+html,body{overflow-x:clip}
 .an-base{display:block;margin-top:8px;font-size:12px;line-height:1.4;color:var(--muted)}
 @media (min-width:960px){.an-kpi{grid-template-columns:repeat(4,1fr)}.an-hero>b{font-size:72px}}
 /* l'assistant dans l'en-tête : sur PC il garde sa place de bouton flottant */
@@ -1588,6 +1592,15 @@ html.neon .mv-p.mv-p{filter:brightness(1.15)}
 /* clavier : anneau net et doux */
 html.neon :focus-visible{outline:2px solid rgba(82,240,222,.85)!important;outline-offset:2px;border-radius:12px}
 @media (prefers-reduced-motion:reduce){#gxtip{transition:none}html.neon *:hover{transform:none!important}}
+/* ===== AUDIT FINITION (Codex 26/11 soir) ===== */
+#gxtip::after{left:var(--fl,50%)!important}
+#gxtip.bas{transform:translate(-50%,-6px) scale(.96)}#gxtip.bas.on{transform:translate(-50%,0) scale(1)}
+#gxtip.bas::after{bottom:auto;top:-5px;transform:translateX(-50%) rotate(225deg)}
+@media (hover:hover) and (pointer:fine){html.neon :is(.oeil-t,.an-rc,.tile,.row,.in):not(button,a):hover{filter:none!important;transform:none!important}}
+html.neon .pill.b{background:rgba(255,92,124,.14)!important;color:#ff8aa6!important;box-shadow:none!important}
+html.neon:not(.studio){--muted:#9aabc8}
+html.neon:not(.studio) :is(.note,.an-base,.an-d.muted,.sec-h small,.tile small,.sm small){color:#a3b3cf}
+.vd + .link{margin-top:-4px}
 </style>
 
 <header class="top">
@@ -2369,8 +2382,8 @@ function vHistorique(A, C) {
   const precedent = sommeComplete(clos.map(d => addJour(d, -clos.length)));
   const actuel = sommeComplete(clos);
   const pp = st.hPer && periodeComplete && actuel != null && precedent > 0 ? pct(actuel, precedent) : null;
-  h += `<section class="card sec chart"><div class="sec-h"><div><div class="muted" style="font-size:13px">${lab} sur la période</div><div style="font:800 28px var(--display)" class="num">${fmt(tot)}</div></div>
-    ${pp != null ? `<span class="pill ${pp >= 0 ? 'g' : 'b'}">${pctTxt(pp)} sur ${clos.length} jours terminés vs les précédents</span>` : ''}</div>${barres(sel, vals)}</section>`;
+  h += `<section class="card sec chart"><div class="sec-h"><div><div class="muted" style="font-size:13px">${actuel != null && clos.length ? `${lab} sur ${clos.length} jour${clos.length > 1 ? 's' : ''} terminé${clos.length > 1 ? 's' : ''}` : `${lab} sur la période`}</div><div style="font:800 28px var(--display)" class="num">${fmt(actuel != null && clos.length ? actuel : tot)}</div>${sel.includes(C.P.day) && get(C.P.day) != null && actuel != null ? `<div class="muted" style="font-size:12.5px;margin-top:2px">+ aujourd’hui en cours : ${fmt(get(C.P.day))}</div>` : ''}</div>
+    ${pp != null ? `<span class="pill ${pp >= 0 ? 'g' : 'b'}">${pctTxt(pp)} vs les ${clos.length} jours d’avant</span>` : ''}</div>${barres(sel, vals)}</section>`;
   const nbv0 = {}; for (const v of A.videos) { const d = pz(v.t * 1000).day; nbv0[d] = (nbv0[d] || 0) + 1; }
   if (innerWidth < 700) {
     h += `<div class="jours">${[...sel].reverse().map(d => { const q = Q[d], p = Q[addJour(d, -1)], dv = p && d !== C.P.day && !q._p && !p._p ? pct(q.g, p.g) : null, df = q.f != null && p?.f != null ? q.f - p.f : null;
@@ -2688,13 +2701,18 @@ function ficheJour(d) {
 function ficheVideo(id) {
   const A = compteCourant(), C = calc(A), v = A.videos.find(x => String(x.id) === String(id)); if (!v) return;
   const f = C.fois(v), user = v.acc || A.user;
+  // même référence que la courbe plus bas : vues au même âge (dernier jalon relevé) contre la médiane de tes autres vidéos
+  const NJ = (() => { if (!v.ms) return null; for (const m of ['168', '72', '48', '24', '12', '6', '3', '1']) { if (v.ms[m] == null) continue;
+    const L = A.videos.filter(x => x !== v && !x.r && x.ms?.[m] != null).map(x => x.ms[m]).sort((a, b) => a - b); if (L.length < 15) continue;
+    const med = L[Math.floor(L.length / 2)]; return med ? { r: v.ms[m] / med, lab: m === '168' ? '7 j' : m + ' h' } : null; } return null; })();
   const lr = v.v ? v.l / v.v * 100 : null, sr = v.v ? v.s / v.v * 100 : null;
   let h = `<div class="grab"></div><div class="sheet-h"><h2>Vidéo du ${dateVid(v.t)}</h2><button class="x" type="button" data-close aria-label="Fermer">×</button></div>
   <div class="vd">${cover(v)}<div class="info">
     <div style="font:800 30px var(--display)" class="num">${fmt(v.v)} <span style="font-size:14px;font-weight:600" class="muted">vues</span></div>
-    <div class="pills">${f != null ? `<span class="pill ${f >= 1 ? 'g' : 'b'}">${fx(f)} ta normale</span>` : ''}${v.gj ? `<span class="pill g">+${k(v.gj)} aujourd'hui</span>` : ''}${v.r ? '<span class="pill b">Restreinte par TikTok</span>' : ''}</div>
+    <div class="pills">${NJ ? `<span class="pill ${NJ.r >= 1 ? 'g' : 'b'}">${fx(NJ.r)} ta normale à ${NJ.lab}</span>` : f != null ? `<span class="pill ${f >= 1 ? 'g' : 'b'}">${fx(f)} ta normale à cet âge</span>` : ''}${v.gj ? `<span class="pill g">+${k(v.gj)} aujourd'hui</span>` : ''}${v.r ? '<span class="pill b">Restreinte par TikTok</span>' : ''}</div>
     <div class="desc">${esc(v.d || 'Sans description')}</div>
     <div class="muted" style="font-size:12.5px">${v.du ? v.du + ' s · ' : ''}@${esc(user)}</div></div></div>
+  @@ACTIONS@@
   <div class="kv"><div><span>Likes</span><b class="num">${fmt(v.l)} <small class="muted">${lr != null ? lr.toLocaleString('fr-FR', { maximumFractionDigits: 1 }) + ' %' : ''}</small></b></div>
     <div><span>Partages</span><b class="num">${fmt(v.s)} <small class="muted">${sr != null ? sr.toLocaleString('fr-FR', { maximumFractionDigits: 2 }) + ' %' : ''}</small></b></div>
     <div><span>Commentaires</span><b class="num">${fmt(v.c)}</b></div><div><span>Enregistrements</span><b class="num">${v.sv != null ? fmt(v.sv) : '—'} <small class="muted">${v.sv != null && v.v ? (v.sv / v.v * 100).toLocaleString('fr-FR', { maximumFractionDigits: 2 }) + ' %' : ''}</small></b></div>
@@ -2707,8 +2725,9 @@ function ficheVideo(id) {
   if (v.vh && v.vh.length > 2) h += `<div class="chart"><div class="muted" style="font-size:12.5px;margin-bottom:6px">Courbe des vues</div>${courbe(v.vh)}</div>`;
   const url = `https://www.tiktok.com/@${encodeURIComponent(user.split(' + ')[0])}/video/${v.id}`;
   const ix = CTX.indexOf(String(v.id));
-  h += `<a class="link" href="${url}" target="_blank" rel="noopener">Ouvrir sur TikTok ↗</a>
-    <div class="navv"><button type="button" data-nav="-1" ${ix > 0 ? '' : 'disabled'}>‹ Précédente</button><button type="button" data-copy="${url}">Copier le lien</button><button type="button" data-nav="1" ${ix >= 0 && ix < CTX.length - 1 ? '' : 'disabled'}>Suivante ›</button></div>
+  h = h.replace('@@ACTIONS@@', `<a class="link" href="${url}" target="_blank" rel="noopener">Ouvrir sur TikTok ↗</a><div class="navv"><button type="button" data-nav="-1" ${ix > 0 ? '' : 'disabled'}>‹ Précédente</button><button type="button" data-copy="${url}">Copier le lien</button><button type="button" data-nav="1" ${ix >= 0 && ix < CTX.length - 1 ? '' : 'disabled'}>Suivante ›</button></div>`);
+  h += `
+    
     ${ix >= 0 && CTX.length > 1 ? `<div class="quota">${ix + 1} / ${CTX.length} · ${matchMedia('(hover:hover)').matches ? 'flèches ← → du clavier' : 'glisse à gauche ou à droite'}</div>` : ''}`;
   ouvrir(h, String(v.id));
 }
@@ -2924,16 +2943,15 @@ function render() {
 const IMPORTANTES = new Set(['Pourquoi tes vues', 'Plan du jour', 'Heure par heure', 'Ce qui monte', 'Ce qui rapporte', 'Les clips qui cartonnent', 'Postées ce jour', 'Postées ce jour-là', 'Ce qui a rapporté ce jour-là', 'Ta série']);
 const FERMES = new Set((() => { try { return JSON.parse(localStorage.getItem('cs_fermes') || '[]'); } catch (e) { return []; } })());
 const OUVERTS = new Set((() => { try { return JSON.parse(localStorage.getItem('cs_ouverts') || '[]'); } catch (e) { return []; } })());
-function replier() {
+function replier(main = $('#main'), VUE = VIEW) {
   if (!matchMedia('(max-width:959px)').matches) return;
-  const main = $('#main');
-  if (VIEW === 'creneaux') return; // Analyse (26/11) : tout ouvert, façon Studio
+  if (VUE === 'creneaux') return; // Analyse (26/11) : tout ouvert, façon Studio
   let premier = false;
   for (const s of main.querySelectorAll('section.sec')) {
     const h = s.querySelector(':scope > .sec-h'), t = h?.querySelector('h2')?.textContent.trim();
     if (!t || s.classList.contains('login') || s.classList.contains('garde')) continue;
-    if (premier || (VIEW === 'creneaux' && (st.an || 'resume') === 'resume')) { premier = false; continue; } // Résumé : court, tout reste ouvert
-    const cle = VIEW + ':' + t, o = OUVERTS.has(cle) || (IMPORTANTES.has(t) && !FERMES.has(cle));
+    if (premier || (VUE === 'creneaux' && (st.an || 'resume') === 'resume')) { premier = false; continue; } // Résumé : court, tout reste ouvert
+    const cle = VUE + ':' + t, o = OUVERTS.has(cle) || (IMPORTANTES.has(t) && !FERMES.has(cle));
     s.classList.add('pliable'); s.classList.toggle('ouvert', o);
     h.dataset.plier = cle; h.setAttribute('role', 'button'); h.tabIndex = 0; h.setAttribute('aria-expanded', String(o));
     const ap = apercuWidget(s); if (ap) h.insertAdjacentHTML('afterend', `<div class="w-apercu" aria-hidden="true">${ap}</div>`);
@@ -3099,19 +3117,86 @@ document.addEventListener('touchmove', e => { if (!SH) return; if (e.touches.len
   SH.dy = dy; if (SH.dy > 0) { SH.sh.classList.remove('back'); SH.sh.style.transform = `translateY(${SH.dy}px)`; } }, { passive: true });
 document.addEventListener('touchend', () => { if (!SH) return; const { sh, dy } = SH; SH = null; if (dy > 110) return fermer(); sh.classList.add('back'); sh.style.transform = ''; }, { passive: true });
 document.addEventListener('touchcancel', () => { if (SH) { SH.sh.classList.add('back'); SH.sh.style.transform = ''; SH = null; } T0 = null; }, { passive: true });
-document.addEventListener('touchstart', e => { if (e.touches.length > 1) { T0 = null; return; } const t = e.touches[0]; T0 = { x: t.clientX, y: t.clientY, el: e.target, cote: defileCote(e.target) }; }, { passive: true });
-document.addEventListener('touchmove', e => { if (T0 && e.touches.length > 1) T0 = null; }, { passive: true });
-document.addEventListener('touchend', e => { if (!T0) return; const t = e.changedTouches[0], dx = t.clientX - T0.x, dy = t.clientY - T0.y, el = T0.el, cote = T0.cote; T0 = null;
-  if (Math.abs(dx) < 70 || Math.abs(dy) > 45 || dy > 60 || Math.abs(dx) < Math.abs(dy) * 2) return;
-  if (cote || (el.closest && el.closest('.chips,.tbl-wrap,.accts,.heat,.heat2,input,select'))) return;
-  if (!$('#sheet').hidden) { const sv = $('#sheet').dataset.vid; if (!sv) return; const i = CTX.indexOf(sv) + (dx < 0 ? 1 : -1); if (CTX[i]) ficheVideo(CTX[i]); return; }
-  if (VIEW === 'direct' && RAW) { // sur Direct, glisser change de jour (comme les flèches)
-    const auj = pz(RAW.maj).day, cur = st.jour || auj, d = addJour(cur, dx < 0 ? 1 : -1), B = bornes(compteCourant(), calc(compteCourant()));
-    if (d > auj || d < B.mn) return;
-    const m = $('#main'); m.classList.add(dx < 0 ? 'glisse-g' : 'glisse-d'); try { navigator.vibrate?.(8); } catch (x) {}
-    setTimeout(() => { st.jour = d === auj ? null : d; st.hourSel = null; render(); window.scrollTo({ top: 0 }); m.classList.remove('glisse-g', 'glisse-d'); }, 110); return;
-  }
-  const i = ORDRE.indexOf(VIEW) + (dx < 0 ? 1 : -1); if (ORDRE[i]) { const m = $('#main'); m.classList.add('fade'); setTimeout(() => { go(ORDRE[i], true); m.classList.remove('fade'); }, 90); } }, { passive: true });
+// ===== GLISSER ENTRE ONGLETS / JOURS (Jawed 26/11) : la page SUIT LE DOIGT, puis la nouvelle pousse l'ancienne, ou tout revient.
+// Une seule animation (les entrées en cascade et la chorégraphie sont coupées pendant ce geste), pas de blanc (l'ancienne page reste
+// affichée dans une copie qui sort pendant que la nouvelle entre), translation en pixels entiers (textes nets), rien n'est étiré.
+var GLISSE = false;
+const largeurEcran = () => GL.W || document.documentElement.clientWidth; // largeur figée pendant le geste (la page qui glisse ne doit pas l'élargir)
+const GL = { m: null, anim: [] };
+const IOSG = 'cubic-bezier(.22,.8,.2,1)';
+function cibleGlisse(sens) { // sens +1 = page suivante (doigt vers la gauche)
+  if (VIEW === 'direct' && RAW) { const auj = pz(RAW.maj).day, cur = st.jour || auj, d = addJour(cur, sens), B = bornes(compteCourant(), calc(compteCourant()));
+    return d > auj || d < B.mn ? null : { jour: d === auj ? null : d }; }
+  const v = ORDRE[ORDRE.indexOf(VIEW) + sens]; return v ? { v } : null;
+}
+function rectSans(m) { const t = m.style.transform; m.style.transform = 'none'; const r = m.getBoundingClientRect(); m.style.transform = t; return r; } // position réelle, sans le décalage du doigt
+function pageVoisine(c, sens) { // la page d'à côté, construite comme render() (sans changer l'état), collée au bord de l'écran
+  const A = compteCourant(), C = calc(A), V = { direct: vDirect, videos: vVideos, campagnes: vCampagnes, historique: vHistorique, creneaux: vCreneaux };
+  const vue = c.v || 'direct', j0 = st.jour, h0 = st.hourSel; if (!c.v) { st.jour = c.jour; st.hourSel = null; }
+  let html = ''; try { html = V[vue](A, C); } catch (e) {} finally { st.jour = j0; st.hourSel = h0; }
+  const m = $('#main'), r = rectSans(m), d = document.createElement('div');
+  d.className = m.className + ' gl-voisin'; d.setAttribute('aria-hidden', 'true'); d.inert = true; d.setAttribute('style', m.getAttribute('style') || ''); d.innerHTML = html;
+  d.querySelectorAll('[id]').forEach(x => x.removeAttribute('id')); document.body.appendChild(d);
+  try { replier(d, vue); } catch (e) {}
+  Object.assign(d.style, { position: 'fixed', top: Math.round(r.top + scrollY) + 'px', left: Math.round(r.left) + 'px', width: Math.round(r.width) + 'px', margin: '0', zIndex: '4', pointerEvents: 'none', willChange: 'transform', transform: `translate3d(${sens * largeurEcran()}px,0,0)` });
+  return d; }
+function voisins(dx) { const W = largeurEcran(), sens = dx < 0 ? 1 : -1;
+  for (const k of [1, -1]) { const el = GL.v?.[k]; if (el) el.style.visibility = k === sens ? '' : 'hidden'; }
+  const c = cibleGlisse(sens); if (!c) return false;
+  GL.v = GL.v || {}; if (!GL.v[sens]) GL.v[sens] = pageVoisine(c, sens);
+  GL.v[sens].style.transform = `translate3d(${Math.round(dx + sens * W)}px,0,0)`; return true; }
+function finGlisse() { const m = GL.m; GL.m = null; if (m) { m.style.transform = ''; m.style.willChange = ''; } document.querySelectorAll('.gl-fantome,.gl-voisin').forEach(x => x.remove()); GL.v = null; GL.W = 0; GLISSE = false; document.documentElement.classList.remove('gl-actif'); }
+function annulerGlisse(dx) { const m = GL.m; if (!m) return; GL.anim.forEach(a => a.cancel());
+  if (!dx || matchMedia('(prefers-reduced-motion: reduce)').matches) return finGlisse();
+  const a = m.animate([{ transform: `translate3d(${Math.round(dx)}px,0,0)` }, { transform: 'translate3d(0,0,0)' }], { duration: 260, easing: IOSG });
+  const sens = dx < 0 ? 1 : -1, vz = GL.v?.[sens]; if (vz) vz.animate([{ transform: `translate3d(${Math.round(dx + sens * largeurEcran())}px,0,0)` }, { transform: `translate3d(${sens * largeurEcran()}px,0,0)` }], { duration: 260, easing: IOSG, fill: 'forwards' });
+  m.style.transform = ''; GL.anim = [a]; a.onfinish = a.oncancel = () => { if (GL.anim[0] === a) finGlisse(); }; }
+function validerGlisse(c, sens, dx, v) {
+  const m = GL.m || $('#main'), W = largeurEcran(), r = rectSans(m), reduit = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  GL.anim.forEach(a => a.cancel()); GL.anim = [];
+  let g = null;
+  if (!reduit) { g = m.cloneNode(true); g.removeAttribute('id'); g.querySelectorAll('[id]').forEach(x => x.removeAttribute('id'));
+    g.className = m.className + ' gl-fantome'; g.setAttribute('aria-hidden', 'true'); g.inert = true;
+    Object.assign(g.style, { position: 'fixed', top: Math.round(r.top) + 'px', left: Math.round(r.left) + 'px', width: Math.round(r.width) + 'px', margin: '0', pointerEvents: 'none', zIndex: '4', transform: `translate3d(${Math.round(dx)}px,0,0)` });
+    document.body.appendChild(g); }
+  GLISSE = true; document.documentElement.classList.add('gl-actif'); try { navigator.vibrate?.(6); } catch (x) {}
+  if (c.v) go(c.v, true); else { st.jour = c.jour; st.hourSel = null; render(); window.scrollTo({ top: 0 }); }
+  document.querySelectorAll('.gl-voisin').forEach(x => x.remove()); GL.v = null; // la vraie page prend exactement sa place
+  if (reduit) return finGlisse();
+  const reste = Math.max(.25, 1 - Math.abs(dx) / W), duree = Math.round(Math.max(170, Math.min(320, 320 * reste / Math.max(1, Math.abs(v || 0) * 1.6))));
+  const nm = $('#main'); GL.m = nm; nm.style.willChange = 'transform';
+  const a1 = nm.animate([{ transform: `translate3d(${Math.round(dx + sens * W)}px,0,0)` }, { transform: 'translate3d(0,0,0)' }], { duration: duree, easing: IOSG });
+  const a2 = g.animate([{ transform: `translate3d(${Math.round(dx)}px,0,0)` }, { transform: `translate3d(${-sens * W}px,0,0)` }], { duration: duree, easing: IOSG, fill: 'forwards' });
+  nm.style.transform = ''; GL.anim = [a1, a2];
+  a1.onfinish = a1.oncancel = () => { if (GL.anim[0] === a1) finGlisse(); };
+}
+document.addEventListener('touchstart', e => {
+  if (GL.anim.length && GLISSE) return; // une poussée est en cours : on la laisse finir
+  if (e.touches.length > 1) { if (T0?.mode === 'h') annulerGlisse(T0.dx); T0 = null; return; }
+  const t = e.touches[0]; T0 = { x: t.clientX, y: t.clientY, el: e.target, cote: defileCote(e.target), t: performance.now(), mode: null, dx: 0, v: 0 };
+}, { passive: true });
+document.addEventListener('touchmove', e => {
+  if (!T0) return;
+  if (e.touches.length > 1) { if (T0.mode === 'h') annulerGlisse(T0.dx); T0 = null; return; }
+  const t = e.touches[0], dx = t.clientX - T0.x, dy = t.clientY - T0.y;
+  if (!T0.mode) { if (Math.hypot(dx, dy) < 10) return;
+    const horiz = Math.abs(dx) > Math.abs(dy) * 1.4, libre = !T0.cote && !(T0.el.closest && T0.el.closest('.chips,.tbl-wrap,.accts,.heat,.heat2,input,select,textarea,.nv-story,.top,.tabs,svg[data-gx]'));
+    T0.mode = horiz && libre ? ($('#sheet').hidden ? 'h' : 'fiche') : 'v';
+    if (T0.mode === 'h') { GL.anim.forEach(a => a.cancel()); GL.anim = []; GL.W = document.documentElement.clientWidth; GL.m = $('#main'); GL.m.style.willChange = 'transform'; document.documentElement.classList.add('gl-actif'); } }
+  if (T0.mode !== 'h' || !GL.m) return;
+  const now = performance.now(), dt = Math.max(1, now - (T0.tm || T0.t)); T0.v = (dx - T0.dx) / dt * .7 + T0.v * .3; T0.tm = now; T0.dx = dx;
+  const x = voisins(dx) ? dx : Math.sign(dx) * Math.min(24, Math.abs(dx) * .15); // plus rien de ce côté : petite résistance (24 px max)
+  GL.m.style.transform = `translate3d(${Math.round(x)}px,0,0)`;
+}, { passive: true });
+document.addEventListener('touchcancel', () => { if (T0?.mode === 'h') annulerGlisse(T0.dx); T0 = null; }, { passive: true });
+document.addEventListener('touchend', e => {
+  if (!T0) return; const t = e.changedTouches[0], dx = t.clientX - T0.x, dy = t.clientY - T0.y, mode = T0.mode, v = T0.v; T0 = null;
+  if (mode === 'fiche') { if (Math.abs(dx) < 70 || Math.abs(dy) > 45) return; const sv = $('#sheet').dataset.vid; if (!sv) return; const i = CTX.indexOf(sv) + (dx < 0 ? 1 : -1); if (CTX[i]) ficheVideo(CTX[i]); return; }
+  if (mode !== 'h' || !GL.m) return;
+  const sens = dx < 0 ? 1 : -1, c = cibleGlisse(sens), W = largeurEcran();
+  const loin = Math.abs(dx) > W * .3, rapide = Math.abs(v) > .45 && Math.sign(v) === Math.sign(dx) && Math.abs(dx) > 28;
+  if (c && (loin || rapide)) validerGlisse(c, sens, dx, v); else annulerGlisse(c ? dx : Math.sign(dx) * Math.min(24, Math.abs(dx) * .15));
+}, { passive: true });
 document.addEventListener('keydown', e => {
   if ($('#sheet').hidden) return;
   if (e.key === 'Escape') return fermer();
@@ -3299,7 +3384,7 @@ const MV = (() => {
     const pas = maj ? 18 : 26, duree = maj ? 260 : 360;
     els.forEach((el, i) => el.animate([{ opacity: 0, transform: `translate3d(${dx}px,${dy}px,0)` }, { opacity: 1, transform: 'none' }],
       { duration: duree, delay: Math.min(i * pas, 220), easing: IOS, fill: 'backwards' }));
-    if (!maj) compter([...$('#main').querySelectorAll('.big, .num')]);
+    // audit F01 (26/11) : plus de compteur depuis 0 à l'entrée d'un onglet (l'écran affichait des chiffres faux pendant 1,1 s)
   }
 
   // ---------- 5. Compteurs qui montent ----------
@@ -3368,11 +3453,11 @@ const MV = (() => {
     if (!anime) return;
     const g = genre(a, b);
     if (ancTab) { const n = tabs.querySelector('.tab[aria-selected="true"]'); if (n && n !== ancTab) { glisser(tabs, posTab, n); n.querySelector('svg')?.animate(kf(POP.P, p => ({ transform: `scale(${.78 + .22 * p})` })), { duration: POP.D, easing: 'linear' }); } }
-    if (segs.length) for (const box of $('#main').querySelectorAll('.segw,.seg')) {
+    if (segs.length && !GLISSE) for (const box of $('#main').querySelectorAll('.segw,.seg')) {
       const s = segs.find(x => x.sig === signature(box)), btn = box.querySelector(':scope>' + SEL.split(',').join(',:scope>'));
       if (s && btn && [...box.children].indexOf(btn) !== s.i) glisser(box, s.pos, btn);
     }
-    if (!g || !$('#sheet').hidden || (g.k === 'maj' && document.activeElement?.id === 'q')) return;
+    if (GLISSE || !g || !$('#sheet').hidden || (g.k === 'maj' && document.activeElement?.id === 'q')) return;
     queueMicrotask(() => entree(g)); // après le scrollTo de go() : on anime ce qui est vraiment à l'écran
   };
   // Changement d'onglet (Jawed 24/11 : « corrige le petit blanc ») : le repère et l'icône partent TOUT DE SUITE (animation sur le
@@ -3380,7 +3465,7 @@ const MV = (() => {
   const _go = go;
   go = function (v, haut) {
     const jeton = go.n = (go.n || 0) + 1; cancelAnimationFrame(go.r); clearTimeout(go.t); // une navigation plus récente annule celles en attente
-    if (reduit() || v === VIEW || !RAW?.comptes?.length) return _go(v, haut);
+    if (GLISSE || reduit() || v === VIEW || !RAW?.comptes?.length) return _go(v, haut); // glisser au doigt : sa propre animation, rien d'autre
     const tabs = $('#tabs'), anc = tabs?.querySelector('.tab[aria-selected="true"]'), n = tabs?.querySelector(`.tab[data-v="${v}"]`);
     if (anc && n) {
       const pos = relatif(tabs, anc);
@@ -3939,7 +4024,8 @@ const SP = (() => {
   function calque(svg) { let g = svg.querySelector('.gx-o'); if (!g) { g = document.createElementNS(NS, 'g'); g.setAttribute('class', 'gx-o'); g.innerHTML = '<defs><linearGradient id="gxlg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".25" stop-color="#fff" stop-opacity=".7"/><stop offset="1" stop-color="#fff" stop-opacity=".08"/></linearGradient></defs><rect class="gx-c" y="0" height="100%" rx="4"/><rect class="gx-z" y="0" height="100%" rx="4"/><line class="gx-l" y1="0" y2="100%"/><line class="gx-l gx-l2" y1="0" y2="100%"/><circle class="gx-h" r="9"/><circle class="gx-p" r="4"/>'; svg.appendChild(g); } svg.classList.add('gx-on'); return g; }
   function montrer(svg, a, b) {
     const o = lire(svg); if (!o) return; const g = calque(svg), r = svg.getBoundingClientRect(), sc = r.width / o.W;
-    if (!tip) { tip = document.createElement('div'); tip.id = 'gxtip'; tip.hidden = true; tip.setAttribute('role', 'status'); document.body.appendChild(tip); }
+    if (!tip) { tip = document.createElement('div'); tip.id = 'gxtip'; tip.hidden = true; document.body.appendChild(tip); }
+    const cle = a + ':' + b; if (montrer.cle === cle && montrer.svg === svg && !tip.hidden) return; montrer.cle = cle; montrer.svg = svg;
     const [l1, l2] = g.querySelectorAll('.gx-l'), z = g.querySelector('.gx-z'), f = v => v == null ? '—' : fmt(v);
     l1.setAttribute('x1', o.px[a]); l1.setAttribute('x2', o.px[a]);
     const col = g.querySelector('.gx-c'), pt = g.querySelector('.gx-p'), halo = g.querySelector('.gx-h'), bw = o.bw || (o.px.length > 1 ? o.px[1] - o.px[0] : 8);
@@ -3950,24 +4036,30 @@ const SP = (() => {
       tip.innerHTML = `<b class="num">${f(o.val[a])}</b> ${esc(o.u || '')}<small>${esc(o.lab[a])}${v2 != null ? ` · ${esc(o.n2 || 'avant')} ${k(v2)}` : ''}${d != null && Math.abs(d) >= 1 ? ` <i class="${d >= 0 ? 'up' : 'down'}">${pctTxt(d)}</i>` : ''}</small>`; }
     else { const [i, j] = a < b ? [a, b] : [b, a]; l2.style.display = z.style.display = ''; col.style.display = 'none'; pt.style.display = halo.style.display = 'none'; l2.setAttribute('x1', o.px[b]); l2.setAttribute('x2', o.px[b]);
       const pas = o.px.length > 1 ? (o.px[1] - o.px[0]) / 2 : 4; z.setAttribute('x', o.px[i] - (o.mode === 'ecart' ? 0 : pas)); z.setAttribute('width', o.px[j] - o.px[i] + (o.mode === 'ecart' ? 0 : 2 * pas));
-      if (o.mode === 'ecart') { const d = (o.val[j] ?? 0) - (o.val[i] ?? 0); tip.innerHTML = `<b class="num">${d >= 0 ? '+' : '−'}${fmt(Math.abs(d))}</b> en ${esc(o.lab[i])} → ${esc(o.lab[j])}<small>${o.val[i] ? pctTxt(pct(o.val[j], o.val[i])) : ''}</small>`; }
+      if (o.mode === 'ecart' && (o.val[i] == null || o.val[j] == null)) tip.innerHTML = `<b>Écart indisponible</b><small>${esc(o.lab[o.val[i] == null ? i : j])} sans relevé</small>`;
+      else if (o.mode === 'ecart') { const d = o.val[j] - o.val[i]; tip.innerHTML = `<b class="num">${d >= 0 ? '+' : '−'}${fmt(Math.abs(d))}</b> en ${esc(o.lab[i])} → ${esc(o.lab[j])}<small>${o.val[i] ? pctTxt(pct(o.val[j], o.val[i])) : ''}</small>`; }
       else { const seg = o.val.slice(i, j + 1).filter(x => x != null), t = seg.reduce((s, x) => s + x, 0);
-        tip.innerHTML = `<b class="num">${fmt(t)}</b> ${esc(o.u || '')} en ${j - i + 1} ${o.lab[0]?.endsWith(' h') ? 'heures' : 'jours'}<small>${esc(o.lab[i])} → ${esc(o.lab[j])} · ${k(t / Math.max(1, seg.length))} en moyenne</small>`; } }
+        const n = j - i + 1, unite = /h\b|h –/.test(o.lab[0] || '') ? 'heures' : 'jours', manque = n - seg.length;
+        tip.innerHTML = `<b class="num">${fmt(t)}</b> ${esc(o.u || '')} ${manque ? `sur ${seg.length} ${unite} relevés / ${n}` : `en ${n} ${unite}`}<small>${esc(o.lab[i])} → ${esc(o.lab[j])} · ${k(t / Math.max(1, seg.length))} en moyenne${manque ? ' (jours relevés)' : ''}</small>`; } }
     const cx = r.left + ((b == null ? o.px[a] : (o.px[a] + o.px[b]) / 2)) * sc;
-    const nl = Math.max(80, Math.min(innerWidth - 80, cx)), nt = Math.max(8, r.top - 10);
-    if (tip.hidden) { tip.classList.remove('on'); tip.style.left = nl + 'px'; tip.style.top = nt + 'px'; tip.hidden = false; requestAnimationFrame(() => tip.classList.add('on')); }
-    else { tip.style.left = nl + 'px'; tip.style.top = nt + 'px'; }
+    const neuf = tip.hidden; if (neuf) { tip.classList.remove('on'); tip.hidden = false; }
+    const tw = tip.offsetWidth, th = tip.offsetHeight, vv = window.visualViewport, vw = vv ? vv.width : innerWidth, haut = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--toph')) || 64;
+    const nl = Math.max(tw / 2 + 8, Math.min(vw - tw / 2 - 8, cx)), dessous = r.top - 10 - th < haut + 8; // pas la place au-dessus (en-tête) : sous la courbe
+    tip.classList.toggle('bas', dessous); tip.style.left = nl + 'px'; tip.style.top = (dessous ? r.bottom + 10 : r.top - 10) + 'px';
+    tip.style.setProperty('--fl', Math.max(14, Math.min(tw - 14, cx - (nl - tw / 2))) + 'px');
+    if (neuf) requestAnimationFrame(() => tip.classList.add('on'));
     if (navigator.vibrate && montrer.der !== a) { try { navigator.vibrate(3); } catch (e) {} } montrer.der = a;
   }
-  function cacher() { if (tip) { tip.classList.remove('on'); tip.hidden = true; } cible?.querySelector('.gx-o')?.remove(); cible?.classList.remove('gx-on'); cible = null; }
-  function maj() { if (!cible) return; const o = lire(cible); if (!o) return; const xs = [...P.values()];
+  function cacher() { montrer.cle = null; if (tip) { tip.classList.remove('on'); tip.hidden = true; } cible?.querySelector('.gx-o')?.remove(); cible?.classList.remove('gx-on'); cible = null; }
+  let majR = 0; function maj() { if (majR) return; majR = requestAnimationFrame(() => { majR = 0; maj_(); }); }
+  function maj_() { if (!cible) return; const o = lire(cible); if (!o) return; const xs = [...P.values()];
     if (xs.length >= 2) montrer(cible, indice(cible, o, xs[0]), indice(cible, o, xs[1])); else if (xs.length === 1) montrer(cible, sourisBas != null ? sourisBas : indice(cible, o, xs[0]), sourisBas != null ? indice(cible, o, xs[0]) : null); }
   document.addEventListener('pointerdown', e => { const svg = e.target.closest?.('svg[data-gx]'); if (!svg) return;
     if (cible && cible !== svg) cacher(); cible = svg; P.set(e.pointerId, e.clientX);
     if (e.pointerType === 'mouse') { const o = lire(svg); sourisBas = o ? indice(svg, o, e.clientX) : null; }
     maj(); }, true);
   document.addEventListener('pointermove', e => { if (cible && P.has(e.pointerId)) { P.set(e.pointerId, e.clientX); return maj(); }
-    if (e.pointerType === 'mouse') { const svg = e.target.closest?.('svg[data-gx]'); if (svg) { cible = svg; const o = lire(svg); if (o) montrer(svg, indice(svg, o, e.clientX)); } else if (cible && !P.size) cacher(); } }, true);
+    if (e.pointerType === 'mouse') { const svg = e.target.closest?.('svg[data-gx]'); if (svg) { cible = svg; const o = lire(svg), x = e.clientX; if (o && !majR) majR = requestAnimationFrame(() => { majR = 0; if (cible === svg) montrer(svg, indice(svg, o, x)); }); } else if (cible && !P.size) cacher(); } }, true);
   const fin = e => { if (!P.has(e.pointerId)) return; P.delete(e.pointerId); sourisBas = null; if (!P.size) { const c = cible; setTimeout(() => { if (cible === c && !P.size) cacher(); }, e.pointerType === 'mouse' ? 0 : 1600); } else maj(); };
   document.addEventListener('pointerup', fin, true); document.addEventListener('pointercancel', fin, true);
   // la courbe garde le doigt : ni glisser pour fermer la feuille, ni vidéo suivante, ni tirer pour actualiser
@@ -4059,7 +4151,7 @@ const NEON = (() => {
   const _render = render;
   render = function () {
     const doux = !!MV?.doux; _render.apply(this, arguments);
-    if (doux || reduit()) return;
+    if (doux || reduit() || GLISSE) return;
     const b = document.querySelector('#main .oeil-big'); if (b) { b.classList.remove('n-trace'); void b.offsetWidth; b.classList.add('n-trace'); }
     requestAnimationFrame(() => setTimeout(choregraphie, 40));
   };
