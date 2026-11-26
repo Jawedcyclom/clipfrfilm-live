@@ -235,7 +235,7 @@ button.hb:disabled{cursor:default;opacity:.35}
 .heat2{display:grid;grid-template-columns:30px repeat(7,minmax(0,1fr));gap:3px;font-size:11px}
 .heat2 .hd{text-align:center;color:var(--muted);font-weight:600}
 .heat2 .hr{color:var(--muted);text-align:right;align-self:center;padding-right:3px}
-.c2{height:30px;border-radius:6px;background:var(--panel2);font-size:10.5px;font-weight:700;color:#fff;font-variant-numeric:tabular-nums}
+.c2{height:30px;border-radius:6px;background:var(--panel2);font-size:11px;font-weight:700;color:#fff;font-variant-numeric:tabular-nums}
 .c2.vide{color:var(--muted);background:var(--panel)}
 .c2:disabled{cursor:default}
 tr[data-day]{cursor:pointer}
@@ -606,7 +606,7 @@ button,a.link,a.ext,.vc,.row,.in,.camp,.cd,.rc,.hb{transition:transform .15s var
   .gear{grid-area:1/3/3/4;align-self:start;width:44px;height:44px;border-radius:50%;background:var(--s2);border:0;color:var(--fg2)}
   .gear svg{width:19px;height:19px}
   /* l'assistant prend la place libre (colonne 2) de l'en-tête */
-  .fab{position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);bottom:auto;right:calc(max(16px,env(safe-area-inset-right,0px)) + 52px);
+  .fab{position:static;grid-area:1/2/3/3;align-self:start;
     width:44px;height:44px;border-radius:50%;background:var(--s2);border:0;box-shadow:none;z-index:21}
   .fab svg{width:20px;height:20px;color:var(--cyclom2)}
   .accts{gap:8px;margin:0;padding:0}
@@ -763,7 +763,7 @@ button,a.link,a.ext,.vc,.row,.in,.camp,.cd,.rc,.hb{transition:transform .15s var
 
   /* --- Barre d'onglets : matériau translucide, icône active remplie, pas de trait --- */
   .tabs{background:var(--mat);backdrop-filter:blur(24px) saturate(1.7);-webkit-backdrop-filter:blur(24px) saturate(1.7);border-top:.5px solid rgba(170,200,230,.14);padding-top:4px;padding-bottom:calc(4px + env(safe-area-inset-bottom,0px))}
-  .tab{min-height:var(--tabh);gap:3px;font:600 10.5px var(--body);letter-spacing:.01em;color:#8496ac}
+  .tab{min-height:var(--tabh);gap:3px;font:600 11px var(--body);letter-spacing:.01em;color:#8496ac}
   .tab svg{width:26px;height:26px;stroke-width:1.7}
   .tab[aria-selected="true"]{color:var(--cyclom2)}
   .tab[aria-selected="true"] svg{color:var(--cyclom2)}
@@ -1129,8 +1129,8 @@ button,a,[role="button"],.sec.pliable{-webkit-touch-callout:none}
 .cp-pl{display:grid;place-items:center;width:44px;height:44px;border-radius:13px;background:rgba(255,255,255,.07);font:800 16px var(--display);color:var(--fg)}
 .cp-pl.or{background:var(--cyclom-soft);color:var(--cyclom)}.cp-pl.off{color:var(--muted)}
 .cp-n{display:flex;flex-direction:column;gap:2px;min-width:0}
-.cp-n b{font:600 15px var(--body);color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cp-n small{color:var(--muted);font:500 12.5px var(--body);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cp-n b{font:600 15px/1.3 var(--body);color:var(--fg);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.cp-n small{color:var(--muted);font:500 12.5px/1.35 var(--body)}
 .cp-g{font:700 15px var(--display);color:var(--fg);white-space:nowrap}.cp-g small{font:500 12px var(--body);color:var(--muted)}
 .cp-chev{color:var(--muted);font-size:20px}
 /* le coup d'œil montre déjà le chiffre du jour et l'écart avec hier : la carte du dessous ne les répète pas (téléphone) */
@@ -1304,7 +1304,7 @@ html.neon .logo b{color:var(--n-t)}
 html.neon .side-logo .logo{font-size:19px!important;overflow:visible}
 @media (min-width:960px){html.neon .brand .logo{display:none}}
 /* --- en-tête : verre sombre fin, pastille « direct » qui pulse --- */
-html.neon .top{background:linear-gradient(180deg,rgba(2,6,18,.78),rgba(2,6,18,.55))!important;backdrop-filter:blur(26px) saturate(1.6)!important;-webkit-backdrop-filter:blur(26px) saturate(1.6)!important;border-bottom:.5px solid var(--n-hair)!important}
+html.neon .top{background:rgba(3,8,22,.94)!important;backdrop-filter:blur(26px) saturate(1.6)!important;-webkit-backdrop-filter:blur(26px) saturate(1.6)!important;border-bottom:.5px solid var(--n-hair)!important}
 html.neon .fresh{display:flex!important;align-items:center;gap:7px;color:var(--muted)}
 html.neon .fresh::before{content:"";flex:none;width:7px;height:7px;border-radius:50%;background:var(--n-t);box-shadow:0 0 0 0 rgba(82,240,222,.55);animation:n-pouls 2.4s var(--n-io) infinite}
 @keyframes n-pouls{0%{box-shadow:0 0 0 0 rgba(82,240,222,.55)}70%,100%{box-shadow:0 0 0 9px rgba(82,240,222,0)}}
@@ -1391,6 +1391,48 @@ html.neon .nv-alerte b{font:600 15px var(--body)!important;color:#fff!important}
 .n-intro .n-nom span{display:inline-block;opacity:0}
 .n-intro .n-nom .t{color:#52f0de}
 @media (prefers-reduced-motion:reduce){html.neon .n-lueur{animation:none!important}html.neon .fresh::before,html.neon .oeil-t.place .oeil-ic::after,html.neon .oeil-t.place .oeil-ic::before{animation:none!important}.n-intro{display:none}}
+/* ===== ANALYSE (26/11) + corrections revue ===== */
+.an-seg{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+html.neon .segw{background:rgba(6,13,32,.96)!important}
+.an-per{margin:12px 0 4px}.an-per .chips{flex-wrap:nowrap}
+.an-hero{display:flex;flex-direction:column;gap:4px;padding:16px 4px 8px}
+.an-hero small{font-size:13px;color:var(--muted)}
+.an-hero>b{font:700 clamp(44px,13vw,64px)/1 var(--display,var(--body));letter-spacing:-.03em;color:var(--fg)}
+.an-hero>span{font-size:14px;color:var(--fg2)}
+.an-d{font-size:13px;font-weight:600}.an-d.up{color:var(--up,#52f0de)}.an-d.down{color:var(--down,#ff6b8a)}
+.an-kpi{display:grid;grid-template-columns:1fr 1fr;gap:1px;border-radius:16px;overflow:hidden;background:var(--hair,rgba(255,255,255,.08));margin:8px 0 16px}
+.an-kpi>*{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:14px 16px;background:var(--s1,var(--panel));border:0;text-align:left;color:var(--fg);min-height:88px}
+.an-kpi small{font-size:13px;color:var(--muted)}.an-kpi b{font:700 24px/1.15 var(--body)}
+.an-ch .sec-h small{display:flex;align-items:center;gap:6px}
+.an-lg{display:inline-block;width:12px;height:3px;border-radius:2px;background:#52f0de;margin-left:4px}.an-lg.pt{background:none;border-top:2px dashed rgba(255,255,255,.4);height:0}
+.an-why{padding-bottom:4px}
+.an-w{display:grid;grid-template-columns:76px 1fr 12px;align-items:center;gap:12px;width:100%;padding:14px 0;border:0;border-top:1px solid var(--hair,rgba(255,255,255,.08));background:none;text-align:left;color:var(--fg);font-size:14px;line-height:1.35}
+.an-w:first-of-type{border-top:0}
+.an-w>b{font:700 26px/1 var(--body);color:#52f0de;letter-spacing:-.02em}.an-w>b.down{color:var(--down,#ff6b8a)}
+.an-w .chev{color:var(--muted)}
+.an-rk{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.an-rk button{display:grid;grid-template-columns:18px 44px minmax(0,1fr) auto;align-items:center;gap:12px;width:100%;padding:10px 0;border:0;border-top:1px solid var(--hair,rgba(255,255,255,.08));background:none;color:var(--fg);text-align:left}
+.an-rk li:first-child button{border-top:0}
+.an-rk img,.an-rk .cov,.an-rk .ph{width:44px;height:58px;border-radius:8px;object-fit:cover;display:block}
+.an-n{font-size:14px;color:var(--muted);text-align:center}
+.an-t{display:flex;flex-direction:column;gap:8px;min-width:0}
+.an-tt{font-size:14px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.an-bar{height:4px;border-radius:2px;background:rgba(255,255,255,.08)}.an-bar i{display:block;height:100%;border-radius:2px;background:#52f0de}
+.an-v{display:flex;flex-direction:column;align-items:flex-end;gap:2px}.an-v b{font-size:16px}.an-v small{font-size:12px;color:var(--muted);white-space:nowrap}
+.an-nm{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.an-nm>div{display:flex;flex-direction:column;gap:4px}.an-nm b{font:700 22px/1.1 var(--body)}.an-nm>div:first-child b{color:#52f0de}.an-nm small{font-size:12px;line-height:1.3;color:var(--muted)}
+.an-sub{margin:12px 0 8px;font-size:13px;color:var(--muted)}
+.an-rec{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0 16px}
+.an-rc{display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:16px;border-radius:16px;background:var(--s1,var(--panel));border:0;box-shadow:inset 0 0 0 .5px var(--hair,rgba(255,255,255,.1));color:var(--fg);text-align:left}
+.an-rc small{font-size:12px;color:var(--muted);line-height:1.3}.an-rc b{font:700 22px/1.15 var(--body)}.an-rc span{font-size:13px;font-weight:600}
+.an-peu{margin-top:12px;padding:16px;line-height:1.45}
+.row .ph>span,.strip .ph>span,.in .ph>span,.alert .ph>span,.nv-alerte .ph>span,.an-rk .ph>span{display:none}
+.c2{height:36px!important}
+.an-base{display:block;margin-top:8px;font-size:12px;line-height:1.4;color:var(--muted)}
+@media (min-width:960px){.an-kpi{grid-template-columns:repeat(4,1fr)}.an-hero>b{font-size:72px}}
+/* l'assistant dans l'en-tête : sur PC il garde sa place de bouton flottant */
+@media (max-width:959px){.fab-l{display:none}}
+@media (min-width:960px){.top .fab{position:static!important;order:1;padding:0 14px!important;height:34px;font-size:13px!important;gap:6px;box-shadow:none!important}.top .fab svg{width:16px;height:16px}.top .brand-r .gear{order:2}}
 </style>
 
 <header class="top">
@@ -1398,6 +1440,7 @@ html.neon .nv-alerte b{font:600 15px var(--body)!important;color:#fff!important}
     <div class="brand">
       <div class="logo">clipfrfilm<b>.</b>Live</div>
       <div class="brand-r"><div class="fresh"><span id="fresh">…</span></div>
+        <button class="fab" id="fab" type="button" aria-label="Ouvrir l'assistant"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 4.6L18.5 9.5l-4.6 1.9L12 16l-1.9-4.6L5.5 9.5l4.6-1.9z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg><span class="fab-l">Assistant</span></button>
         <button class="gear" id="gear" type="button" aria-label="Mes comptes et réglages"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg></button></div>
     </div>
     <div class="accts" id="accts" role="group" aria-label="Choisir le compte"></div>
@@ -1408,10 +1451,7 @@ html.neon .nv-alerte b{font:600 15px var(--body)!important;color:#fff!important}
   <div class="sk" style="height:220px"></div><div class="tiles"><div class="sk" style="height:78px"></div><div class="sk" style="height:78px"></div><div class="sk" style="height:78px"></div></div><div class="sk" style="height:180px"></div>
 </main>
 
-<button class="fab" id="fab" type="button" aria-label="Ouvrir l'assistant">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 4.6L18.5 9.5l-4.6 1.9L12 16l-1.9-4.6L5.5 9.5l4.6-1.9z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg>
-  Assistant
-</button>
+
 
 <nav class="tabs" aria-label="Sections">
   <div class="side-logo" aria-hidden="true"></div>
@@ -1446,10 +1486,10 @@ const JOURS_L = ['lundi','mardi','mercredi','jeudi','vendredi','samedi','dimanch
 
 let RAW = null, ACC = 'tous', VIEW = 'direct', AGENCE = false;
 try { AGENCE = !!localStorage.getItem('cs_agence'); } catch (e) {}
-const st = { jour:null, an:'resume', dvue:'monte', q:'', per:'tout', sort:'recent', shown:60, hPer:14, hMet:'g', slotMode:'post', slotSel:null, slotPer:30, heat:false, flt:'', vmode:'grille', hourSel:null };
+const st = { jour:null, an:'vue', dvue:'monte', q:'', per:'tout', sort:'recent', shown:60, hPer:14, hMet:'g', slotMode:'post', slotSel:null, slotPer:28, heat:false, flt:'', vmode:'grille', hourSel:null };
 let CTX = []; const SCROLL = {};
-const ORDRE = ['direct','videos','campagnes','historique','creneaux'];
-try { const s = JSON.parse(localStorage.getItem('cs_ui') || '{}'); if (s.view) VIEW = s.view; if (s.acc) ACC = s.acc; } catch (e) {}
+const ORDRE = ['direct','videos','historique','creneaux','campagnes']; // = ordre du menu en bas (Codex NAV-01)
+try { const s = JSON.parse(localStorage.getItem('cs_ui') || '{}'); if (ORDRE.includes(s.view)) VIEW = s.view; if (typeof s.acc === 'string') ACC = s.acc; } catch (e) {}
 const save = () => { try { localStorage.setItem('cs_ui', JSON.stringify({ view: VIEW, acc: ACC })); } catch (e) {} };
 
 // ---------- Outils ----------
@@ -1478,10 +1518,11 @@ const dayLabel = d => { const dt = new Date(+d.slice(0, 4), +d.slice(4, 6) - 1, 
 const ago = ms => { const m = Math.round((Date.now() - ms) / 60000); if (m < 1) return "à l'instant"; if (m < 60) return 'il y a ' + m + ' min'; const h = Math.floor(m / 60); if (h < 24) return 'il y a ' + h + ' h'; return 'il y a ' + Math.floor(h / 24) + ' j'; };
 const dateVid = t => new Date(t * 1000).toLocaleString('fr-FR', { timeZone: TZ, day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }).replace(' ', ' à ');
 const tags = d => (String(d || '').toLowerCase().match(/#[\p{L}\p{N}_]+/gu) || []).map(t => t.slice(1));
+const casse = t => t && t === t.toUpperCase() && /[A-Z]{4}/.test(t) ? t.toLowerCase().replace(/(^|[\s\-—(])(\p{L})/gu, (m, a, b) => a + b.toUpperCase()) : t;
 const titreVid = v => { const t = sansTags(v.d); if (t) return t; const c = tags(v.d).find(x => x.startsWith('cyclomx'));
   const nomC = c ? ((RAW?.campagnes || []).find(x => x.tag === c)?.nom || '#' + c) : 'Vidéo'; return nomC + (v.du ? ' · ' + v.du + ' s' : '') + ' · ' + dateVid(v.t); };
 const sansTags = d => String(d || '').replace(/#[\p{L}\p{N}_]+/gu, '').replace(/\s+/g, ' ').trim();
-const cover = (v, cls = '') => (v.cover = v.cover || COV[v.id]) ? `<img src="${esc(v.cover)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" class="${cls}" data-ph="${esc(sansTags(v.d).slice(0, 60))}">` : `<div class="ph ${cls}">${esc(sansTags(v.d).slice(0, 60))}</div>`;
+const cover = (v, cls = '') => (v.cover = v.cover || COV[v.id]) ? `<img src="${esc(v.cover)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" class="${cls}" data-ph="${esc(sansTags(v.d).slice(0, 60))}">` : `<div class="ph ${cls}"><span>${esc(sansTags(v.d).slice(0, 60))}</span></div>`;
 // couverture qui ne charge plus (lien TikTok expiré) : on remet le texte de la vidéo à la place
 document.addEventListener('error', e => { const i = e.target; if (i.tagName !== 'IMG' || !i.hasAttribute('data-ph')) return;
   const d = document.createElement('div'); d.className = 'ph ' + i.className; d.textContent = i.dataset.ph; i.replaceWith(d); }, true);
@@ -1490,7 +1531,7 @@ document.addEventListener('error', e => { const i = e.target; if (i.tagName !== 
 const PREF = (() => { try { return JSON.parse(localStorage.getItem('cs_pref') || '{}'); } catch (e) { return {}; } })();
 const savePref = () => { try { localStorage.setItem('cs_pref', JSON.stringify(PREF)); } catch (e) {} };
 // montants officiels Cyclom : toujours au centime près (pas d'arrondi sur l'argent du clippeur)
-const eur2 = n => n == null || isNaN(n) ? '—' : n.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+const eur2 = n => n == null || isNaN(n) ? '—' : nb_(n.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })) + ' €';
 const eur = n => n == null || isNaN(n) ? '—' : nb_(n.toLocaleString('fr-FR', { maximumFractionDigits: n < 100 ? 2 : 0, minimumFractionDigits: n < 100 ? 2 : 0 })) + '\u00a0€';
 const estCamp = t => t.startsWith('cyclomx') || (RAW.campagnes || []).some(c => c.tag === t);
 // tarif d'une campagne en € pour 1000 vues : celui réglé par le clippeur, sinon celui donné par l'agence
@@ -1546,7 +1587,7 @@ function guide(A, C, manque) {
   return { n, jours, par: parBest, duree: bd && bd.m > par * 1.1 ? bd.l : null,
     quand };
 }
-const guideTxt = g => !g ? '' : `<b>${g.n} vidéo${g.n > 1 ? 's' : ''}</b>${g.jours > 1 ? ` sur ${g.jours} jours` : ''}${g.duree ? ` de <b>${g.duree}</b>` : ''}${g.quand ? ` <b>${g.quand}</b>` : ''} (≈ ${k(g.par)} vues chacune en 24 h).`;
+const guideTxt = g => !g ? '' : `<b>${g.n} vidéo${g.n > 1 ? 's' : ''}</b>${g.jours > 1 ? ` sur ${g.jours} jours` : ''}${g.duree ? ` de <b>${g.duree}</b>` : ''}${g.quand ? ` <b>${g.quand}</b>` : ''}.`;
 
 // course au classement Cyclom (top 10 payé). Source : RAW.classement (serveur) ou fichier Drive cyclom_classement.json (CLASSEMENT),
 // format { campagnes:[{ id, nom, tag, fin, prix:{vues,posts,bonus}, lignes:[{ pseudo, comptes, rv, rp, vues, clips, meilleur, gain }] }] }.
@@ -1710,7 +1751,7 @@ function compteCourant() {
 // ---------- Calculs ----------
 function calc(A) {
   const now = RAW.maj || Date.now(), P = pz(now);
-  const yd = pz(now - 864e5).day;
+  const yd = addJour(P.day, -1); // jour civil (un jour ne fait pas toujours 24 h au changement d'heure)
   const H = A.horaire || {};
   const frac = (new Date(now).getMinutes()) / 60;
   const cumAt = (day, h, f) => { let s = 0, ok = false; for (let i = 0; i < h; i++) { const v = H[day + String(i).padStart(2, '0')]; if (v != null) { s += v; ok = true; } }
@@ -1722,7 +1763,7 @@ function calc(A) {
   const yTot = A.quotidien?.[yd]?.g ?? cumAt(yd, 24, 0);
   // estimation : part de la journée habituellement faite à cette heure (7 derniers jours complets)
   const fr = [];
-  for (let i = 1; i <= 7; i++) { const d = pz(now - i * 864e5).day; const tot = A.quotidien?.[d]?.g; const c = cumAt(d, P.hour, frac);
+  for (let i = 1; i <= 7; i++) { const d = addJour(P.day, -i); const tot = A.quotidien?.[d]?.g; const c = cumAt(d, P.hour, frac);
     let hours = 0; for (let h = 0; h < 24; h++) if (H[d + String(h).padStart(2, '0')] != null) hours++;
     if (tot > 0 && c != null && hours >= 20) fr.push(c / tot); }
   const f = median(fr);
@@ -1777,7 +1818,7 @@ function coupOeil(A, C) {
   else tP = `<div class="oeil-t"><span class="oeil-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18l5-6 4 3 7-9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><b class="num">${C.est && !C.partiel ? '≈ ' + k(C.est) : '—'}</b><small>vues prévues ce soir</small></div>`;
   let tS = '';
   try { const S = NV.infosSerie(A, C);
-    tS = `<button class="oeil-t feu ${S.auj ? 'ok' : 'danger'}" type="button" data-serie aria-label="Ta série : ${S.n} jours"><span class="oeil-ic">${NV.FLAMME}</span><b class="num">${S.n} j</b><small>${S.auj ? 'série gardée' : S.n ? 'poste avant minuit' : 'poste pour la lancer'}</small></button>`; }
+    tS = `<button class="oeil-t feu ${S.auj ? 'ok' : 'danger'}" type="button" data-serie aria-label="Ta série : ${S.n} jours"><span class="oeil-ic">${NV.FLAMME}</span>${!S.n && A.videos[0] ? `<b class="num">${Math.floor((C.now / 1000 - A.videos[0].t) / 3600)}\u00a0h</b><small>sans poster</small>` : `<b class="num">${S.n} j</b><small>${S.auj ? 'série gardée' : 'poste avant minuit'}</small>`}</button>`; }
   catch (e) { tS = `<button class="oeil-t feu" type="button" data-serie><b class="num">${serie(A, C)} j</b><small>Série</small></button>`; }
   return `<section class="oeil" aria-label="Coup d’œil"><p class="oeil-j">${jour}${C.partiel ? ' · relevé partiel' : ''}</p>
     <button class="oeil-big" type="button" data-fm="g" style="--r:${C.yTot ? Math.min(1, C.today / C.yTot).toFixed(3) : 0}" data-r="${C.yTot ? Math.round(100 * C.today / C.yTot) : ""}" aria-label="Détail des vues"><b class="num">${fmt(C.today)}</b><span>vues ›</span></button>${delta ? delta.replace('</p>', (hier ? ' · ' + hier : '') + '</p>') : hier ? `<p class="oeil-d">${hier}</p>` : ''}
@@ -1807,7 +1848,7 @@ function vDirect(A, C) {
     ${(() => { const o = objectif(A, C); if (!o || C.partiel) return ''; const r = C.today / o.v, fait = r >= 1;
       const manque = C.est ? o.v - C.est : o.v - C.today, g0 = !fait && manque > 0 ? guide(A, C, manque) : null, g = g0 && g0.n <= 5 ? g0 : null;
       return `<button class="obj ${fait ? 'fait' : ''}" type="button" data-objo aria-label="Régler mon objectif"><span class="l"><span>${fait ? 'Objectif atteint, bien joué' : C.est && C.est >= o.v ? 'Objectif du jour : bien parti' : 'Objectif du jour'} · ${Math.min(999, Math.round(r * 100))} %</span><b class="num">${k(o.v)}</b></span><span class="tr"><i style="width:${Math.min(100, r * 100).toFixed(1)}%"></i></span>
-        ${g ? `<span class="say" style="font-size:14px;max-width:none">Manque ≈ <b>${k(manque)}</b> → ${guideTxt(g)}</span>` : ''}</button>`; })()}
+        ${g ? `<span class="say" style="font-size:14px;max-width:none">${C.est ? `Au rythme actuel ≈ <b>${k(C.est)}</b> ce soir, soit <b>${k(manque)}</b> sous l’objectif` : `Encore <b>${k(manque)}</b> à faire`}. Pour combler : ${guideTxt(g)}</span>` : ''}</button>`; })()}
     ${C.yTot ? `<div class="est est-hier" style="border:0;padding:0;margin:0"><span class="muted">Hier</span><span class="num">${k(C.yTot)}</span></div>` : ''}
   </section>`;
   h += AL.carte(); // « Active tes alertes » (serveur seulement)
@@ -1820,7 +1861,7 @@ function vDirect(A, C) {
     <button class="tile" type="button" data-fm="h"><span>Vues · 1 h</span><b class="num">${A.heure?.gained != null ? '+' + k(A.heure.gained) : '—'}</b></button>
     <button class="tile" type="button" data-fm="f"><span>Abonnés</span><b class="num ${A.abonnes_jour > 0 ? 'up' : ''}">${A.abonnes_jour != null ? (A.abonnes_jour >= 0 ? '+' : '') + fmt(A.abonnes_jour) : '—'}</b><small class="muted">${k(A.abonnes)} total</small></button>
     ${nb ? `<button class="tile" type="button" data-fm="p"><span>Postées</span><b class="num">${nb}</b><small class="muted">${(() => { const sr = serie(A, C); return sr >= 2 ? `série ${sr} j` : ''; })()}</small></button>`
-      : `<button class="tile" type="button" data-fm="p"><span>Dernière vidéo</span><b class="num">${A.videos[0] ? Math.floor((C.now / 1000 - A.videos[0].t) / 3600) + '\u00a0h' : '—'}</b><small class="muted">rien auj.</small></button>`}
+      : `<button class="tile" type="button" data-fm="p"><span>Postées</span><b class="num">0</b><small class="muted">rien aujourd’hui</small></button>`}
     <button class="tile" type="button" data-fm="l"><span>Likes</span><b class="num">${Q.l != null ? '+' + k(Q.l) : '—'}</b></button>
     <button class="tile" type="button" data-fm="s"><span>Partages</span><b class="num">${Q.s != null ? '+' + k(Q.s) : '—'}</b></button>
     ${(() => { const G = gains(A); return G ? `<button class="tile" type="button" data-go="campagnes" style="text-align:left"><span>Gagné</span><b class="num" style="color:var(--gold)">${eur(G.auj)}</b></button>`
@@ -1947,6 +1988,11 @@ function hourTip(A, C, D0) {
 }
 const DUREES = ['moins de 20 s', '20 à 40 s', '40 à 60 s', '1 min à 1 min 30', 'plus d’1 min 30'];
 const bucket = du => du < 20 ? 0 : du < 40 ? 1 : du < 60 ? 2 : du < 90 ? 3 : 4;
+function comparables(A, C, jours) {
+  const tout = recentes(A, C, jours), a = tout.filter(v => v.ms?.['24'] != null).map(v => ({ ...v, v: v.ms['24'], vTot: v.v }));
+  return a.length >= 30 || (a.length && a.length >= tout.length * .8) ? { vs: a, base: '24', n: tout.length } : { vs: tout, base: 'cumul', n: tout.length };
+}
+const baseTxt = b => b === '24' ? 'vues à 24 h' : 'vues cumulées';
 function recentes(A, C, jours) { const lim = C.now / 1000 - jours * 86400, max = C.now / 1000 - 86400; return A.videos.filter(v => v.t >= lim && v.t <= max && !v.r); }
 function parDuree(A, C) { const by = DUREES.map(() => []); for (const v of recentes(A, C, 30)) if (v.du) by[bucket(v.du)].push(v.v);
   const med = median(by.flat()); return { med, rows: by.map((a, i) => ({ l: DUREES[i], n: a.length, m: median(a) })) }; }
@@ -2094,8 +2140,8 @@ function planJour(A, C) {
   const fait = h => postes.some(p => Math.abs(p - h) <= 1), nbFait = slots.filter(fait).length;
   return `<section class="card sec plan"><div class="sec-h"><h2>Plan du jour</h2><small>${nbFait} / ${slots.length} fait${nbFait > 1 ? 's' : ''}</small></div>
     <div class="slots">${slots.map(h => { const ok = fait(h), passe = !ok && C.P.hour > h + 1;
-      return `<div class="slot ${ok ? 'ok' : passe ? 'rate' : C.P.hour >= h - 1 ? 'now' : ''}"><span class="ck">${ok ? '✓' : ''}</span><span class="st"><b>${h}h</b><small>${ok ? 'posté' : passe ? 'raté, rattrape au suivant' : C.P.hour >= h - 1 ? 'c’est maintenant' : 'à venir'}</small></span><span class="sd">1 clip${bd ? ' de ' + bd.l : ''}${camp ? ' · ' + esc(camp.nom) : ''}</span></div>`; }).join('')}</div>
-    <p class="muted note">Heures fortes de ton public. Coché tout seul si tu postes à ± 1 h.</p></section>`;
+      return `<div class="slot ${ok ? 'ok' : passe ? 'rate' : C.P.hour >= h - 1 ? 'now' : ''}"><span class="ck">${ok ? '✓' : ''}</span><span class="st"><b>${h}h</b><small>${ok ? 'posté' : passe ? 'raté' : C.P.hour >= h - 1 ? 'maintenant' : 'à venir'}</small></span><span class="sd">1 clip${bd ? ' de ' + bd.l : ''}${camp ? ' · ' + esc(camp.nom) : ''}</span></div>`; }).join('')}</div>
+    <p class="muted note">Heures fortes de ton public. Coché tout seul si tu postes à ± 1 h.</p></section>`;
 }
 
 // ---------- Vue : Campagnes (refaite le 24/11 soir, Jawed : « trop de cases, trop de texte pour les mêmes infos ») ----------
@@ -2125,7 +2171,7 @@ function vCampagnes(A, C) {
   }
   const jj = d => d ? d.slice(8, 10) + '/' + d.slice(5, 7) : '';
   const rows = finies.map(o => { const pv = o.vues ? rang(o.vues, o.vues.moi) : 0, pc = o.clips ? rang(o.clips, o.clips.moi) : 0, mv = (o.vues || o.clips).moi.vues || 0;
-    return `<button class="cp-row" type="button" data-camp="${esc(o.id)}"><span class="cp-pl ${pv === 1 ? 'or' : ''}">${pv ? ordP(pv) : '—'}</span><span class="cp-n"><b>${esc(o.nom)}</b><small>fini le ${jj(o.finJ)}${pc ? ' · ' + ordP(pc) + ' en clips' : ''}${SO?.camp[o.id]?.gain ? ' · ' + eur2(SO.camp[o.id].gain) : ''}</small></span><b class="cp-g num">${k(mv)}<small> vues</small></b><span class="cp-chev" aria-hidden="true">›</span></button>`; })
+    return `<button class="cp-row" type="button" data-camp="${esc(o.id)}"><span class="cp-pl ${pv === 1 ? 'or' : ''}">${pv ? ordP(pv) : '—'}</span><span class="cp-n"><b>${esc(casse(o.nom))}</b><small>fini le ${jj(o.finJ)}${pc ? ' · ' + ordP(pc) + ' en clips' : ''}${SO?.camp[o.id]?.gain ? ' · ' + eur2(SO.camp[o.id].gain) : ''}</small></span><b class="cp-g num">${k(mv)}<small> vues</small></b><span class="cp-chev" aria-hidden="true">›</span></button>`; })
     .concat([].map(c => `<button class="cp-row" type="button" data-q="#${esc(c.t)}"><span class="cp-pl off">#</span><span class="cp-n"><b>${esc(c.nom)}</b><small>${c.n} vidéo${c.n > 1 ? 's' : ''} · ${k(c.vues)} vues · sans classement</small></span><b class="cp-g"></b><span class="cp-chev" aria-hidden="true">›</span></button>`));
   if (rows.length) h += `<h2 class="cp-t">${actives.length ? 'Terminées' : 'Tes campagnes'}</h2><div class="cp-liste">${rows.join('')}</div>`;
   if (!h) h = `<div class="card muted">Aucune campagne Cyclom pour l’instant : ta place et tes gains s’afficheront ici.</div>`;
@@ -2255,10 +2301,10 @@ function cartons(vs) {
   const seuil = quant(vs.map(v => v.v), .9), T = vs.filter(v => v.v >= seuil), R = vs.filter(v => v.v < seuil);
   const crit = [
     ['durée', v => v.du || null, x => Math.round(x) + ' s', 'durent'],
-    ['partages', v => v.v ? v.s / v.v * 1000 : null, x => x.toLocaleString('fr-FR', { maximumFractionDigits: 1 }) + ' ‰', 'sont partagés'],
-    ['favoris', v => v.v && v.sv != null ? v.sv / v.v * 1000 : null, x => x.toLocaleString('fr-FR', { maximumFractionDigits: 1 }) + ' ‰', 'sont mis en favoris'],
-    ['likes', v => v.v ? v.l / v.v * 100 : null, x => x.toLocaleString('fr-FR', { maximumFractionDigits: 1 }) + ' %', 'sont likés'],
-    ['commentaires', v => v.v ? v.c / v.v * 1000 : null, x => x.toLocaleString('fr-FR', { maximumFractionDigits: 2 }) + ' ‰', 'sont commentés'],
+    ['partages', v => (v.vTot || v.v) ? v.s / (v.vTot || v.v) * 1000 : null, x => x.toLocaleString('fr-FR', { maximumFractionDigits: 1 }) + ' ‰', 'sont partagés'],
+    ['favoris', v => (v.vTot || v.v) && v.sv != null ? v.sv / (v.vTot || v.v) * 1000 : null, x => x.toLocaleString('fr-FR', { maximumFractionDigits: 1 }) + ' ‰', 'sont mis en favoris'],
+    ['likes', v => (v.vTot || v.v) ? v.l / (v.vTot || v.v) * 100 : null, x => x.toLocaleString('fr-FR', { maximumFractionDigits: 1 }) + ' %', 'sont likés'],
+    ['commentaires', v => (v.vTot || v.v) ? v.c / (v.vTot || v.v) * 1000 : null, x => x.toLocaleString('fr-FR', { maximumFractionDigits: 2 }) + ' ‰', 'sont commentés'],
     ['titre', v => sansTags(v.d).length || null, x => Math.round(x) + ' caractères', 'ont un titre de'],
   ];
   const lignes = crit.map(([nom, f, fmtx, verbe]) => { const a = median(T.map(f)), b = median(R.map(f)); if (!a || !b) return null;
@@ -2301,23 +2347,23 @@ function essoufflement(A, C) {
 // Même diagnostic dans Direct et Analyse, recalculé quand le relevé ou le compte change.
 let cacheDiagnostic;
 function lireDiagnostic(A, C, vs, med) {
-  const periode = st.slotPer;
+  const periode = st.slotPer + ':' + vs.length;
   if (cacheDiagnostic?.source === RAW && cacheDiagnostic.compte === A.id && cacheDiagnostic.periode === periode) return cacheDiagnostic;
   const S = signalPrecoce(A, C);
     const K = cartons(vs), M = motsQuiMarchent(vs), V = vieVideo(A), E = essoufflement(A, C), D = [];
-    if (S.length && S[0].top <= 15) D.push({ f: 3, c: 'g', t: `Une vidéo récente est dans ton <b>top ${S[0].top} %</b> à ${JAL_L[S[0].m]} : elle peut faire ≈ <b>${k(S[0].pred)}</b> en 24 h.`, a: `data-vid="${S[0].v.id}"` });
-    if (K && K.lignes[0]) { const x = K.lignes[0]; D.push({ f: Math.abs(Math.log(x.r)) * 2, c: 'g', t: `Tes cartons ${x.verbe} <b>${x.r >= 1 ? fx(x.r) + ' plus' : fx(1 / x.r) + ' moins'}</b>${x.nom === 'durée' ? ' longtemps' : ''} que tes autres vidéos (${x.fmtx(x.a)} contre ${x.fmtx(x.b)}).`, a: 'data-an="contenu"' }); }
-    if (M && M.haut[0]) D.push({ f: Math.log(M.haut[0].r), c: 'c', t: `Le mot <b>« ${esc(M.haut[0].w)} »</b> dans le titre : <b>${fx(M.haut[0].r)}</b> ta vidéo normale (${M.haut[0].n} vidéos).`, a: 'data-an="contenu"' });
-    if (E[0] && E[0].r <= .75) D.push({ f: Math.abs(Math.log(E[0].r)) * 1.5, c: 'b', t: `<b>${esc(E[0].nom)}</b> s’essouffle : <b>${Math.round((1 - E[0].r) * 100)} % de vues en moins</b> à 24 h que la semaine d’avant. Change d’angle ou de format.`, a: 'data-an="vie"' });
+    if (S.length && S[0].top <= 15) D.push({ f: 3, c: 'g', t: `Une vidéo récente est dans ton <b>top ${S[0].top} %</b> à ${JAL_L[S[0].m]} : elle peut faire ≈ <b>${k(S[0].pred)}</b> en 24 h.`, a: `data-vid="${S[0].v.id}"`, g: `top ${S[0].top} %`, s: `une vidéo récente, à ${JAL_L[S[0].m]} : ≈ ${k(S[0].pred)} vues en 24 h` });
+    if (K && K.lignes[0]) { const x = K.lignes[0]; D.push({ f: Math.abs(Math.log(x.r)) * 2, c: 'g', t: `Tes cartons ${x.verbe} <b>${x.r >= 1 ? fx(x.r) + ' plus' : fx(1 / x.r) + ' moins'}</b>${x.nom === 'durée' ? ' longtemps' : ''} que tes autres vidéos (${x.fmtx(x.a)} contre ${x.fmtx(x.b)}).`, a: 'data-an="contenu"', g: fx(x.r >= 1 ? x.r : 1 / x.r), s: (x.nom === 'durée' ? `tes cartons sont ${x.r >= 1 ? 'plus longs' : 'plus courts'}` : x.nom === 'titre' ? `tes cartons ont un titre ${x.r >= 1 ? 'plus long' : 'plus court'}` : `${x.r >= 1 ? 'plus' : 'moins'} de ${x.nom} sur tes cartons`) + ` (${x.fmtx(x.a)} contre ${x.fmtx(x.b)})` }); }
+    if (M && M.haut[0]) D.push({ f: Math.log(M.haut[0].r), c: 'c', t: `Le mot <b>« ${esc(M.haut[0].w)} »</b> dans le titre : <b>${fx(M.haut[0].r)}</b> ta vidéo normale (${M.haut[0].n} vidéos).`, a: 'data-an="contenu"', g: fx(M.haut[0].r), s: `ta normale avec « ${esc(M.haut[0].w)} » dans le titre (${M.haut[0].n} vidéos)` });
+    if (E[0] && E[0].r <= .75) D.push({ f: Math.abs(Math.log(E[0].r)) * 1.5, c: 'b', t: `<b>${esc(E[0].nom)}</b> s’essouffle : <b>${Math.round((1 - E[0].r) * 100)} % de vues en moins</b> à 24 h que la semaine d’avant. Change d’angle ou de format.`, a: 'data-an="vie"', g: `−${Math.round((1 - E[0].r) * 100)} %`, s: `${esc(E[0].nom)} s’essouffle à 24 h : change d’angle` });
     const G = groupes(A, C, vs), bh = G.heure.filter(r => r.n >= MINI && r.m).sort((a, b) => b.m - a.m)[0];
-    if (bh && med && bh.m / med >= 1.2) D.push({ f: Math.log(bh.m / med), c: 'g', t: `Tes vidéos postées entre <b>${bh.l}</b> font <b>${fx(bh.m / med)}</b> ta vidéo normale.`, a: 'data-an="moment"' });
-    if (V?.q80) D.push({ f: .4, c: 'w', t: `Tes vidéos font <b>80 % de leurs vues en ${JAL_L[V.q80.m]}</b>.`, a: 'data-an="vie"' });
+    if (bh && med && bh.m / med >= 1.2) D.push({ f: Math.log(bh.m / med), c: 'g', t: `Tes vidéos postées entre <b>${bh.l}</b> font <b>${fx(bh.m / med)}</b> ta vidéo normale.`, a: 'data-an="moment"', g: fx(bh.m / med), s: `ta normale quand tu postes entre ${bh.l}` });
+    if (V?.q80) D.push({ f: .4, c: 'w', t: `Tes vidéos font <b>80 % de leurs vues en ${JAL_L[V.q80.m]}</b>.`, a: 'data-an="vie"', g: JAL_L[V.q80.m], s: 'pour faire 80 % des vues d’une vidéo : tout se joue au début' });
     D.sort((a, b) => b.f - a.f);
   cacheDiagnostic = { source: RAW, compte: A.id, periode, S, D };
   return cacheDiagnostic;
 }
 function analyseDirect(A, C) {
-  const videos = recentes(A, C, st.slotPer);
+  const videos = comparables(A, C, st.slotPer).vs;
   const { D } = lireDiagnostic(A, C, videos, median(videos.map(v => v.v)));
   const observations = [];
   for (const ligne of D) {
@@ -2331,60 +2377,74 @@ function analyseDirect(A, C) {
   if (!observations.length) return '';
   return `<section class="sec direct-analyse"><div class="sec-h"><h2>Pourquoi tes vues</h2><button type="button" class="chip" data-an="resume">Analyse ›</button></div><div class="ins">${observations.map(x => `<button class="in" type="button" ${x.a}><span class="ic ${x.c}"></span><span class="tx">${x.t}</span><span class="chev">›</span></button>`).join('')}</div></section>`;
 }
+// ===== ANALYSE (refaite le 26/11, façon YouTube Studio / TikTok Studio) : Vue d'ensemble · Contenu · Audience =====
+// Une période (7 / 28 / 90 j, jours TERMINÉS), un gros chiffre + sa comparaison, les chiffres clés, LA courbe, ce qui marche, le classement.
+const AN_ALIAS = { resume: 'vue', moment: 'audience', vie: 'contenu' };
+function anPeriode(A, C, per) {
+  const fin = C.yd, deb = addJour(fin, -(per - 1)), deb2 = addJour(deb, -per), fin2 = addJour(deb, -1);
+  const met = m => { const L = SP.jours(A, C, m), cur = L.filter(x => x[0] >= deb && x[0] <= fin), av = L.filter(x => x[0] >= deb2 && x[0] <= fin2);
+    const s = a => { const ok = a.filter(x => x[1] != null); return a.length >= Math.ceil(per * .8) && ok.length >= Math.ceil(per * .8) ? ok.reduce((t, x) => t + x[1], 0) : null; };
+    return { cur, av, a: s(cur), b: s(av) }; };
+  return { deb, fin, g: met('g'), f: met('f'), p: met('p'), s: met('s') };
+}
+function anDelta(a, b) { if (a == null || b == null) return '<span class="an-d muted">pas de comparaison</span>'; if (!b) return `<span class="an-d muted">${a ? 'rien la période d’avant' : 'pareil : 0'}</span>`; const p = pct(a, b); return `<span class="an-d ${p >= 0 ? 'up' : 'down'}">${pctTxt(p)}</span>`; }
+function anTop(A, C, per, med) {
+  const lim = C.now / 1000 - per * 86400, L = A.videos.filter(v => v.t >= lim && !v.r).sort((a, b) => b.v - a.v).slice(0, 5); if (!L.length) return '';
+  const mx = L[0].v || 1;
+  return `<section class="card sec an-top"><div class="sec-h"><h2>Tes meilleures vidéos</h2><small>postées sur la période</small></div><ol class="an-rk">${L.map((v, i) => `<li><button type="button" data-vid="${esc(v.id)}"><span class="an-n num">${i + 1}</span>${cover(v)}<span class="an-t"><span class="an-tt">${esc(titreVid(v))}</span><span class="an-bar"><i style="width:${Math.max(3, v.v / mx * 100).toFixed(1)}%"></i></span></span><span class="an-v"><b class="num">${k(v.v)}</b><small>${k(v.l)} likes</small></span></button></li>`).join('')}</ol></section>`;
+}
 function vCreneaux(A, C) {
-  const vs = recentes(A, C, st.slotPer), med = median(vs.map(v => v.v)), an = st.an || 'resume';
-  const T = [['resume', 'Résumé'], ['contenu', 'Contenu'], ['moment', 'Horaires'], ['vie', 'Longévité']];
-  let h = `<div class="segw" role="tablist" aria-label="Parties de l’analyse">${T.map(([id, l]) => `<button type="button" role="tab" data-an="${id}" aria-selected="${an === id}">${l}</button>`).join('')}</div>`;
-  const per = `<div class="perl"><div class="chips">${[[14, '14 j'], [30, '30 j'], [90, '90 j']].map(([v, l]) => `<button class="chip" type="button" data-sp="${v}" aria-pressed="${st.slotPer === v}">${l}</button>`).join('')}</div><small class="muted">${fmt(vs.length)} vidéos de plus de 24 h</small></div>`;
-  const peu = n => `<div class="card muted">Pas encore assez de vidéos sur cette période (il en faut au moins ${n}). Choisis une période plus longue.</div>`;
-  if (an === 'resume') {
-    const { S, D } = lireDiagnostic(A, C, vs, med);
-    h += D.length ? `<section class="sec"><div class="sec-h"><h2>Ton diagnostic</h2><small>${st.slotPer} jours</small></div><div class="ins">${D.slice(0, 4).map(x => `<button class="in" type="button" ${x.a}><span class="ic ${x.c}"></span><span class="tx">${x.t}</span><span class="chev">›</span></button>`).join('')}</div></section>` : '';
-    h += taSemaine(A, C) + cartonsSemaine(A, C, med);
-    return h;
+  const an = AN_ALIAS[st.an] || st.an || 'vue', per = [7, 28, 90].includes(st.slotPer) ? st.slotPer : 28;
+  const CP = comparables(A, C, per), vs = CP.vs, med = median(vs.map(v => v.v)), bt = baseTxt(CP.base);
+  const T = [['vue', 'Vue d’ensemble'], ['contenu', 'Contenu'], ['audience', 'Audience']];
+  let h = `<div class="segw an-seg" role="tablist" aria-label="Parties de l’analyse">${T.map(([id, l]) => `<button type="button" role="tab" data-an="${id}" aria-selected="${an === id}">${l}</button>`).join('')}</div>`;
+  h += `<div class="an-per"><div class="chips">${[[7, '7 jours'], [28, '28 jours'], [90, '90 jours']].map(([v, l]) => `<button class="chip" type="button" data-sp="${v}" aria-pressed="${per === v}">${l}</button>`).join('')}</div>${an !== 'vue' ? `<small class="an-base">Vidéos comparées en ${bt} · ${vs.length} vidéo${vs.length > 1 ? 's' : ''}${CP.base === '24' && vs.length < CP.n ? ` sur ${CP.n} (les autres n’ont pas de relevé à 24 h)` : ''}</small>` : ''}</div>`;
+  const peu = n => `<div class="card muted an-peu">Pas assez de vidéos sur ${per} jours pour juger (il en faut ${n}, tu en as ${vs.length}). Prends une période plus longue.</div>`;
+  if (an === 'vue') {
+    const P = anPeriode(A, C, per), G = P.g;
+    h += `<section class="an-hero"><small>${dayLabel(P.deb)} → ${dayLabel(P.fin)}</small><b class="num">${G.a != null ? fmt(G.a) : '—'}</b><span>vues en ${per} jours · ${anDelta(G.a, G.b)} <span class="muted">vs les ${per} jours d’avant</span></span></section>`;
+    const kp = [['f', 'Abonnés gagnés', P.f, x => (x >= 0 ? '+' : '−') + fmt(Math.abs(x))], ['p', 'Vidéos postées', P.p, fmt], ['s', 'Partages', P.s, k]];
+    h += `<div class="an-kpi">${kp.map(([m, l, o, f]) => `<button type="button" data-fm="${m}"><small>${l}</small><b class="num">${o.a != null ? f(o.a) : '—'}</b>${m === 'f' ? (o.a != null && o.b != null ? `<span class="an-d ${o.a >= o.b ? 'up' : 'down'}">${o.a >= o.b ? '+' : '−'}${fmt(Math.abs(o.a - o.b))} vs avant</span>` : '<span class="an-d muted">pas de comparaison</span>') : anDelta(o.a, o.b)}</button>`).join('')}<div class="an-k2"><small>Ta vidéo normale</small><b class="num">${med ? k(med) : '—'}</b><span class="an-d muted">${bt}</span></div></div>`;
+    if (G.cur.length > 1) h += `<section class="card sec an-ch"><div class="sec-h"><h2>Vues par jour</h2><small><i class="an-lg"></i>période <i class="an-lg pt"></i>d’avant</small></div>${SP.trace(G.cur, G.av.length === G.cur.length ? G.av : null, { titre: 'Vues par jour', ligne: per > 31 })}</section>`;
+    const { D } = lireDiagnostic(A, C, vs, med), W = D.filter(x => x.g).slice(0, 3);
+    if (W.length) h += `<section class="card sec an-why"><div class="sec-h"><h2>Ce qui marche pour toi</h2><small>${per} derniers jours</small></div>${W.map(x => `<button type="button" class="an-w" ${x.a}><b class="num ${x.c === 'b' ? 'down' : ''}">${x.g}</b><span>${x.s.replace(/ ([%‰])/g, '\u00a0$1')}</span><span class="chev">›</span></button>`).join('')}<p class="muted note">Observé sur tes ${vs.length} vidéos (${bt}) : des pistes à tester, pas des garanties.</p></section>`;
+    return h + anTop(A, C, per, med);
   }
   if (an === 'contenu') {
-    h += per; if (vs.length < 30) return h + peu(30);
+    if (vs.length < 15) return h + peu(15);
+    const p90 = quant(vs.map(v => v.v), .9), best = [...vs].sort((a, b) => b.v - a.v)[0];
+    h += `<section class="card sec an-norm"><div class="sec-h"><h2>Ta vidéo normale</h2><small>${bt}</small></div><div class="an-nm"><div><b class="num">${k(med)}</b><small>la moitié de tes vidéos fait plus</small></div><div><b class="num">${k(p90)}</b><small>1 vidéo sur 10 dépasse</small></div><div><b class="num">${k(best.v)}</b><small>ta meilleure</small></div></div></section>`;
     const K = cartons(vs), M = motsQuiMarchent(vs), G = groupes(A, C, vs);
-    if (K) h += `<section class="card sec"><div class="sec-h"><h2>Ce qui fait un carton</h2><small>tes ${K.n} meilleures (+${k(K.seuil)} vues) vs le reste</small></div>
-      ${K.lignes.length ? `<div class="cmp">${K.lignes.map(x => `<div class="cmpl"><span class="lb">${x.nom[0].toUpperCase() + x.nom.slice(1)}</span><span class="cmpv"><b>${x.fmtx(x.a)}</b><small>cartons</small></span><span class="cmpv"><span>${x.fmtx(x.b)}</span><small>les autres</small></span><span class="cmpr ${x.r >= 1 ? 'up' : 'down'}">${x.r >= 1 ? fx(x.r) : '÷' + fx(1 / x.r).replace('×', '')}</span></div>`).join('')}</div>`
-        : `<div class="muted">Tes cartons ressemblent à tes autres vidéos : c’est surtout le moment et le contenu qui font la différence.</div>`}</section>`;
-    if (M && (M.haut.length || M.bas.length)) h += `<section class="card sec"><div class="sec-h"><h2>Les mots qui marchent</h2><small>dans tes titres, 8 vidéos minimum</small></div>
-      ${M.haut.length ? `<div class="mots">${M.haut.map(x => `<button class="mot up" type="button" data-q="${esc(x.w)}"><b>${esc(x.w)}</b><span>${fx(x.r)} · ${x.n} vid.</span></button>`).join('')}</div>` : ''}
-      ${M.bas.length ? `<div class="muted" style="font-size:13px">Font moins bien :</div><div class="mots">${M.bas.map(x => `<button class="mot down" type="button" data-q="${esc(x.w)}"><b>${esc(x.w)}</b><span>${fx(x.r)} · ${x.n} vid.</span></button>`).join('')}</div>` : ''}
-      <p class="muted note">vs ta vidéo normale (${k(med)} vues) · touche un mot</p></section>`;
+    if (K && K.lignes.length) h += `<section class="card sec"><div class="sec-h"><h2>Ce qui fait un carton</h2><small>tes ${K.n} meilleures vs le reste</small></div><div class="cmp">${K.lignes.map(x => `<div class="cmpl"><span class="lb">${x.nom[0].toUpperCase() + x.nom.slice(1)}</span><span class="cmpv"><b>${x.fmtx(x.a)}</b><small>cartons</small></span><span class="cmpv"><span>${x.fmtx(x.b)}</span><small>les autres</small></span><span class="cmpr ${x.r >= 1 ? 'up' : 'down'}">${x.r >= 1 ? fx(x.r) : '÷' + fx(1 / x.r).replace('×', '')}</span></div>`).join('')}</div></section>`;
     h += bloc('duree', 'Durée de la vidéo', 'vues habituelles par durée', G.duree, med);
+    if (M && (M.haut.length || M.bas.length)) h += `<section class="card sec"><div class="sec-h"><h2>Les mots de tes titres</h2><small>associés à plus ou moins de vues</small></div>
+      ${M.haut.length ? `<div class="mots">${M.haut.map(x => `<button class="mot up" type="button" data-q="${esc(x.w)}"><b>${esc(x.w)}</b><span>${fx(x.r)} · ${x.n} vid.</span></button>`).join('')}</div>` : ''}
+      ${M.bas.length ? `<p class="an-sub">Font moins bien</p><div class="mots">${M.bas.map(x => `<button class="mot down" type="button" data-q="${esc(x.w)}"><b>${esc(x.w)}</b><span>${fx(x.r)} · ${x.n} vid.</span></button>`).join('')}</div>` : ''}</section>`;
     if (G.son.filter(r => r.n >= MINI).length >= 2) h += bloc('son', 'Son utilisé', '10 vidéos minimum', G.son.filter(r => r.n >= MINI).slice(0, 6), med);
     if (G.camp.length) h += bloc('camp', 'Campagne', 'vues habituelles par campagne', G.camp, med);
+    const V = vieVideo(A), E = essoufflement(A, C);
+    if (V) h += `<section class="card sec"><div class="sec-h"><h2>Vie d’une vidéo</h2><small>part des vues faite à chaque âge</small></div>
+      <div class="vie">${V.pts.map(x => `<div class="vj ${V.q80 && x.m === V.q80.m ? 'cle' : ''}"><span class="vb"><i style="height:${Math.max(3, x.p * 100).toFixed(0)}%"></i></span><b class="num">${Math.round(x.p * 100)} %</b><small>${JAL_L[x.m]}</small></div>`).join('')}</div>
+      <p class="muted note">${V.q80 ? `80 % des vues sont faites en ${JAL_L[V.q80.m]} : tout se joue au début. ` : ''}${V.n} vidéos.</p></section>`;
+    if (E.length) h += `<section class="card sec"><div class="sec-h"><h2>Campagnes qui s’essoufflent</h2><small>vues à 24 h vs semaine d’avant</small></div>
+      <div class="rows">${E.map(x => `<button class="row" type="button" data-q="#${esc(x.t)}" style="padding:12px"><div class="t"><b>${esc(x.nom)}</b><span class="muted" style="white-space:normal">${k(x.a)} vues à 24 h, contre ${k(x.b)} avant</span></div><div class="r num"><b class="${x.r >= 1.05 ? 'up' : x.r <= .9 ? 'down' : ''}">${pctTxt((x.r - 1) * 100)}</b><br><span class="muted">${x.r <= .75 ? 'change d’angle' : x.r >= 1.1 ? 'ça monte' : 'stable'}</span></div></button>`).join('')}</div></section>`;
+    const vieilles = A.videos.filter(v => { const j = (C.now / 1000 - v.t) / 86400; return j >= 21 && j <= 180 && !v.r; }), medV = median(vieilles.map(v => v.v));
+    const rep_ = vieilles.filter(v => medV && v.v >= medV * 4).sort((a, b) => b.v - a.v).slice(0, 5);
+    if (rep_.length) h += `<section class="card sec"><div class="sec-h"><h2>À reposter</h2><small>cartons d’il y a 3 semaines et +</small></div>
+      <div class="rows">${rep_.map(v => `<button class="row" type="button" data-vid="${v.id}">${cover(v)}<div class="t"><b class="num">${k(v.v)}</b><span>${esc(titreVid(v))}</span><span class="muted" style="font-size:12px">${sansTags(v.d) ? dateVid(v.t) + ' · ' : ''}${v.v / medV < 50 ? fx(v.v / medV) + ' ta normale' : 'dans ton top 1 %'}</span></div></button>`).join('')}</div>
+      <p class="muted note">Nouveau début ou nouveau titre : ça repart souvent.</p></section>`;
     return h;
   }
-  if (an === 'moment') {
-    h += per; if (vs.length < 15) return h + peu(15);
-    const G = groupes(A, C, vs), best = id => G[id].filter(r => r.n >= MINI && r.m).sort((a, b) => b.m - a.m)[0];
-    const R = [['heure', 'Poste entre'], ['jour', 'Le meilleur jour']].map(([id, lab]) => { const r = best(id); return r && med && r.m / med >= 1.1 ? `<button class="rc" type="button" data-grp="${id}:${r.i}"><span class="muted">${lab}</span><span><b>${r.l}</b></span><span class="rx">${fx(r.m / med)} ta normale</span></button>` : ''; }).join('');
-    const F = heuresFortes(A, C), fortes = F ? [...F].sort((a, b) => a - b) : [];
-    h += `<section class="card sec"><div class="sec-h"><h2>Ta recette</h2><small>ta vidéo normale : ${k(med)} vues</small></div>${R ? `<div class="recette">${R}</div>` : '<div class="muted">Aucun moment ne sort nettement du lot sur cette période.</div>'}
-      ${fortes.length ? `<div class="say" style="max-width:none;font-size:14px">Ton public regarde le plus vers <b>${fortes.map(x => x + 'h').join(', ')}</b>.</div>` : ''}</section>`;
-    h += bloc('heure', 'Heure de publication', 'vues habituelles par heure de post', G.heure, med);
-    h += bloc('jour', 'Jour de publication', 'vues habituelles par jour', G.jour, med);
-    h += public_(A, C);
-    h += `<button class="more" type="button" id="heatTog">${st.heat ? 'Cacher' : 'Voir'} le détail jour × heure</button>`;
-    if (st.heat) h += heatmap(A, C, med);
-    return h + `<p class="muted note">« Vues habituelles » = médiane (la moitié fait plus). Ligne grisée : moins de ${MINI} vidéos.</p>`;
-  }
-  const V = vieVideo(A), E = essoufflement(A, C);
-  if (V) h += `<section class="card sec"><div class="sec-h"><h2>Vie d’une vidéo</h2><small>part des vues par âge · ${V.n} vidéos</small></div>
-    <div class="vie">${V.pts.map(x => `<div class="vj ${V.q80 && x.m === V.q80.m ? 'cle' : ''}"><span class="vb"><i style="height:${Math.max(3, x.p * 100).toFixed(0)}%"></i></span><b class="num">${Math.round(x.p * 100)} %</b><small>${JAL_L[x.m]}</small></div>`).join('')}</div>
-    <p class="muted note">${V.q80 ? `80 % des vues sont faites en ${JAL_L[V.q80.m]}. ` : ''}100 % = vues à ${JAL_L[V.ref]}. Réponds aux commentaires dans la 1re heure.</p></section>`;
-  if (E.length) h += `<section class="card sec"><div class="sec-h"><h2>Essoufflement des campagnes</h2><small>vues à 24 h vs semaine d’avant</small></div>
-    <div class="rows">${E.map(x => `<button class="row" type="button" data-q="#${esc(x.t)}" style="padding:12px"><div class="t"><b>${esc(x.nom)}</b><span class="muted" style="white-space:normal">${k(x.a)} vues à 24 h cette semaine, ${k(x.b)} la semaine d’avant</span></div><div class="r num"><b class="${x.r >= 1.05 ? 'up' : x.r <= .9 ? 'down' : ''}">${pctTxt((x.r - 1) * 100)}</b><br><span class="muted">${x.r <= .75 ? 'change d’angle' : x.r >= 1.1 ? 'ça monte' : 'stable'}</span></div></button>`).join('')}</div></section>`;
-  const vieilles = A.videos.filter(v => { const j = (C.now / 1000 - v.t) / 86400; return j >= 21 && j <= 180 && !v.r; }), medV = median(vieilles.map(v => v.v));
-  const rep_ = vieilles.filter(v => medV && v.v >= medV * 4).sort((a, b) => b.v - a.v).slice(0, 5);
-  if (rep_.length) h += `<section class="card sec"><div class="sec-h"><h2>À reposter</h2><small>cartons de 3 semaines et +</small></div>
-    <div class="rows">${rep_.map(v => `<button class="row" type="button" data-vid="${v.id}">${cover(v)}<div class="t"><b class="num">${k(v.v)}</b><span>${esc(titreVid(v))}</span><span class="muted" style="font-size:12px">${dateVid(v.t)} · dans ton top ${Math.max(1, Math.ceil(vieilles.filter(x => x.v > v.v).length / vieilles.length * 100))} %</span></div></button>`).join('')}</div>
-    <p class="muted note">Reposte avec un nouveau début ou titre : ça repart souvent.</p></section>`;
-  if (!V && !E.length && !rep_.length) h += `<div class="card muted">Pas encore assez d’historique : reviens dans quelques jours.</div>`;
-  return h;
+  // Audience : quand poster, quand ton public regarde
+  if (vs.length < 15) return h + peu(15);
+  const G = groupes(A, C, vs), best = id => G[id].filter(r => r.n >= MINI && r.m).sort((a, b) => b.m - a.m)[0];
+  const R = [['heure', 'Meilleure heure'], ['jour', 'Meilleur jour']].map(([id, lab]) => { const r = best(id); return r && med ? `<button class="an-rc" type="button" data-grp="${id}:${r.i}"><small>${lab}</small><b>${r.l}</b><span class="${r.m / med >= 1.1 ? 'up' : 'muted'}">${fx(r.m / med)} ta normale</span></button>` : ''; }).join('');
+  if (R) h += `<div class="an-rec">${R}</div>`;
+  h += heatmap(A, C, med);
+  h += public_(A, C);
+  h += bloc('heure', 'Heure de publication', 'vues habituelles par heure de post', G.heure, med);
+  h += bloc('jour', 'Jour de publication', 'vues habituelles par jour', G.jour, med);
+  return h + `<p class="muted note">« Vues habituelles » = médiane : la moitié de tes vidéos fait plus. Ligne grisée : moins de ${MINI} vidéos.</p>`;
 }
 const MINI = 10; // en dessous, une ou deux vidéos virales faussent tout
 function groupes(A, C, vs) {
@@ -2428,7 +2488,7 @@ function heatmap(A, C, med) {
   return h + `</div><div class="muted" style="font-size:11.5px">Case vide ou « · » = moins de 5 vidéos postées à ce moment : pas assez pour juger.</div></section>`;
 }
 function ficheGroupe(id, i) {
-  const A = compteCourant(), C = calc(A), vs = recentes(A, C, st.slotPer), med = median(vs.map(v => v.v));
+  const A = compteCourant(), C = calc(A), CP = comparables(A, C, st.slotPer), vs = CP.vs, med = median(vs.map(v => v.v));
   let r, titre;
   if (id === 'slot') { const [wd, b] = i.split(',').map(Number); const L = vs.filter(v => { const p = pz(v.t * 1000); return p.wd === wd && p.hour >> 1 === b; });
     r = { vs: L, n: L.length, m: median(L.map(v => v.v)) }; titre = `${JOURS_L[wd]} ${b * 2}h – ${b * 2 + 2}h`; }
@@ -2436,10 +2496,10 @@ function ficheGroupe(id, i) {
   const L = [...r.vs].sort((a, b) => b.v - a.v);
   const f = med && r.m ? r.m / med : null;
   let h = `<div class="grab"></div><div class="sheet-h"><h2>${titre}</h2><button class="x" type="button" data-close aria-label="Fermer">×</button></div>
-    <div class="kv"><div><span>Vidéos (${st.slotPer} j)</span><b class="num">${r.n}</b></div><div><span>Vues habituelles</span><b class="num">${r.m ? k(r.m) : '—'} ${f ? `<small class="${f >= 1 ? 'up' : 'down'}">${f.toLocaleString('fr-FR', { maximumFractionDigits: 1 })}×</small>` : ''}</b></div>
-    <div><span>Meilleure</span><b class="num">${L[0] ? k(L[0].v) : '—'}</b></div><div><span>Total</span><b class="num">${k(L.reduce((s, v) => s + v.v, 0))}</b></div></div>
+    <div class="kv"><div><span>Vidéos (${st.slotPer} j)</span><b class="num">${r.n}</b></div><div><span>Habituelles (${baseTxt(CP.base)})</span><b class="num">${r.m ? k(r.m) : '—'} ${f ? `<small class="${f >= 1 ? 'up' : 'down'}">${f.toLocaleString('fr-FR', { maximumFractionDigits: 1 })}×</small>` : ''}</b></div>
+    <div><span>Meilleure</span><b class="num">${L[0] ? k(L[0].v) : '—'}</b></div><div><span>Vues au total</span><b class="num">${k(L.reduce((s, v) => s + (v.vTot ?? v.v), 0))}</b></div></div>
     ${r.n < MINI ? `<div class="muted" style="font-size:12.5px">Moins de ${MINI} vidéos : à prendre avec des pincettes.</div>` : ''}
-    <div class="grid">${L.slice(0, 30).map(v => vcard(v, C)).join('')}</div>`;
+    <div class="grid">${L.slice(0, 30).map(v => vcard({ ...v, v: v.vTot ?? v.v }, C)).join('')}</div>`;
   ouvrir(h);
 }
 
@@ -2524,8 +2584,25 @@ function courbe(pts) {
 }
 
 // ---------- Feuilles ----------
-function ouvrir(html, vid) { const s = $('#sheet'); s.dataset.vid = vid || ''; s.innerHTML = `<div class="sheet-bg" data-close><div class="sheet" role="dialog" aria-modal="true">${html}</div></div>`; s.hidden = false; document.body.style.overflow = 'hidden'; }
-function fermer() { const s = $('#sheet'); s.hidden = true; s.innerHTML = ''; document.body.style.overflow = ''; }
+let ORIGINE = null, A_RENDRE = false;
+function ouvrir(html, vid, kind) { const s = $('#sheet'), deja = !s.hidden; if (!deja) ORIGINE = document.activeElement; s.dataset.vid = vid || ''; s.dataset.kind = kind || (vid ? 'video' : 'fiche');
+  s.innerHTML = `<div class="sheet-bg" data-close><div class="sheet" role="dialog" aria-modal="true" tabindex="-1">${html}</div></div>`; s.hidden = false; document.body.style.overflow = 'hidden';
+  const d = s.querySelector('.sheet'), h2 = d.querySelector('h2'); if (h2) { h2.id = 'sheet-titre'; d.setAttribute('aria-labelledby', 'sheet-titre'); }
+  if (!deja || !d.contains(document.activeElement)) try { d.focus({ preventScroll: true }); } catch (e) {}
+  if (!deja) pousser({ v: VIEW, f: 1 }); }
+function fermer() { const s = $('#sheet'); s.hidden = true; s.innerHTML = ''; s.dataset.kind = ''; document.body.style.overflow = '';
+  const o = ORIGINE; ORIGINE = null; if (o && o.isConnected) try { o.focus({ preventScroll: true }); } catch (e) {}
+  if (!RETOUR && history.state?.f) try { history.back(); } catch (e) {} // fermée à la main : on retire l'étape « fiche » de l'historique
+  if (A_RENDRE && RAW) { A_RENDRE = false; rendreDoux(RAW); } }
+// NAV-04 (audit Codex) : le bouton Retour ferme d'abord la fiche, puis revient à l'onglet d'avant (au lieu de quitter l'appli)
+let RETOUR = false;
+function pousser(e) { const h = history.state; if (h && h.v === e.v && !!h.f === !!e.f) return; try { history.pushState(e, ''); } catch (x) {} }
+try { history.replaceState({ v: VIEW, f: 0 }, ''); } catch (e) {}
+window.addEventListener('popstate', e => { RETOUR = true;
+  try { if (!$('#sheet').hidden) fermer(); else { const v = e.state?.v; if (v && ORDRE.includes(v) && v !== VIEW) go(v, true); } } finally { RETOUR = false; } });
+document.addEventListener('keydown', e => { const s = $('#sheet'); if (s.hidden) return;
+  if (e.key !== 'Tab') return; const f = [...s.querySelectorAll('button,a[href],input,textarea,select,[tabindex]:not([tabindex="-1"])')].filter(x => !x.disabled && x.offsetParent !== null); if (!f.length) return;
+  const a = f[0], z = f[f.length - 1]; if (e.shiftKey && (document.activeElement === a || !s.contains(document.activeElement))) { e.preventDefault(); z.focus(); } else if (!e.shiftKey && document.activeElement === z) { e.preventDefault(); a.focus(); } });
 
 function reglerObjectif() {
   const A = compteCourant(), C = calc(A), o = objectif(A, C);
@@ -2575,11 +2652,12 @@ function ajouterCompte() {
 }
 
 // ---------- Assistant ----------
-const chat = [];
-let quota = null;
+const CHATS = new Map(), chatDe = () => { if (!CHATS.has(ACC)) CHATS.set(ACC, []); return CHATS.get(ACC); };
+let quota = null, ENCOURS = false;
+const IA_OK = () => SITE || typeof window.claude?.use === 'function';
 function resume(A, C) {
   const top = A.videos.filter(v => v.gj > 0).sort((a, b) => b.gj - a.gj).slice(0, 8).map(v => `- ${dateVid(v.t)} « ${(v.d || '').slice(0, 70)} » : ${v.v} vues, +${v.gj} aujourd'hui, ${C.fois(v)?.toFixed(1) ?? '?'}× normale, ${v.du || '?'} s, ${v.l} likes, ${v.s} partages${v.sv != null ? ', ' + v.sv + ' enregistrements' : ''}${v.mu ? ', son « ' + v.mu + ' »' : ''}`);
-  const G = groupes(A, C, recentes(A, C, 30)); const meilleur = id => { const r = G[id].filter(x => x.n >= MINI && x.m).sort((a, b) => b.m - a.m)[0]; return r ? r.l + ' (médiane ' + Math.round(r.m) + ' vues, ' + r.n + ' vidéos)' : '?'; };
+  const G = groupes(A, C, comparables(A, C, 30).vs); const meilleur = id => { const r = G[id].filter(x => x.n >= MINI && x.m).sort((a, b) => b.m - a.m)[0]; return r ? r.l + ' (médiane ' + Math.round(r.m) + ' vues, ' + r.n + ' vidéos)' : '?'; };
   const Q = A.quotidien || {}; const days = Object.keys(Q).sort().slice(-14).map(d => `${d}: ${Q[d].g} vues, abonnés fin ${Q[d].f ?? '?'}`);
   const D = (() => { const save = st.slotMode; st.slotMode = 'post'; const r = slotsData(A, C); st.slotMode = save; return r; })();
   const slots = D.flatMap((r, wd) => r.map((c, b) => ({ wd, b, c }))).filter(x => x.c.vs.length >= 2).sort((a, b) => b.c.val - a.c.val).slice(0, 5).map(x => `${JOURS_L[x.wd]} ${x.b * 2}h-${x.b * 2 + 2}h : médiane ${Math.round(x.c.val)} vues (${x.c.vs.length} vidéos)`);
@@ -2596,22 +2674,42 @@ Meilleurs créneaux pour poster (30 j) :\n${slots.join('\n') || 'pas assez de do
 Ce qui marche (30 j) : heure ${meilleur('heure')} ; jour ${meilleur('jour')} ; durée ${meilleur('duree')} ; son ${meilleur('son')}.
 Campagnes : ${Object.entries(camp).map(([t, [n, v]]) => `#${t} ${n} vidéos ${v} vues`).join(' ; ') || 'aucune'}`;
 }
+const SUGG = ['Pourquoi aujourd’hui est mieux ou moins bien qu’hier ?', 'À quelle heure je poste demain ?', 'Quelle vidéo je dois refaire ?', 'Combien je vais finir ce soir ?'];
 function assistant() {
-  const sugg = ['Pourquoi aujourd’hui est mieux ou moins bien qu’hier ?', 'À quelle heure je poste demain ?', 'Quelle vidéo je dois refaire ?', 'Combien je vais finir ce soir ?'];
+  const chat = chatDe(), ia = IA_OK(), sugg = SUGG;
   const restant = quota ?? RAW.assistant?.restant ?? 10;
+  if (!ia) { ouvrir(`<div class="grab"></div><div class="sheet-h"><h2>Assistant</h2><button class="x" type="button" data-close aria-label="Fermer">×</button></div>
+    <div class="chat" id="chat">${chat.length ? chat.map(m => `<div class="msg ${m.role === 'user' ? 'me' : 'ai'}">${esc(m.content)}</div>`).join('') : '<div class="msg ai">Choisis une question : je réponds avec tes chiffres du moment.</div>'}</div>
+    <div class="chips" style="flex-wrap:wrap">${sugg.map(s => `<button class="chip" type="button" data-sugg="${esc(s)}">${esc(s)}</button>`).join('')}</div>`, '', 'assistant'); $('#chat')?.lastElementChild?.scrollIntoView({ block: 'end' }); return; }
   ouvrir(`<div class="grab"></div><div class="sheet-h"><h2>Assistant</h2><button class="x" type="button" data-close aria-label="Fermer">×</button></div>
     <div class="chat" id="chat">${chat.length ? chat.map(m => `<div class="msg ${m.role === 'user' ? 'me' : 'ai'}">${esc(m.content)}</div>`).join('') : '<div class="msg ai">Pose-moi une question sur tes stats. Je réponds court, avec tes vrais chiffres.</div>'}</div>
     ${chat.length ? '' : `<div class="chips" style="flex-wrap:wrap">${sugg.map(s => `<button class="chip" type="button" data-sugg="${esc(s)}">${esc(s)}</button>`).join('')}</div>`}
     <form class="ask" id="askf"><input id="askq" placeholder="Ta question…" autocomplete="off" aria-label="Ta question"><button type="submit" id="asksend" ${restant <= 0 ? 'disabled' : ''}>Envoyer</button></form>
-    <div class="quota" id="quota">${restant > 0 ? restant + ' question' + (restant > 1 ? 's' : '') + " restante" + (restant > 1 ? 's' : '') + " aujourd'hui" : "Plus de questions pour aujourd'hui, reviens demain."}</div>`);
+    <div class="quota" id="quota">${restant > 0 ? restant + ' question' + (restant > 1 ? 's' : '') + " restante" + (restant > 1 ? 's' : '') + " aujourd'hui" : "Plus de questions pour aujourd'hui, reviens demain."}</div>`, '', 'assistant');
+  if (ENCOURS) { const b = $('#asksend'); if (b) b.disabled = true; }
   const c = $('#chat'); c.scrollIntoView({ block: 'end' });
 }
+// réponses sans IA : uniquement des calculs sur les chiffres affichés ailleurs dans l'appli
+function reponseLocale(q, A, C) {
+  const i = SUGG.indexOf(q);
+  if (i === 0) { if (C.ySame == null) return `Aujourd’hui : ${fmt(C.today)} vues. Je n’ai pas le relevé d’hier à la même heure, donc pas de comparaison sûre.`;
+    const d = C.today - C.ySame, star = A.videos.reduce((b, v) => v.gj > (b?.gj || 0) ? v : b, null);
+    return `Aujourd’hui ${fmt(C.today)} vues, contre ${fmt(Math.round(C.ySame))} hier à la même heure (${d >= 0 ? '+' : '−'}${k(Math.abs(d))}). ` + (star && C.today ? `Ta vidéo qui pousse le plus : « ${titreVid(star)} », ${k(star.gj)} vues aujourd’hui (${Math.round(100 * star.gj / C.today)} % du jour). ` : '') + `Postées aujourd’hui : ${C.duJour.length}.`; }
+  if (i === 1) { const F = heuresFortes(A, C), G = groupes(A, C, comparables(A, C, 30).vs), b = G.heure.filter(r => r.n >= MINI && r.m).sort((x, y) => y.m - x.m)[0];
+    return (F && F.size ? `Ton public regarde le plus vers ${[...F].sort((x, y) => x - y).map(h => h + 'h').join(', ')}. ` : '') + (b ? `Sur 30 jours, tes vidéos postées entre ${b.l} font le plus (${k(b.m)} vues habituelles, ${b.n} vidéos).` : 'Pas assez de vidéos pour dire quelle heure de post marche le mieux.'); }
+  if (i === 2) { const lim = C.now / 1000 - 14 * 86400, L = A.videos.filter(v => v.t >= lim && v.t <= C.now / 1000 - 86400 && !v.r).sort((a, b) => b.v - a.v), med = median(L.map(v => v.v));
+    return L[0] ? `« ${titreVid(L[0])} » : ${k(L[0].v)} vues, ta meilleure des 14 derniers jours${med ? ` (ta normale sur la période : ${k(med)})` : ''}. Refais-la avec une autre accroche, une autre coupe ou une partie 2.` : 'Pas encore de vidéo de plus de 24 h sur les 14 derniers jours.'; }
+  if (i === 3) return C.est ? `Au rythme habituel de tes journées, ≈ ${k(C.est)} vues ce soir${C.yTot ? ` (hier : ${k(C.yTot)})` : ''}. C’est une estimation, pas une garantie.` : `Pas d’estimation fiable pour l’instant (relevé partiel ou pas assez de jours complets). Pour l’instant : ${fmt(C.today)} vues.`;
+  return 'Choisis une des questions proposées.';
+}
 async function demander(q) {
-  q = q.trim(); if (!q) return;
-  const A = compteCourant(), C = calc(A);
-  chat.push({ role: 'user', content: q }); chat.push({ role: 'assistant', content: '…' }); assistant();
+  q = q.trim(); if (!q || ENCOURS) return; // une question à la fois
+  const A = compteCourant(), C = calc(A), chat = chatDe(), compte = ACC;
+  if (!IA_OK()) { chat.push({ role: 'user', content: q }, { role: 'assistant', content: reponseLocale(q, A, C) }); return assistant(); }
+  const rep_ = { role: 'assistant', content: '…' };
+  chat.push({ role: 'user', content: q }); chat.push(rep_); ENCOURS = true; assistant();
   const sys = `Tu es l'assistant stats TikTok d'un clippeur de l'agence Cyclom. Réponds en français simple, court (3 à 6 lignes), direct, avec ses vrais chiffres. Pas de longs conseils génériques. Si tu ne sais pas, dis-le.\n\nSES DONNÉES :\n${resume(A, C)}`;
-  const hist = chat.slice(0, -1).slice(-8);
+  let hist = chat.slice(0, -1).slice(-8); while (hist.length && hist[0].role !== 'user') hist = hist.slice(1); // tours complets
   let out = '';
   try {
     if (SITE) {
@@ -2626,7 +2724,8 @@ async function demander(q) {
       out = r.text; quota = Math.max(0, (quota ?? RAW.assistant?.restant ?? 10) - 1);
     }
   } catch (e) { out = (e && (e.message || e.code)) ? 'Impossible de répondre : ' + (e.message || e.code) : 'Impossible de répondre pour le moment.'; }
-  chat[chat.length - 1].content = out; if (!$('#sheet').hidden) assistant();
+  rep_.content = out; ENCOURS = false;
+  if (!$('#sheet').hidden && $('#sheet').dataset.kind === 'assistant' && ACC === compte) assistant(); // jamais à la place d'une autre fenêtre
 }
 
 // ---------- Rendu principal ----------
@@ -2660,7 +2759,8 @@ const OUVERTS = new Set((() => { try { return JSON.parse(localStorage.getItem('c
 function replier() {
   if (!matchMedia('(max-width:959px)').matches) return;
   const main = $('#main');
-  let premier = VIEW === 'creneaux'; // Analyse : la 1re section du sous-onglet reste ouverte (sinon la page paraît vide)
+  if (VIEW === 'creneaux') return; // Analyse (26/11) : tout ouvert, façon Studio
+  let premier = false;
   for (const s of main.querySelectorAll('section.sec')) {
     const h = s.querySelector(':scope > .sec-h'), t = h?.querySelector('h2')?.textContent.trim();
     if (!t || s.classList.contains('login') || s.classList.contains('garde')) continue;
@@ -2741,7 +2841,7 @@ function rendreDoux(avant) {
   b.style.transition = 'color .6s'; requestAnimationFrame(pas);
 }
 function go(v, haut) { if (v === VIEW && !haut) { if (v === 'direct' && st.jour) { st.jour = null; st.hourSel = null; render(); } window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
-  SCROLL[VIEW] = window.scrollY; VIEW = v; save(); render(); window.scrollTo({ top: haut ? 0 : SCROLL[v] || 0 }); }
+  SCROLL[VIEW] = window.scrollY; VIEW = v; save(); if (!RETOUR) pousser({ v, f: 0 }); render(); window.scrollTo({ top: haut ? 0 : SCROLL[v] || 0 }); }
 
 document.addEventListener('click', e => {
   const hr = e.target.closest('[data-hour]'); if (hr) { const h = +hr.getAttribute('data-hour'); st.hourSel = st.hourSel === h ? null : h; return render(); }
@@ -2751,7 +2851,7 @@ document.addEventListener('click', e => {
   if (t.hasAttribute('data-podium')) { const s = t.closest('.course'), o = s.classList.toggle('tout'); t.textContent = o ? 'Réduire le classement' : 'Voir tout le classement'; return; }
   if (t.hasAttribute('data-close') && (t.classList.contains('x') || e.target === t)) return fermer();
   if (t.classList.contains('tab')) return go(t.dataset.v);
-  if (t.dataset.acc) { ACC = t.dataset.acc; save(); return render(); }
+  if (t.dataset.acc) { if (t.dataset.acc !== ACC) Object.assign(st, { q: '', flt: '', jour: null, hourSel: null, slotSel: null, shown: 60 }); ACC = t.dataset.acc; save(); return render(); } // NAV-03 : un compte n'hérite pas des filtres de l'autre
   if (t.id === 'addAcc') return ajouterCompte();
   if (t.id === 'gear') { if (!RAW) return; return mesComptes(); }
   if (t.hasAttribute('data-webout')) { try { localStorage.removeItem('cs_cle'); } catch (x) {} location.reload(); return; }
@@ -2911,9 +3011,10 @@ async function lireWeb(cle) {
   let gz; try { gz = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: bin.slice(0, 12) }, cle, bin.slice(12)); } catch (e) { throw { code: 'mdp' }; }
   const txt = await new Response(new Blob([gz]).stream().pipeThrough(new DecompressionStream('gzip'))).text();
   const P = JSON.parse(txt), avant = RAW;
+  if (!P || !P.live || typeof P.live !== 'object' || !P.live.items) throw { code: 'reseau' }; // paquet abîmé : on garde ce qui est affiché
   if (avant && P.live.updated < avant.maj) return;
   COV = P.covers || {}; CLASSEMENT = P.classement || null; CAMPINFO = P.campagnes || null; RAW = convertir(P.live);
-  if (!avant || ($('#sheet').hidden && document.activeElement?.id !== 'q')) rendreDoux(avant); else fraicheur();
+  if (!avant || ($('#sheet').hidden && document.activeElement?.id !== 'q')) rendreDoux(avant); else { A_RENDRE = true; fraicheur(); }
 }
 function ecranMdp(msg) {
   $('#main').innerHTML = `<form class="card sec login" id="loginf"><h2>Accès au dashboard</h2>
@@ -2928,7 +3029,7 @@ async function chargerWeb() {
   if (!cle) return ecranMdp();
   try { await lireWeb(cle); }
   catch (e) { if (e?.code === 'mdp') { try { localStorage.removeItem('cs_cle'); } catch (x) {} return ecranMdp('Le mot de passe a changé : tape le nouveau.'); }
-    if (!RAW) $('#main').innerHTML = `<div class="warnbox">Les données ne répondent pas pour l’instant. Nouvel essai dans 1 minute.</div>`; }
+    if (!RAW) $('#main').innerHTML = `<div class="warnbox">Les données ne répondent pas pour l’instant. Nouvel essai dans 2 minutes.</div>`; }
   clearInterval(chargerWeb.t); chargerWeb.t = setInterval(() => lireWeb(cle).catch(() => {}), 120000);
 }
 document.addEventListener('submit', async e => {
@@ -2945,9 +3046,11 @@ async function charger() {
   try {
     const r = await fetch(API ? API + (AGENCE ? '?tous=1' : '') : 'demo.json', { cache: 'no-store', credentials: 'same-origin' });
     if (r.status === 401 && SITE) { location.href = '/connexion'; return; }
-    const avant = RAW; RAW = await r.json();
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const nv = await r.json(); if (!nv || !Array.isArray(nv.comptes) || !nv.comptes.every(a => a && a.id != null && Array.isArray(a.videos))) throw new Error('données invalides');
+    const avant = RAW; RAW = nv;
     clearTimeout(charger.t); if ((RAW.en_attente || []).length || !RAW.comptes.length) charger.t = setTimeout(charger, 15000);
-    if (avant && (!$('#sheet').hidden || document.activeElement?.id === 'q')) { fraicheur(); return; } // ne jamais casser ce que la personne fait
+    if (avant && (!$('#sheet').hidden || document.activeElement?.id === 'q')) { A_RENDRE = true; fraicheur(); return; } // ne jamais casser ce que la personne fait
     rendreDoux(avant);
   } catch (e) { if (!RAW) $('#main').innerHTML = `<div class="warnbox">Impossible de charger tes stats. Vérifie ta connexion, on réessaie tout seul.</div>`; clearTimeout(charger.t); charger.t = setTimeout(charger, 20000); }
 }
@@ -3160,10 +3263,10 @@ const MV = (() => {
 
   // ---------- 4. Feuille du bas ----------
   const _ouvrir = ouvrir, _fermer = fermer;
-  ouvrir = function (html, vid) {
+  ouvrir = function (html, vid, kind) {
     const s = $('#sheet'), f = document.querySelector('.mv-fantome'), recent = f && performance.now() - (MV.tf || 0) < 150;
     const deja = !s.hidden || recent, ancien = s.dataset.vid; if (recent) f.remove();
-    _ouvrir(html, vid);
+    _ouvrir(html, vid, kind);
     const bg = s.firstElementChild; if (!bg || !deja) return;
     bg.classList.add('mv-deja'); // déjà ouverte : on change juste le contenu, sans refaire monter la feuille
     const i = CTX.indexOf(ancien), j = CTX.indexOf(vid);
@@ -3394,6 +3497,7 @@ const NV = (() => {
   return { duo, infosSerie, FLAMME, recap, alerte };
 })();
 if (location.hostname === '127.0.0.1') window.__nv = { NV, compteCourant, raw: () => RAW, vider: () => PAGES.m.clear() }; // tests locaux seulement
+if (location.hostname === '127.0.0.1') window.__t = { vue: () => VIEW, ORDRE, injecter: f => { RAW = f(RAW); A_RENDRE = true; } }; // tests de l'audit (local seulement)
 
 // ===== ALERTES DU SITE (Web Push, 24/11) : un bouton, le téléphone demande « Autoriser ? », c'est tout. Seulement avec le serveur (SITE). =====
 const AL = (() => {
@@ -3672,7 +3776,7 @@ const SP = (() => {
     const b = e.target.closest('[data-fm]'); if (b) { e.stopPropagation(); e.preventDefault(); const dans = !!b.closest('.sp'); fiche(b.dataset.fm); if (dans) $('#sheet .sheet')?.classList.add('sp-sans-anim'); return; }
     const p = e.target.closest('[data-fper]'); if (p && p.closest('.sp')) { e.stopPropagation(); per = +p.dataset.fper; const y = $('#sheet .sheet')?.scrollTop; fiche(); const s = $('#sheet .sheet'); if (s) { s.classList.add('sp-sans-anim'); s.scrollTop = y || 0; } }
   }, true);
-  return { fiche, jours };
+  return { fiche, jours, trace };
 })();
 if (location.hostname === '127.0.0.1' || location.hostname === 'localhost') window.__sp = SP;
 
