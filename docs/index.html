@@ -1525,6 +1525,34 @@ html.neon.studio .an-nm>div:first-child b{color:var(--fg)!important}
 html.neon.studio .mot{background:var(--s2)!important;box-shadow:none!important}
 html.neon.studio .say{color:var(--fg2)!important}
 html.neon.studio #cs-toast{background:#25272c!important;box-shadow:none!important}
+
+/* ===== LIQUID GLASS discret (Jawed 26/11 : « aucun rendu glassy, mets-en mais pas fort ») — look néon seulement =====
+   Verre = flou de ce qui est derrière + léger dégradé clair en haut à gauche + reflet fin sur le bord du haut + filet clair + ombre douce.
+   Un seul niveau de flou (les éléments imbriqués n'en remettent pas). Le fond garde 2 lueurs FIXES (pas d'animation) pour que le verre ait quelque chose à réfracter. */
+html.neon:not(.studio) .n-lueur.b{display:block!important;animation:none!important;opacity:.9}
+html.neon:not(.studio) :is(.card,.hero,.sec.pliable:not(.ouvert),.camps .camp,.course,.nv-w,.tile,.widget,.oeil-t,.sm,.an-rc,.cp-liste,.ins,.an-kpi,.warnbox,.slot){
+  background:linear-gradient(155deg,rgba(255,255,255,.085) 0%,rgba(255,255,255,.03) 34%,rgba(255,255,255,.012) 100%),rgba(16,30,64,.38)!important;
+  backdrop-filter:blur(20px) saturate(1.5)!important;-webkit-backdrop-filter:blur(20px) saturate(1.5)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.16),inset 0 0 0 .5px rgba(190,215,255,.16),inset 0 -1px 0 rgba(0,0,0,.2),0 12px 32px -20px rgba(0,0,0,.75)!important;border:0!important}
+html.neon:not(.studio) :is(.card,.ins,.an-kpi,.cp-liste,.sheet) :is(.tile,.sm,.card,.slot,.an-rc,.in,.an-kpi>*){backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+html.neon:not(.studio) :is(.card,.sheet) :is(.tile,.sm,.card,.slot){background:rgba(255,255,255,.04)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.08),inset 0 0 0 .5px rgba(190,215,255,.1)!important}
+html.neon:not(.studio) .an-kpi>*{background:rgba(16,30,64,.25)!important}
+/* contrôles : petites pastilles de verre */
+html.neon:not(.studio) :is(.chip,.acct,.gear,.fab,.mot,.more,.segw:not(.seg2)){
+  backdrop-filter:blur(16px) saturate(1.5)!important;-webkit-backdrop-filter:blur(16px) saturate(1.5)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.14),inset 0 0 0 .5px rgba(190,215,255,.16)!important}
+html.neon:not(.studio) :is(.chip,.gear,.fab,.mot,.more){background:linear-gradient(160deg,rgba(255,255,255,.1),rgba(255,255,255,.035))!important}
+html.neon:not(.studio) .segw:not(.seg2){background:linear-gradient(160deg,rgba(255,255,255,.08),rgba(255,255,255,.02)),rgba(8,18,44,.86)!important}
+html.neon:not(.studio) .segw button[aria-selected="true"]{box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 4px 14px -6px rgba(0,0,0,.6)!important}
+/* en-tête et barre du bas : verre plus dense (on lit ce qui est dessus, pas ce qui passe dessous) */
+html.neon:not(.studio) .top{background:linear-gradient(180deg,rgba(6,14,36,.78),rgba(6,14,36,.66))!important;backdrop-filter:blur(26px) saturate(1.6)!important;-webkit-backdrop-filter:blur(26px) saturate(1.6)!important;
+  box-shadow:inset 0 -.5px 0 rgba(190,215,255,.16)!important;border-bottom:0!important}
+@media (max-width:959px){html.neon:not(.studio) .tabs{background:linear-gradient(165deg,rgba(255,255,255,.1),rgba(255,255,255,.03) 45%),rgba(6,14,36,.72)!important;
+  backdrop-filter:blur(26px) saturate(1.7)!important;-webkit-backdrop-filter:blur(26px) saturate(1.7)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.2),inset 0 0 0 .5px rgba(190,215,255,.2),0 18px 40px -12px rgba(0,0,0,.8)!important}}
+html.neon:not(.studio) .sheet{background:linear-gradient(170deg,rgba(255,255,255,.07),rgba(255,255,255,.015) 40%),rgba(10,22,52,.9)!important;
+  backdrop-filter:blur(30px) saturate(1.6)!important;-webkit-backdrop-filter:blur(30px) saturate(1.6)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 -30px 80px rgba(0,0,0,.5)!important}
+@media (prefers-reduced-transparency:reduce){html.neon:not(.studio) *{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}}
 </style>
 
 <header class="top">
