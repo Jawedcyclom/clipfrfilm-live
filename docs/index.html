@@ -3224,6 +3224,31 @@ document.addEventListener('keydown', e => {
   const sv = $('#sheet').dataset.vid; if (!sv || !['ArrowLeft', 'ArrowRight'].includes(e.key)) return;
   const i = CTX.indexOf(sv) + (e.key === 'ArrowRight' ? 1 : -1); if (CTX[i]) { e.preventDefault(); ficheVideo(CTX[i]); } });
 
+// ---------- TOUT LE DASHBOARD = VIDÉOS #CYCLOM SEULEMENT (Jawed 27/11 : « sinon c'est rejeté ») ----------
+// Les vidéos sans hashtag contenant « cyclom » sont retirées, et leurs vues sont ôtées des totaux du compte
+// (jour par jour avec vd, heure par heure avec vh). Abonnés = chiffre du compte, impossible à séparer.
+function seulCyclom(R) {
+  if (!R || !Array.isArray(R.comptes)) return R;
+  const P = pz(Date.now());
+  for (const a of R.comptes) {
+    const hors = (a.videos || []).filter(v => !estCyclom(v)); if (!hors.length) continue;
+    a.videos = a.videos.filter(estCyclom);
+    const Q = a.quotidien || {}, H = a.horaire || {}; let auj = 0, hre = 0;
+    for (const v of hors) {
+      if (v.vd) { const ks = Object.keys(v.vd).sort(), jp = pz(v.t * 1000).day;
+        ks.forEach((d, i) => { const g = v.vd[d] - (i ? v.vd[ks[i - 1]] : d === jp ? 0 : v.vd[d]); if (!(g > 0)) return;
+          if (Q[d]?.g != null) Q[d].g = Math.max(0, Q[d].g - g); if (d === P.day) auj += g; }); }
+      if (Array.isArray(v.vh)) v.vh.forEach((x, i) => { if (!i) return; const g = x[1] - v.vh[i - 1][1]; if (!(g > 0)) return;
+        const kk = pz(x[0]).key; if (H[kk] != null) H[kk] = Math.max(0, H[kk] - g); if (kk === P.key) hre += g; });
+      if (a.vues_total != null) a.vues_total = Math.max(0, a.vues_total - (v.v || 0));
+    }
+    if (a.nb_videos != null) a.nb_videos = a.videos.length;
+    if (a.jour?.gained != null) a.jour = { ...a.jour, gained: Math.max(0, a.jour.gained - auj) };
+    if (a.heure?.gained != null) a.heure = { ...a.heure, gained: Math.max(0, a.heure.gained - hre) };
+  }
+  return R;
+}
+
 // ---------- Mode Drive (dashboard perso) ----------
 function convertir(d) {
   const gj = Object.fromEntries(d.top_today?.list || []), gh = Object.fromEntries(d.rising?.list || []);
@@ -3238,10 +3263,10 @@ function convertir(d) {
   for (const [kk, x] of Object.entries(d.daily || {})) { if (!x.g && Q[kk]) continue;
     Q[kk] = { g: x.g || 0, f: x.f ?? Q[kk]?.f, l: x.l0 != null ? x.l - x.l0 : Q[kk]?.l, c: x.c0 != null ? x.c - x.c0 : Q[kk]?.c, s: x.s0 != null ? x.s - x.s0 : Q[kk]?.s }; }
   const H = {}; for (const [kk, x] of Object.entries(d.hourly || {})) H[kk] = x.g || 0;
-  return { maj: d.updated, moi: { nom: 'Jawed', admin: true }, assistant: { restant: 30, max: 30 },
+  return seulCyclom({ maj: d.updated, moi: { nom: 'Jawed', admin: true }, assistant: { restant: 30, max: 30 },
     campagnes: [{ tag: 'cyclomxdjadelshow', nom: 'Djadel Show' }, { tag: 'cyclomxdeja', nom: 'Ilyes Djadel — Déjà' }, { tag: 'cyclomxmdr', nom: 'MDR' }, { tag: 'cyclomxredouane', nom: 'Redouane Bougheraba' }, { tag: 'cyclomxkraken', nom: 'Kraken' }],
     comptes: [{ id: 'clipfrfilm', user: 'clipfrfilm', abonnes: d.followers, likes: d.hearts, nb_videos: d.tracked, vues_total: d.total,
-      jour: d.today, heure: d.hour, abonnes_jour: d.followers_day, horaire: H, quotidien: Q, videos }] };
+      jour: d.today, heure: d.hour, abonnes_jour: d.followers_day, horaire: H, quotidien: Q, videos }] });
 }
 const DRIVE_ERR = { server_not_connected: 'Google Drive n’est pas connecté : ajoute-le dans claude.ai, Paramètres, Connecteurs.', needs_reauth: 'La connexion Google Drive a expiré : reconnecte-la dans claude.ai, Paramètres, Connecteurs.',
   not_granted: 'Autorise la page à lire Google Drive pour voir tes stats.', approval_required: 'Autorise la page à lire Google Drive pour voir tes stats.', no_file: 'Fichier de stats introuvable sur Google Drive.' };
@@ -3347,7 +3372,7 @@ async function charger() {
     if (!r.ok) throw new Error('HTTP ' + r.status);
     const nv = await r.json(); if (!nv || !Array.isArray(nv.comptes) || !nv.comptes.every(a => a && a.id != null && Array.isArray(a.videos))) throw new Error('données invalides');
     if (n !== charger.n) return; // réponse dépassée par une plus récente
-    const avant = RAW; RAW = nv;
+    const avant = RAW; RAW = seulCyclom(nv);
     clearTimeout(charger.t); if ((RAW.en_attente || []).length || !RAW.comptes.length) charger.t = setTimeout(charger, 15000);
     if (avant && (!$('#sheet').hidden || document.activeElement?.id === 'q')) { A_RENDRE = true; fraicheur(); return; } // ne jamais casser ce que la personne fait
     rendreDoux(avant);
