@@ -848,6 +848,7 @@ button,a,[role="button"],.sec.pliable{-webkit-touch-callout:none}
 .nv-sem i.on{background:#ff8a3d;border-color:#ff8a3d;color:#1b0b00}
 .nv-sem i.auj:not(.on){border-color:#ffb547;color:#ffb547}
 .nv-sem i.fut{opacity:.35}
+.nv-sem i.mi,.nv-cal i.mi{background:linear-gradient(0deg,rgba(255,138,61,.55) 50%,transparent 50%);border-color:rgba(255,138,61,.6)}
 @media (max-width:380px){.nv-sem i{width:15px;height:15px;font-size:8.5px;border-radius:5px}.nv-big b{font-size:30px}}
 .acct.nv-chip{display:inline-flex;align-items:center;gap:4px;font:800 14px var(--display);font-variant-numeric:tabular-nums;padding-left:10px;padding-right:12px}
 .acct.nv-chip .flamme{width:18px;height:18px}
@@ -1880,8 +1881,13 @@ function course(A, C, mode) {
 // série : jours d'affilée avec au moins une vidéo postée (aujourd'hui compte s'il y en a déjà une)
 // jour qui compte pour la série : le VRAI jour (relevé d'hier encore affiché après minuit → aujourd'hui n'a encore rien)
 const jourSerie = C => { const r = pz(Date.now()).day; return r > C.P.day ? r : C.P.day; };
+// Jawed 27/11 : pousser à poster PLUSIEURS vidéos par jour → un jour ne compte pour la série qu'avec au moins MIN_JOUR vidéos
+const MIN_JOUR = 3;
+const parJour = A => { const m = new Map(); for (const v of A.videos) { const d = pz(v.t * 1000).day; m.set(d, (m.get(d) || 0) + 1); } return m; };
+const joursPleins = A => new Set([...parJour(A)].filter(([, n]) => n >= MIN_JOUR).map(([d]) => d));
+const pluriel = (n, m) => n + ' ' + m + (n > 1 ? 's' : '');
 function serie(A, C) {
-  const jours = new Set(A.videos.map(v => pz(v.t * 1000).day)), J0 = jourSerie(C); let d = jours.has(J0) ? J0 : addJour(J0, -1), n = 0;
+  const jours = joursPleins(A), J0 = jourSerie(C); let d = jours.has(J0) ? J0 : addJour(J0, -1), n = 0;
   while (jours.has(d) && n < 999) { n++; d = addJour(d, -1); } return n;
 }
 
@@ -2013,7 +2019,7 @@ function coupOeil(A, C) {
   else tP = `<div class="oeil-t"><span class="oeil-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18l5-6 4 3 7-9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><b class="num">${C.est && !C.partiel ? '≈ ' + k(C.est) : '—'}</b><small>vues prévues ce soir</small></div>`;
   let tS = '';
   try { const S = NV.infosSerie(A, C);
-    tS = `<button class="oeil-t feu ${S.auj ? 'ok' : 'danger'}" type="button" data-serie aria-label="Ta série : ${S.n} jours"><span class="oeil-ic">${!S.n && A.videos[0] ? '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7.5V12l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>' : NV.FLAMME}</span>${!S.n && A.videos[0] ? `<b class="num">${Math.floor((C.now / 1000 - A.videos[0].t) / 3600)}\u00a0h</b><small>sans poster</small>` : `<b class="num">${S.n} j</b><small>${S.auj ? 'série gardée' : 'poste avant minuit'}</small>`}</button>`; }
+    tS = `<button class="oeil-t feu ${S.auj ? 'ok' : 'danger'}" type="button" data-serie aria-label="Ta série : ${S.n} jours"><span class="oeil-ic">${!S.n && A.videos[0] && !S.postAuj ? '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7.5V12l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>' : NV.FLAMME}</span>${!S.n && A.videos[0] && !S.postAuj ? `<b class="num">${Math.floor((C.now / 1000 - A.videos[0].t) / 3600)}\u00a0h</b><small>sans poster</small>` : `<b class="num">${S.n} j</b><small>${S.auj ? 'série gardée' : `${S.postAuj}/${MIN_JOUR} · encore ${S.reste}`}</small>`}</button>`; }
   catch (e) { tS = `<button class="oeil-t feu" type="button" data-serie><b class="num">${serie(A, C)} j</b><small>Série</small></button>`; }
   return `<section class="oeil" aria-label="Coup d’œil"><p class="oeil-j">${jour}${C.partiel ? ' · relevé partiel' : ''}</p>
     <button class="oeil-big" type="button" data-fm="g" style="--r:${C.yTot ? Math.min(1, C.today / C.yTot).toFixed(3) : 0}" data-r="${C.yTot ? Math.round(100 * C.today / C.yTot) : ""}" aria-label="Détail des vues"><b class="num">${fmt(C.today)}</b><span>vues ›</span></button>${delta ? delta.replace('</p>', (hier ? ' · ' + hier : '') + '</p>') : hier ? `<p class="oeil-d">${hier}</p>` : ''}
@@ -2055,8 +2061,8 @@ function vDirect(A, C) {
   h += `<div class="tiles">
     <button class="tile" type="button" data-fm="h"><span>Vues · 1 h</span><b class="num">${A.heure?.gained != null ? '+' + k(A.heure.gained) : '—'}</b></button>
     <button class="tile" type="button" data-fm="f"><span>Abonnés</span><b class="num ${A.abonnes_jour > 0 ? 'up' : ''}">${A.abonnes_jour != null ? (A.abonnes_jour >= 0 ? '+' : '') + fmt(A.abonnes_jour) : '—'}</b><small class="muted">${k(A.abonnes)} total</small></button>
-    ${nb ? `<button class="tile" type="button" data-fm="p"><span>Postées</span><b class="num">${nb}</b><small class="muted">${(() => { const sr = serie(A, C); return sr >= 2 ? `série ${sr} j` : ''; })()}</small></button>`
-      : `<button class="tile" type="button" data-fm="p"><span>Postées</span><b class="num">0</b><small class="muted">rien aujourd’hui</small></button>`}
+    ${nb ? `<button class="tile" type="button" data-fm="p"><span>Postées</span><b class="num" style="white-space:nowrap">${nb}<span style="font-size:.5em;opacity:.6;font-weight:600"> / ${MIN_JOUR}</span></b><small class="muted">${nb >= MIN_JOUR ? (() => { const sr = serie(A, C); return sr >= 2 ? `série ${sr} j` : 'minimum atteint'; })() : `encore ${MIN_JOUR - nb}`}</small></button>`
+      : `<button class="tile" type="button" data-fm="p"><span>Postées</span><b class="num" style="white-space:nowrap">0<span style="font-size:.5em;opacity:.6;font-weight:600"> / ${MIN_JOUR}</span></b><small class="muted">minimum ${MIN_JOUR} par jour</small></button>`}
     <button class="tile" type="button" data-fm="l"><span>Likes</span><b class="num">${Q.l != null ? '+' + k(Q.l) : '—'}</b></button>
     <button class="tile" type="button" data-fm="s"><span>Partages</span><b class="num">${Q.s != null ? '+' + k(Q.s) : '—'}</b></button>
     ${(() => { const G = gains(A); return G ? `<button class="tile" type="button" data-go="campagnes" style="text-align:left"><span>Gagné</span><b class="num" style="color:var(--gold)">${eur(G.auj)}</b></button>`
@@ -2872,7 +2878,7 @@ function resume(A, C) {
   return `Compte(s) : @${A.user}. Abonnés ${A.abonnes}. ${A.nb_videos} vidéos, ${A.vues_total} vues au total.
 Aujourd'hui (${C.P.hour}h) : ${C.today} vues, hier à la même heure ${Math.round(C.ySame ?? 0)}, estimation fin de journée ${Math.round(C.est ?? 0)}, ${C.duJour.length} vidéos postées, abonnés +${A.abonnes_jour ?? '?'}.
 Vidéo normale : ~${Math.round(C.normal ?? 0)} vues.
-Objectif du jour : ${objectif(A, C) ? Math.round(objectif(A, C).v) : '?'} vues. Série : ${serie(A, C)} jours d'affilée avec une vidéo postée.
+Objectif du jour : ${objectif(A, C) ? Math.round(objectif(A, C).v) : '?'} vues. Série : ${serie(A, C)} jours d'affilée avec au moins ${MIN_JOUR} vidéos postées (règle : ${MIN_JOUR} par jour minimum, pousser au volume).
 Gains estimés (tarifs du clippeur) : ${(() => { const G = gains(A); return G ? Math.round(G.auj * 100) / 100 + ' € aujourd\'hui, ' + Math.round(G.tot) + ' € au total' : 'tarifs non renseignés'; })()}.
 Vidéos peut-être bloquées (moins de 15 % des vues habituelles) : ${A.videos.filter(v => C.suspecte(v)).length}.
 Meilleures vidéos du jour :\n${top.join('\n') || 'aucune'}
@@ -3635,31 +3641,31 @@ const NV = (() => {
 
   // ---------- SÉRIE ----------
   function infosSerie(A, C) {
-    const J0 = jourSerie(C), jours = new Set(A.videos.map(v => pz(v.t * 1000).day)), n = serie(A, C), auj = jours.has(J0);
+    const J0 = jourSerie(C), PJ = parJour(A), jours = joursPleins(A), n = serie(A, C), auj = jours.has(J0), postAuj = PJ.get(J0) || 0, reste = Math.max(0, MIN_JOUR - postAuj);
     let rec = 0, cur = 0; for (const d of [...jours].sort()) { cur = jours.has(addJour(d, -1)) ? cur + 1 : 1; if (cur > rec) rec = cur; }
     const wd = (new Date(+J0.slice(0, 4), +J0.slice(4, 6) - 1, +J0.slice(6, 8)).getDay() + 6) % 7, lundi = addJour(J0, -wd);
-    const sem = Array.from({ length: 7 }, (_, i) => { const d = addJour(lundi, i); return { d, l: 'LMMJVSD'[i], ok: jours.has(d), auj: d === J0, futur: d > J0 }; });
+    const sem = Array.from({ length: 7 }, (_, i) => { const d = addJour(lundi, i); return { d, l: 'LMMJVSD'[i], ok: jours.has(d), mi: !jours.has(d) && PJ.has(d), auj: d === J0, futur: d > J0 }; });
     const nbSem = d0 => A.videos.filter(v => { const d = pz(v.t * 1000).day; return d >= d0 && d <= addJour(d0, 6); }).length;
     const passees = [1, 2, 3].map(w => nbSem(addJour(lundi, -7 * w))).filter(x => x > 0), base = passees.length ? Math.ceil(median(passees) * 1.05) : null;
-    const obj = base ? Math.max(7, base) : 14, fait = nbSem(lundi);
-    const pourquoi = !base ? '2 par jour pour démarrer' : base >= 7 ? 'ton rythme habituel + 5 %' : '1 par jour minimum';
-    return { n, auj, rec, sem, obj, fait, pourquoi, jour: J0, lundi };
+    const obj = Math.max(MIN_JOUR * 7, base || 0), fait = nbSem(lundi);
+    const pourquoi = base && base > MIN_JOUR * 7 ? 'ton rythme habituel + 5 %' : MIN_JOUR + ' par jour minimum';
+    return { n, auj, rec, sem, obj, fait, pourquoi, jour: J0, lundi, postAuj, reste };
   }
   function widgetSerie(A, C) {
     const S = infosSerie(A, C);
     return `<button class="nv-w nv-serie ${S.auj ? 'ok' : S.n ? 'danger' : ''}" type="button" data-serie>
       <span class="nv-lbl">Ta série</span>
       <span class="nv-big">${FLAMME}<b class="num">${S.n}</b><small>${S.n > 1 ? 'jours' : 'jour'}</small></span>
-      <span class="nv-sem">${S.sem.map(x => `<i class="${x.ok ? 'on' : ''} ${x.auj ? 'auj' : ''} ${x.futur ? 'fut' : ''}">${x.l}</i>`).join('')}</span>
-      <span class="nv-sub">${S.auj ? 'Gardée aujourd’hui' : S.n ? 'Poste aujourd’hui pour la garder' : 'Poste une vidéo pour la lancer'}</span></button>`;
+      <span class="nv-sem">${S.sem.map(x => `<i class="${x.ok ? 'on' : x.mi ? 'mi' : ''} ${x.auj ? 'auj' : ''} ${x.futur ? 'fut' : ''}">${x.l}</i>`).join('')}</span>
+      <span class="nv-sub">${S.auj ? `Gardée · ${S.postAuj} vidéos aujourd’hui` : `<b>${S.postAuj}/${MIN_JOUR}</b> · encore ${pluriel(S.reste, 'vidéo')} pour la ${S.n ? 'garder' : 'lancer'}`}</span></button>`;
   }
   function ficheSerie() {
     const A = compteCourant(), C = calc(A), S = infosSerie(A, C), p = Math.min(100, S.fait / S.obj * 100);
-    const jours = new Set(A.videos.map(v => pz(v.t * 1000).day)), debut = addJour(S.lundi, -21);
-    const cal = Array.from({ length: 28 }, (_, i) => { const d = addJour(debut, i); return `<i class="${jours.has(d) ? 'on' : ''} ${d === S.jour ? 'auj' : ''} ${d > S.jour ? 'fut' : ''}" title="${dayLabel(d)}"></i>`; }).join('');
+    const jours = joursPleins(A), PJ = parJour(A), debut = addJour(S.lundi, -21);
+    const cal = Array.from({ length: 28 }, (_, i) => { const d = addJour(debut, i); return `<i class="${jours.has(d) ? 'on' : PJ.has(d) ? 'mi' : ''} ${d === S.jour ? 'auj' : ''} ${d > S.jour ? 'fut' : ''}" title="${dayLabel(d)}"></i>`; }).join('');
     ouvrir(`<div class="grab"></div><div class="sheet-h"><h2>Ta série</h2><button class="x" type="button" data-close aria-label="Fermer">×</button></div>
       <div class="nv-fs ${S.auj ? 'ok' : S.n ? 'danger' : ''}">${FLAMME}<b class="num">${S.n}</b><span>${S.n > 1 ? 'jours d’affilée' : S.n ? 'jour' : 'pas de série en cours'}</span></div>
-      <p class="say" style="max-width:none">${S.auj ? 'Tu as posté aujourd’hui : ta série continue demain.' : S.n ? `<b>Poste avant minuit</b> pour passer à ${S.n + 1} jours. Sinon la série repart de zéro.` : 'Poste aujourd’hui pour démarrer une série.'}${S.rec ? ` Ton record : <b>${S.rec} jour${S.rec > 1 ? 's' : ''}</b>.` : ''}</p>
+      <p class="say" style="max-width:none">${S.auj ? `${S.postAuj} vidéos aujourd’hui : ta série continue demain. Chaque vidéo en plus, c’est un ticket de plus.` : S.n ? `<b>Encore ${pluriel(S.reste, 'vidéo')} avant minuit</b> pour passer à ${S.n + 1} jours. Sinon la série repart de zéro.` : `Poste <b>${pluriel(S.reste, 'vidéo')}</b> aujourd’hui pour lancer ta série.`} Un jour compte à partir de <b>${MIN_JOUR} vidéos</b>.${S.rec ? ` Ton record : <b>${S.rec} jour${S.rec > 1 ? 's' : ''}</b>.` : ''}</p>
       <div class="nv-obj"><div class="nv-obj-h"><span>Objectif de la semaine</span><b class="num">${S.fait} / ${S.obj} vidéos</b></div><span class="tr"><i style="width:${p.toFixed(1)}%"></i></span>
         <small class="muted">${S.fait >= S.obj ? 'Objectif atteint, bien joué.' : `Encore ${S.obj - S.fait} cette semaine (${S.pourquoi}).`}</small></div>
       <div class="nv-cal-h"><span>4 dernières semaines</span><span class="muted">L M M J V S D</span></div><div class="nv-cal">${cal}</div>`);
